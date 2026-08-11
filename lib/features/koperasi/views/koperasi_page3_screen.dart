@@ -1,0 +1,246 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:bkj_app/core/components/components.dart';
+import 'package:bkj_app/core/routing/app_routes.dart';
+import 'package:bkj_app/core/theme/app_theme.dart';
+import 'package:bkj_app/core/utils/app_constants.dart';
+import 'package:bkj_app/core/utils/app_formatters.dart';
+import 'package:bkj_app/features/koperasi/viewmodels/koperasi_viewmodel.dart';
+
+/// Koperasi — Page 3: Additional services (Haulage, LOLO, dll)
+class KoperasiPage3Screen extends StatefulWidget {
+  const KoperasiPage3Screen({super.key});
+
+  @override
+  State<KoperasiPage3Screen> createState() => _KoperasiPage3ScreenState();
+}
+
+class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
+  final _formKey = GlobalKey<FormState>();
+
+  void _handleSubmit() async {
+    final vm = context.read<KoperasiViewModel>();
+
+    if (vm.selectedServices.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Silakan pilih minimal 1 layanan tambahan.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (vm.isServiceSelected(AppConstants.serviceHaulage) &&
+        (vm.haulageFileName == null || vm.haulageFileName!.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Silakan upload dokumen untuk layanan Haulage.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (vm.isServiceSelected(AppConstants.serviceTBKM) &&
+        vm.tbkmOption == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Silakan pilih opsi untuk layanan TBKM.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (_formKey.currentState!.validate()) {
+      final success = await vm.submitOrder();
+      if (!mounted) return;
+      if (success) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const _SuccessDialog(),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vm.errorMessage ?? 'Terjadi kesalahan.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = context.watch<KoperasiViewModel>();
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Order Koperasi'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: FormPageWrapper(
+        formKey: _formKey,
+        bottomBar: FormNavigationBar(
+          onBack: () => Navigator.pop(context),
+          onNext: _handleSubmit,
+          nextLabel: 'Submit Order',
+          isLoading: vm.isSubmitting,
+        ),
+        children: [
+          FormStepIndicator(
+            currentStep: 3,
+            totalSteps: AppConstants.totalStepsKoperasi,
+            stepLabel: 'Layanan Tambahan',
+          ),
+          const SizedBox(height: 4),
+          const FormInfoBanner(
+            message: 'Pilih layanan tambahan yang diperlukan. '
+                'Beberapa layanan memerlukan dokumen tambahan.',
+          ),
+          
+          SectionCard(
+            title: 'Daftar Layanan',
+            icon: Icons.add_task_outlined,
+            children: [
+              ServiceCheckboxTile(
+                serviceKey: AppConstants.serviceHaulage,
+                label: 'Haulage',
+                description: 'Layanan pemindahan peti kemas',
+                icon: Icons.local_shipping_outlined,
+                isSelected:
+                    vm.isServiceSelected(AppConstants.serviceHaulage),
+                onToggle: () =>
+                    vm.toggleService(AppConstants.serviceHaulage),
+                expandedChild: AppFileUploadTile(
+                  label: 'Dokumen Haulage',
+                  hint: 'Upload surat jalan / DO (PDF)',
+                  fileName: vm.haulageFileName,
+                  allowedExtensions: ['pdf'],
+                  onFileSelected: (name, path) =>
+                      vm.setHaulageFile(name: name, path: path),
+                  onCleared: vm.clearHaulageFile,
+                ),
+              ),
+              const Divider(height: 1),
+              ServiceCheckboxTile(
+                serviceKey: AppConstants.serviceLolo,
+                label: 'LOLO',
+                description: 'Lift On / Lift Off',
+                icon: Icons.swap_vert_outlined,
+                isSelected: vm.isServiceSelected(AppConstants.serviceLolo),
+                onToggle: () => vm.toggleService(AppConstants.serviceLolo),
+              ),
+              const Divider(height: 1),
+              ServiceCheckboxTile(
+                serviceKey: AppConstants.servicePenumpukan,
+                label: 'Penumpukan',
+                description: 'Layanan penumpukan barang / container',
+                icon: Icons.layers_outlined,
+                isSelected: vm.isServiceSelected(AppConstants.servicePenumpukan),
+                onToggle: () => vm.toggleService(AppConstants.servicePenumpukan),
+              ),
+              const Divider(height: 1),
+              ServiceCheckboxTile(
+                serviceKey: AppConstants.serviceTBKM,
+                label: 'TBKM',
+                description: 'Tenaga Bongkar Muat',
+                icon: Icons.search_outlined,
+                isSelected: vm.isServiceSelected(AppConstants.serviceTBKM),
+                onToggle: () => vm.toggleService(AppConstants.serviceTBKM),
+                expandedChild: AppRadioGroup<String>(
+                  label: 'Opsi TBKM',
+                  groupValue: vm.tbkmOption,
+                  options: AppConstants.tbkmOptions,
+                  optionLabel: (v) => v,
+                  onChanged: vm.setTbkmOption,
+                  validator: (v) => AppValidators.requiredDropdown(
+                    v,
+                    fieldName: 'Opsi TBKM',
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              ServiceCheckboxTile(
+                serviceKey: AppConstants.serviceAsuransi,
+                label: 'Asuransi',
+                description: 'Perlindungan kargo',
+                icon: Icons.shield_outlined,
+                isSelected:
+                    vm.isServiceSelected(AppConstants.serviceAsuransi),
+                onToggle: () =>
+                    vm.toggleService(AppConstants.serviceAsuransi),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Success dialog shown after order submission.
+class _SuccessDialog extends StatelessWidget {
+  const _SuccessDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      contentPadding: const EdgeInsets.all(24),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.success.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check_circle,
+                color: AppColors.success, size: 48),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Order Berhasil!',
+            style: AppTextStyles.heading2,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Order Koperasi Anda telah berhasil dikirim dan sedang diproses.',
+            style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                context.read<KoperasiViewModel>().resetForm();
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  AppRoutes.shell,
+                  (route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text('Kembali ke Beranda'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
