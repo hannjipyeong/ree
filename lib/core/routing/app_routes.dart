@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:bkj_app/features/auth/views/login_screen.dart';
+import 'package:bkj_app/features/auth/views/register_screen.dart';
+import 'package:bkj_app/features/supir/views/supir_action_screen.dart';
+
+
 import 'package:bkj_app/features/all_in/views/all_in_page1_screen.dart';
 import 'package:bkj_app/features/all_in/views/all_in_page2_screen.dart';
 import 'package:bkj_app/features/all_in/views/all_in_page3_screen.dart';
@@ -21,8 +26,15 @@ import 'package:bkj_app/core/views/main_shell.dart';
 class AppRoutes {
   AppRoutes._();
 
+  // ─── Auth ────────────────────────────────────────────────────────────────────
+  static const String login = '/login';
+  static const String register = '/register';
+
+  // ─── Supir ───────────────────────────────────────────────────────────────────
+  static const String supirAction = '/supir/action';
+
   // ─── Root ────────────────────────────────────────────────────────────────────
-  static const String shell = '/';
+  static const String shell = '/shell';
 
   // ─── Feature: Home ───────────────────────────────────────────────────────────
   static const String home = '/home';
@@ -51,6 +63,9 @@ class AppRoutes {
 
   /// Registers all routes. Called once in [MaterialApp].
   static Map<String, WidgetBuilder> get routes => {
+    login: (_) => const LoginScreen(),
+    register: (_) => const RegisterScreen(),
+    supirAction: (_) => const SupirActionScreen(),
     shell: (_) => const MainShell(),
     allInPage1: (_) => const AllInPage1Screen(),
     allInPage2: (_) => const AllInPage2Screen(),

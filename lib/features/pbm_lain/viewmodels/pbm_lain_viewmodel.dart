@@ -1,10 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/features/all_in/models/container_entry.dart';
+import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 
 /// ViewModel for the PBM LAIN streamlined multi-step order form.
 /// Page 2 handles Containers ONLY (no Cargo). Page 3 has fewer services.
 class PbmLainViewModel extends ChangeNotifier {
+  final MockOrderRepository _orderRepository;
+
+  PbmLainViewModel({required MockOrderRepository orderRepository})
+      : _orderRepository = orderRepository;
+
   // ─── Page 1 State ────────────────────────────────────────────────────────────
   DateTime? _tanggalOrder;
   String? _wilayah;
@@ -126,6 +132,13 @@ class PbmLainViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       await Future.delayed(const Duration(seconds: 1));
+      
+      _orderRepository.addOrderFromCustomer(
+        customerName: _namaPt ?? 'Unknown PT',
+        source: 'PBM Lain',
+        selectedServices: _selectedServices,
+      );
+
       _isSubmitting = false;
       notifyListeners();
       return true;

@@ -8,6 +8,10 @@ import 'package:bkj_app/features/koperasi/viewmodels/koperasi_viewmodel.dart';
 import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 import 'package:bkj_app/features/profile/viewmodels/profile_viewmodel.dart';
 import 'package:bkj_app/features/home/viewmodels/home_viewmodel.dart';
+import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
+import 'package:bkj_app/core/repositories/mock_order_repository.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,17 +42,36 @@ class BkjApp extends StatelessWidget {
       providers: [
         // Each ViewModel is registered at the app root so it persists
         // across navigation and is accessible via context.read/watch.
+        ChangeNotifierProvider(create: (_) => MockOrderRepository()),
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(
+          create: (ctx) => SupirViewModel(
+            orderRepository: ctx.read<MockOrderRepository>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
-        ChangeNotifierProvider(create: (_) => AllInViewModel()),
-        ChangeNotifierProvider(create: (_) => KoperasiViewModel()),
-        ChangeNotifierProvider(create: (_) => PbmLainViewModel()),
+        ChangeNotifierProvider(
+          create: (ctx) => AllInViewModel(
+            orderRepository: ctx.read<MockOrderRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => KoperasiViewModel(
+            orderRepository: ctx.read<MockOrderRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => PbmLainViewModel(
+            orderRepository: ctx.read<MockOrderRepository>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
       ],
       child: MaterialApp(
         title: 'BKJ App',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
-        initialRoute: AppRoutes.shell,
+        initialRoute: AppRoutes.login,
         routes: AppRoutes.routes,
       ),
     );

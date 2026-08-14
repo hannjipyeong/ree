@@ -1,10 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/features/all_in/models/container_entry.dart';
+import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 
 /// ViewModel for the ALL IN multi-step order form.
 /// Manages all page state and business rules in isolation from the UI.
 class AllInViewModel extends ChangeNotifier {
+  final MockOrderRepository _orderRepository;
+
+  AllInViewModel({required MockOrderRepository orderRepository})
+      : _orderRepository = orderRepository;
+
   // ─── Page 1 State ────────────────────────────────────────────────────────────
   DateTime? _tanggalOrder;
   String? _wilayah;
@@ -178,8 +184,15 @@ class AllInViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // TODO: Wire to actual API endpoint
       await Future.delayed(const Duration(seconds: 1));
+
+      // Push to global mock repository for Supir to see
+      _orderRepository.addOrderFromCustomer(
+        customerName: _namaPt ?? 'Unknown PT',
+        source: 'ALL IN',
+        selectedServices: _selectedServices,
+      );
+
       _isSubmitting = false;
       notifyListeners();
       return true;

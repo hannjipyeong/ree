@@ -1,10 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/features/all_in/models/container_entry.dart';
+import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 
 /// ViewModel for the KOPERASI multi-step order form.
 /// Extends the ALL IN logic with an extra wilayah (Utara) and manual PBM name.
 class KoperasiViewModel extends ChangeNotifier {
+  final MockOrderRepository _orderRepository;
+
+  KoperasiViewModel({required MockOrderRepository orderRepository})
+      : _orderRepository = orderRepository;
+
   // ─── Page 1 State ────────────────────────────────────────────────────────────
   DateTime? _tanggalOrder;
   String? _wilayah;
@@ -175,6 +181,13 @@ class KoperasiViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       await Future.delayed(const Duration(seconds: 1));
+      
+      _orderRepository.addOrderFromCustomer(
+        customerName: _namaPt ?? 'Unknown PT',
+        source: 'Koperasi',
+        selectedServices: _selectedServices,
+      );
+
       _isSubmitting = false;
       notifyListeners();
       return true;

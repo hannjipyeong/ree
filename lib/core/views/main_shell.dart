@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/features/home/views/home_screen.dart';
 import 'package:bkj_app/features/all_in/views/all_in_page1_screen.dart';
 import 'package:bkj_app/features/koperasi/views/koperasi_page1_screen.dart';
 import 'package:bkj_app/features/pbm_lain/views/pbm_lain_page1_screen.dart';
 import 'package:bkj_app/features/profile/views/profile_screen.dart';
+import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:bkj_app/features/supir/views/supir_home_screen.dart';
+import 'package:bkj_app/features/supir/views/supir_profile_screen.dart';
 
 /// The persistent shell that hosts the bottom navigation bar and
 /// manages tab switching. Only one instance is ever on the navigator stack.
@@ -17,9 +21,10 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  String _currentRole = 'customer';
 
-  // Tab bodies — lazily constructed and kept alive via [IndexedStack].
-  static const List<Widget> _tabs = [
+  // Customer Tabs
+  static const List<Widget> _customerTabs = [
     HomeScreen(),
     AllInPage1Screen(),
     KoperasiPage1Screen(),
@@ -27,7 +32,7 @@ class _MainShellState extends State<MainShell> {
     ProfileScreen(),
   ];
 
-  static const List<BottomNavigationBarItem> _navItems = [
+  static const List<BottomNavigationBarItem> _customerNavItems = [
     BottomNavigationBarItem(
       icon: Icon(Icons.home_outlined),
       activeIcon: Icon(Icons.home),
@@ -55,14 +60,53 @@ class _MainShellState extends State<MainShell> {
     ),
   ];
 
+  // Supir Tabs
+  static const List<Widget> _supirTabs = [
+    SupirHomeScreen(),
+    SupirProfileScreen(),
+  ];
+
+  static const List<BottomNavigationBarItem> _supirNavItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home_outlined),
+      activeIcon: Icon(Icons.home),
+      label: 'Dashboard',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person_outlined),
+      activeIcon: Icon(Icons.person),
+      label: 'Profil',
+    ),
+  ];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final role = context.watch<AuthViewModel>().userRole;
+    if (role != _currentRole) {
+      // If role changes, reset to index 0
+      _currentRole = role;
+      _currentIndex = 0;
+    }
+  }
+
   void _onTabTapped(int index) => setState(() => _currentIndex = index);
 
   @override
   Widget build(BuildContext context) {
+    final isCustomer = _currentRole == 'customer';
+    final tabs = isCustomer ? _customerTabs : _supirTabs;
+    final navItems = isCustomer ? _customerNavItems : _supirNavItems;
+
+    // Ensure _currentIndex is valid for the current tab list
+    if (_currentIndex >= tabs.length) {
+      _currentIndex = 0;
+    }
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _tabs,
+        children: tabs,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -78,7 +122,7 @@ class _MainShellState extends State<MainShell> {
           currentIndex: _currentIndex,
           onTap: _onTabTapped,
           type: BottomNavigationBarType.fixed, // Required for >3 items
-          items: _navItems,
+          items: navItems,
         ),
       ),
     );
