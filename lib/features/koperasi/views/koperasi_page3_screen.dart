@@ -113,7 +113,6 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceHaulage,
                 label: 'Haulage',
-                description: 'Layanan pemindahan peti kemas',
                 icon: Icons.local_shipping_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.serviceHaulage),
@@ -133,8 +132,7 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceLolo,
                 label: 'LOLO',
-                description: 'Lift On / Lift Off',
-                icon: Icons.swap_vert_outlined,
+                icon: Icons.precision_manufacturing_outlined,
                 isSelected: vm.isServiceSelected(AppConstants.serviceLolo),
                 onToggle: () => vm.toggleService(AppConstants.serviceLolo),
               ),
@@ -142,7 +140,6 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.servicePenumpukan,
                 label: 'Penumpukan',
-                description: 'Layanan penumpukan barang / container',
                 icon: Icons.layers_outlined,
                 isSelected: vm.isServiceSelected(AppConstants.servicePenumpukan),
                 onToggle: () => vm.toggleService(AppConstants.servicePenumpukan),
@@ -151,8 +148,7 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceTBKM,
                 label: 'TBKM',
-                description: 'Tenaga Bongkar Muat',
-                icon: Icons.search_outlined,
+                icon: Icons.people_alt_outlined,
                 isSelected: vm.isServiceSelected(AppConstants.serviceTBKM),
                 onToggle: () => vm.toggleService(AppConstants.serviceTBKM),
                 expandedChild: AppRadioGroup<String>(
@@ -171,7 +167,6 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceAsuransi,
                 label: 'Asuransi',
-                description: 'Perlindungan kargo',
                 icon: Icons.shield_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.serviceAsuransi),

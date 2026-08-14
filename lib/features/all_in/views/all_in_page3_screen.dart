@@ -130,7 +130,6 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceHaulage,
                 label: 'Haulage',
-                description: 'Angkutan container dari/ke pelabuhan',
                 icon: Icons.local_shipping_outlined,
                 isSelected: vm.isServiceSelected(AppConstants.serviceHaulage),
                 onToggle: () => vm.toggleService(AppConstants.serviceHaulage),
@@ -149,8 +148,7 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceLolo,
                 label: 'LOLO',
-                description: 'Lift On / Lift Off container',
-                icon: Icons.swap_vert_outlined,
+                icon: Icons.precision_manufacturing_outlined,
                 isSelected: vm.isServiceSelected(AppConstants.serviceLolo),
                 onToggle: () => vm.toggleService(AppConstants.serviceLolo),
               ),
@@ -159,7 +157,6 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.servicePenumpukan,
                 label: 'Penumpukan',
-                description: 'Biaya penumpukan container di lapangan',
                 icon: Icons.layers_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.servicePenumpukan),
@@ -171,8 +168,7 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceTBKM,
                 label: 'TBKM',
-                description: 'Tempat Pemeriksaan Bea Cukai & Makanan',
-                icon: Icons.search_outlined,
+                icon: Icons.security_outlined,
                 isSelected: vm.isServiceSelected(AppConstants.serviceTBKM),
                 onToggle: () => vm.toggleService(AppConstants.serviceTBKM),
                 expandedChild: AppRadioGroup<String>(
@@ -192,7 +188,6 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceAsuransi,
                 label: 'Asuransi',
-                description: 'Perlindungan terhadap kerusakan/kehilangan',
                 icon: Icons.shield_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.serviceAsuransi),

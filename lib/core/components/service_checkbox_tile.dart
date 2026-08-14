@@ -21,7 +21,7 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 class ServiceCheckboxTile extends StatelessWidget {
   final String serviceKey;
   final String label;
-  final String? description;
+
   final IconData icon;
   final bool isSelected;
   final VoidCallback onToggle;
@@ -36,7 +36,7 @@ class ServiceCheckboxTile extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     required this.onToggle,
-    this.description,
+
     this.expandedChild,
   });
 
@@ -106,8 +106,7 @@ class ServiceCheckboxTile extends StatelessWidget {
                                 : AppColors.textPrimary,
                           ),
                         ),
-                        if (description != null)
-                          Text(description!, style: AppTextStyles.body2),
+
                       ],
                     ),
                   ),
