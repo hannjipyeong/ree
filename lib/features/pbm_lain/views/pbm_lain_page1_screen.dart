@@ -41,6 +41,7 @@ class _PbmLainPage1ScreenState extends State<PbmLainPage1Screen> {
   void _handleNext() {
     final vm = context.read<PbmLainViewModel>();
     vm.setNamaPt(_namaPtCtrl.text);
+    vm.setNamaPbm(_namaPbmCtrl.text);
     vm.setNoTelp(_noTelpCtrl.text);
 
     if (_formKey.currentState!.validate()) {
@@ -98,9 +99,9 @@ class _PbmLainPage1ScreenState extends State<PbmLainPage1Screen> {
               ),
               AppTextField(
                 label: 'Nama PBM',
+                hint: 'Masukkan nama PBM',
                 controller: _namaPbmCtrl,
-                readOnly: true,
-                hint: 'Otomatis terisi',
+                validator: (v) => AppValidators.required(v, fieldName: 'Nama PBM'),
               ),
               AppTextField(
                 label: 'No Telp',

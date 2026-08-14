@@ -9,7 +9,7 @@ class PbmLainViewModel extends ChangeNotifier {
   DateTime? _tanggalOrder;
   String? _wilayah;
   String? _namaPt;
-  final String _namaPbm = 'PT. ABC'; // Auto-filled and fixed
+  String? _namaPbm = 'PT. ABC'; // Default value, now editable
   String? _noTelp;
   String? _lokasiFasilitas;
   String? _jenisKegiatan;
@@ -66,6 +66,11 @@ class PbmLainViewModel extends ChangeNotifier {
 
   void setNamaPt(String value) {
     _namaPt = value;
+    notifyListeners();
+  }
+
+  void setNamaPbm(String value) {
+    _namaPbm = value;
     notifyListeners();
   }
 
@@ -136,6 +141,7 @@ class PbmLainViewModel extends ChangeNotifier {
     _tanggalOrder = null;
     _wilayah = null;
     _namaPt = null;
+    _namaPbm = 'PT. ABC';
     _noTelp = null;
     _lokasiFasilitas = null;
     _jenisKegiatan = null;
