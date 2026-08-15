@@ -26,20 +26,25 @@ class AppOrder {
 /// and processed by Supir.
 class MockOrderRepository extends ChangeNotifier {
   final List<AppOrder> _orders = [
-    // LOLO mock data
-    AppOrder(id: 'REQ-1234-LOL', customerName: 'PT Lintas Samudra', serviceType: 'LOLO', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
-    AppOrder(id: 'REQ-1235-LOL', customerName: 'PT Lintas Samudra', serviceType: 'LOLO', source: 'ALL IN', date: DateTime.now().subtract(const Duration(hours: 2)), status: 'In'),
-    AppOrder(id: 'REQ-1236-LOL', customerName: 'PT Lintas Samudra', serviceType: 'LOLO', source: 'Koperasi', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
+    // --- LOLO Mock Data ---
+    AppOrder(id: 'REQ-1001-LOL', customerName: 'PT Lintas Samudra', serviceType: 'LOLO', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-1002-LOL', customerName: 'PT Bumi Makmur', serviceType: 'LOLO', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 2)), status: 'In'),
+    AppOrder(id: 'REQ-1003-LOL', customerName: 'PT Samudra Biru', serviceType: 'LOLO', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
     
-    // Haulage mock data
-    AppOrder(id: 'REQ-2234-HAU', customerName: 'PT Lintas Samudra', serviceType: 'Haulage', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
-    AppOrder(id: 'REQ-2235-HAU', customerName: 'PT Bumi Maju', serviceType: 'Haulage', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 1)), status: 'In'),
+    // --- Haulage Mock Data ---
+    AppOrder(id: 'REQ-2001-HAU', customerName: 'PT Trans Logistik', serviceType: 'Haulage', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-2002-HAU', customerName: 'PT Bumi Makmur', serviceType: 'Haulage', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 1)), status: 'In'),
+    AppOrder(id: 'REQ-2003-HAU', customerName: 'PT Cargo Makmur', serviceType: 'Haulage', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 2)), status: 'Out'),
     
-    // Penumpukan mock data
-    AppOrder(id: 'REQ-3234-PEN', customerName: 'PT Karya Makmur', serviceType: 'Penumpukan', source: 'PBM Lain', date: DateTime.now(), status: 'Masuk'),
+    // --- Penumpukan Mock Data ---
+    AppOrder(id: 'REQ-3001-PEN', customerName: 'PT Gudang Bersama', serviceType: 'Penumpukan', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-3002-PEN', customerName: 'PT Lintas Samudra', serviceType: 'Penumpukan', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 3)), status: 'In'),
+    AppOrder(id: 'REQ-3003-PEN', customerName: 'PT Logistik Utama', serviceType: 'Penumpukan', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
     
-    // TBKM mock data
-    AppOrder(id: 'REQ-4234-TBK', customerName: 'PT Lintas Samudra', serviceType: 'TBKM', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    // --- TBKM Mock Data ---
+    AppOrder(id: 'REQ-4001-TBK', customerName: 'PT Samudra Jaya', serviceType: 'TBKM', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-4002-TBK', customerName: 'PT Kargo Lestari', serviceType: 'TBKM', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 4)), status: 'In'),
+    AppOrder(id: 'REQ-4003-TBK', customerName: 'PT Trans Nusa', serviceType: 'TBKM', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 3)), status: 'Out'),
   ];
 
   List<AppOrder> get orders => List.unmodifiable(_orders);
