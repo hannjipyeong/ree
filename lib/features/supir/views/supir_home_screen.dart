@@ -41,44 +41,6 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
     );
   }
 
-  void _showRecapDialog(BuildContext context, AppOrder order) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Detail Request Order'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('ID Order: ${order.id}', style: AppTextStyles.body2),
-            const SizedBox(height: 8),
-            Text('Customer: ${order.customerName}', style: AppTextStyles.heading3),
-            const SizedBox(height: 8),
-            Text('Layanan: ${order.serviceType}', style: AppTextStyles.body1),
-            const SizedBox(height: 8),
-            Text('Tanggal: ${AppFormatters.toDDMMYYYY(order.date)}', style: AppTextStyles.body2),
-            const SizedBox(height: 16),
-            const Text('Ini adalah ringkasan dari request customer.', style: AppTextStyles.caption),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Tutup'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _navigateToActionScreen(context, order, 'IN');
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Proses IN', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildOrderList(String status) {
     final vm = context.watch<SupirViewModel>();
     final authVm = context.watch<AuthViewModel>();
@@ -131,7 +93,7 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _showRecapDialog(context, order),
+                      onPressed: () => _navigateToActionScreen(context, order, 'IN'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -152,7 +114,7 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
                     ),
                   ),
                 if (status == 'Out')
-                  const Text('Menunggu validasi Admin untuk menjadi Done.', style: AppTextStyles.caption),
+                  const Text('Sedang menunggu persetujuan Admin.', style: AppTextStyles.caption),
               ],
             ),
           ),
