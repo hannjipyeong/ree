@@ -4,6 +4,8 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/profile/viewmodels/profile_viewmodel.dart';
+import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:bkj_app/core/components/app_button.dart';
 
 /// Profile — main screen showing user info and navigation to sub-screens.
 class ProfileScreen extends StatelessWidget {
@@ -148,17 +150,28 @@ class ProfileScreen extends StatelessWidget {
           style: AppTextStyles.body1,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () {
-              Navigator.pop(ctx);
-              vm.logout();
-            },
-            child: const Text('Keluar'),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: 'Batal',
+                  variant: AppButtonVariant.outline,
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AppButton(
+                  label: 'Keluar',
+                  variant: AppButtonVariant.danger,
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    context.read<AuthViewModel>().logout();
+                    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false);
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -25,7 +25,22 @@ class AppOrder {
 /// A global mock database to simulate orders being created by Customers
 /// and processed by Supir.
 class MockOrderRepository extends ChangeNotifier {
-  final List<AppOrder> _orders = [];
+  final List<AppOrder> _orders = [
+    // LOLO mock data
+    AppOrder(id: 'REQ-1234-LOL', customerName: 'PT Lintas Samudra', serviceType: 'LOLO', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-1235-LOL', customerName: 'PT Lintas Samudra', serviceType: 'LOLO', source: 'ALL IN', date: DateTime.now().subtract(const Duration(hours: 2)), status: 'In'),
+    AppOrder(id: 'REQ-1236-LOL', customerName: 'PT Lintas Samudra', serviceType: 'LOLO', source: 'Koperasi', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
+    
+    // Haulage mock data
+    AppOrder(id: 'REQ-2234-HAU', customerName: 'PT Lintas Samudra', serviceType: 'Haulage', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-2235-HAU', customerName: 'PT Bumi Maju', serviceType: 'Haulage', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 1)), status: 'In'),
+    
+    // Penumpukan mock data
+    AppOrder(id: 'REQ-3234-PEN', customerName: 'PT Karya Makmur', serviceType: 'Penumpukan', source: 'PBM Lain', date: DateTime.now(), status: 'Masuk'),
+    
+    // TBKM mock data
+    AppOrder(id: 'REQ-4234-TBK', customerName: 'PT Lintas Samudra', serviceType: 'TBKM', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+  ];
 
   List<AppOrder> get orders => List.unmodifiable(_orders);
 

@@ -171,9 +171,9 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
         title: Text('Dashboard ${authVm.supirType ?? ''}'),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textSecondary,
-          indicatorColor: AppColors.primary,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          indicatorColor: Colors.white,
           tabs: const [
             Tab(text: 'Masuk'),
             Tab(text: 'In'),

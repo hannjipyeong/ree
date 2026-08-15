@@ -4,6 +4,7 @@ import 'package:bkj_app/core/components/section_card.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:bkj_app/core/components/app_button.dart';
 
 class SupirProfileScreen extends StatelessWidget {
   const SupirProfileScreen({super.key});
@@ -15,17 +16,28 @@ class SupirProfileScreen extends StatelessWidget {
         title: const Text('Konfirmasi Logout'),
         content: const Text('Apakah Anda yakin ingin keluar?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.read<AuthViewModel>().logout();
-              Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false);
-            },
-            child: const Text('Keluar', style: TextStyle(color: AppColors.error)),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: 'Batal',
+                  variant: AppButtonVariant.outline,
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AppButton(
+                  label: 'Keluar',
+                  variant: AppButtonVariant.danger,
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    context.read<AuthViewModel>().logout();
+                    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false);
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
