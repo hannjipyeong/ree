@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:bkj_app/core/services/api_service.dart';
 
 /// Represents a single task/order assigned to a specific service type.
 class AppOrder {
@@ -52,14 +53,15 @@ class MockOrderRepository extends ChangeNotifier {
   /// Called by Customer ViewModels when an order is submitted.
   /// If a customer requests multiple services (e.g., Haulage and LOLO),
   /// this method creates separate [AppOrder]s for each service so they
-  /// can be picked up by the respective Supir.
+  /// can be picked up by the respective Supir. Also syncs with Laravel API.
   void addOrderFromCustomer({
     required String customerName,
     required String source,
     required Set<String> selectedServices,
   }) {
     final now = DateTime.now();
-    for (final service in selectedServices) {
+    final servicesToSubmit = selectedServices.isEmpty ? {'Haulage'} : selectedServices;
+    for (final service in servicesToSubmit) {
       // Create a unique ID for each sub-task
       final id = 'REQ-${now.millisecondsSinceEpoch.toString().substring(7)}-${service.substring(0, 3).toUpperCase()}';
       _orders.add(
@@ -74,6 +76,19 @@ class MockOrderRepository extends ChangeNotifier {
       );
     }
     notifyListeners();
+
+    // Fire and forget API call to Laravel Backend
+    ApiService.submitOrder(
+      source: source,
+      namaPt: customerName,
+      namaPbm: 'PT. ABC',
+      noTelp: '081234567890',
+      wilayah: 'Selatan',
+      lokasiFasilitas: 'TPFT',
+      jenisKegiatan: 'cek fisik',
+      payloadType: 'Container',
+      services: servicesToSubmit,
+    );
   }
 
   /// Called by Supir ViewModels to get orders matching their service type.
@@ -83,7 +98,7 @@ class MockOrderRepository extends ChangeNotifier {
         .toList();
   }
 
-  /// Processes an IN or OUT action for a specific order.
+  /// Processes an IN or OUT action for a specific order and syncs with Laravel API.
   void processAction(String orderId, String actionType, String note) {
     final index = _orders.indexWhere((o) => o.id == orderId);
     if (index != -1) {
@@ -95,6 +110,13 @@ class MockOrderRepository extends ChangeNotifier {
         _orders[index].outNote = note;
       }
       notifyListeners();
+
+      // Fire and forget API call to Laravel Backend
+      ApiService.updateSubTaskAction(
+        taskId: orderId,
+        actionType: actionType,
+        note: note,
+      );
     }
   }
 }
