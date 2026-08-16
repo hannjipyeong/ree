@@ -210,7 +210,8 @@ class ApiController extends Controller
     // PATCH /api/sub-tasks/{id}/action
     public function updateSubTaskAction(Request $request, $id)
     {
-        $subTask = SubTask::findOrFail($id);
+        // Support finding by integer ID or string task_number (e.g. REQ-...)
+        $subTask = SubTask::where('id', $id)->orWhere('task_number', $id)->firstOrFail();
 
         $validated = $request->validate([
             'action_type' => 'required|in:IN,OUT',
