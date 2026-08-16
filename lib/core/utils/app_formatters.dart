@@ -43,8 +43,8 @@ class AppFormatters {
 
   /// Returns initials from a full name (max 2 characters).
   static String toInitials(String fullName) {
+    if (fullName.trim().isEmpty) return '';
     final parts = fullName.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty) return '';
     if (parts.length == 1) return parts[0][0].toUpperCase();
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
