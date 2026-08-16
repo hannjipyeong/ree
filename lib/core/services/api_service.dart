@@ -187,7 +187,9 @@ class ApiService {
           return appOrders;
         }
       } else {
-        _showErrorToast('Gagal mengambil data order (${response.statusCode})');
+        if (response.statusCode != 401) {
+          _showErrorToast('Gagal mengambil data order (${response.statusCode})');
+        }
       }
       return [];
     } catch (e) {
