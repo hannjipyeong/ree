@@ -110,9 +110,17 @@ class ApiController extends Controller
             ]);
         }
 
-        $orders = Order::with(['containers', 'subTasks.supir'])
-            ->latest()
-            ->get();
+        if ($role === 'customer') {
+            $user = $request->user();
+            $orders = Order::with(['containers', 'subTasks.supir'])
+                ->where('customer_id', $user->id)
+                ->latest()
+                ->get();
+        } else {
+            $orders = Order::with(['containers', 'subTasks.supir'])
+                ->latest()
+                ->get();
+        }
 
         return response()->json([
             'success' => true,
@@ -155,6 +163,7 @@ class ApiController extends Controller
 
         $order = Order::create([
             'order_number' => $orderNumber,
+            'customer_id' => $request->user()->id,
             'source' => $validated['source'],
             'tanggal_order' => $validated['tanggal_order'],
             'nama_pt' => $validated['nama_pt'],

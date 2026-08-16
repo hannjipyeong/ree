@@ -109,7 +109,7 @@ class _AllInPage2ScreenState extends State<AllInPage2Screen> {
                   fileName: vm.cargoFileName,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                   onFileSelected: (name, bytes, path) =>
-                      vm.setCargoFile(name: name, path: path ?? ''),
+                      vm.setCargoFile(name: name, path: path ?? '', bytes: bytes),
                   onCleared: vm.clearCargoFile,
                 ),
               ],

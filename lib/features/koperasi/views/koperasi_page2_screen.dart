@@ -109,7 +109,7 @@ class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
                   fileName: vm.cargoFileName,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                   onFileSelected: (name, bytes, path) =>
-                      vm.setCargoFile(name: name, path: path ?? ''),
+                      vm.setCargoFile(name: name, path: path ?? '', bytes: bytes),
                   onCleared: vm.clearCargoFile,
                 ),
               ],

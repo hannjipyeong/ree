@@ -20,11 +20,13 @@ class KoperasiViewModel extends ChangeNotifier {
   final List<ContainerEntry> _containers = [ContainerEntry()];
   String? _cargoFileName;
   String? _cargoFilePath;
+  Uint8List? _cargoFileBytes;
 
   // ─── Page 3 State ────────────────────────────────────────────────────────────
   final Set<String> _selectedServices = {};
   String? _haulageFileName;
   String? _haulageFilePath;
+  Uint8List? _haulageFileBytes;
   String? _tbkmOption;
 
   bool _isSubmitting = false;
@@ -131,15 +133,17 @@ class KoperasiViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCargoFile({required String name, required String path}) {
+  void setCargoFile({required String name, required String path, Uint8List? bytes}) {
     _cargoFileName = name;
     _cargoFilePath = path;
+    _cargoFileBytes = bytes;
     notifyListeners();
   }
 
   void clearCargoFile() {
     _cargoFileName = null;
     _cargoFilePath = null;
+    _cargoFileBytes = null;
     notifyListeners();
   }
 
@@ -153,15 +157,17 @@ class KoperasiViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setHaulageFile({required String name, required String path}) {
+  void setHaulageFile({required String name, required String path, Uint8List? bytes}) {
     _haulageFileName = name;
     _haulageFilePath = path;
+    _haulageFileBytes = bytes;
     notifyListeners();
   }
 
   void clearHaulageFile() {
     _haulageFileName = null;
     _haulageFilePath = null;
+    _haulageFileBytes = null;
     notifyListeners();
   }
 
@@ -194,6 +200,10 @@ class KoperasiViewModel extends ChangeNotifier {
         containers: containerList,
         cargoFilePath: _cargoFilePath,
         haulageFilePath: _haulageFilePath,
+        cargoFileBytes: _cargoFileBytes,
+        cargoFileName: _cargoFileName,
+        haulageFileBytes: _haulageFileBytes,
+        haulageFileName: _haulageFileName,
       );
 
       if (success) {
@@ -227,9 +237,11 @@ class KoperasiViewModel extends ChangeNotifier {
     _containers.add(ContainerEntry());
     _cargoFileName = null;
     _cargoFilePath = null;
+    _cargoFileBytes = null;
     _selectedServices.clear();
     _haulageFileName = null;
     _haulageFilePath = null;
+    _haulageFileBytes = null;
     _tbkmOption = null;
     _errorMessage = null;
     notifyListeners();

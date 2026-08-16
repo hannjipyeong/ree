@@ -124,7 +124,7 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
                   fileName: vm.haulageFileName,
                   allowedExtensions: ['pdf'],
                   onFileSelected: (name, bytes, path) =>
-                      vm.setHaulageFile(name: name, path: path ?? ''),
+                      vm.setHaulageFile(name: name, path: path ?? '', bytes: bytes),
                   onCleared: vm.clearHaulageFile,
                 ),
               ),

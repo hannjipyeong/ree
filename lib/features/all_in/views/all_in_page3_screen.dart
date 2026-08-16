@@ -139,7 +139,7 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
                   fileName: vm.haulageFileName,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                   onFileSelected: (name, bytes, path) =>
-                      vm.setHaulageFile(name: name, path: path ?? ''),
+                      vm.setHaulageFile(name: name, path: path ?? '', bytes: bytes),
                   onCleared: vm.clearHaulageFile,
                 ),
               ),

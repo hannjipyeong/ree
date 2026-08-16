@@ -213,6 +213,10 @@ class ApiService {
     List<Map<String, dynamic>>? containers,
     String? cargoFilePath,
     String? haulageFilePath,
+    Uint8List? cargoFileBytes,
+    String? cargoFileName,
+    Uint8List? haulageFileBytes,
+    String? haulageFileName,
   }) async {
     try {
       final url = Uri.parse('$baseUrl/orders');
@@ -237,11 +241,15 @@ class ApiService {
         request.fields['containers'] = jsonEncode(containers);
       }
 
-      // Files
-      if (cargoFilePath != null) {
+      // Files — use bytes on Web, path on native
+      if (cargoFileBytes != null && cargoFileName != null) {
+        request.files.add(http.MultipartFile.fromBytes('cargo_file', cargoFileBytes, filename: cargoFileName));
+      } else if (cargoFilePath != null && cargoFilePath.isNotEmpty) {
         request.files.add(await http.MultipartFile.fromPath('cargo_file', cargoFilePath));
       }
-      if (haulageFilePath != null) {
+      if (haulageFileBytes != null && haulageFileName != null) {
+        request.files.add(http.MultipartFile.fromBytes('haulage_file', haulageFileBytes, filename: haulageFileName));
+      } else if (haulageFilePath != null && haulageFilePath.isNotEmpty) {
         request.files.add(await http.MultipartFile.fromPath('haulage_file', haulageFilePath));
       }
 
