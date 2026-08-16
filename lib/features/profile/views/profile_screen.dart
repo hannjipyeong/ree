@@ -14,6 +14,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ProfileViewModel>();
+    final authVm = context.watch<AuthViewModel>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -44,7 +45,7 @@ class ProfileScreen extends StatelessWidget {
                         radius: 38,
                         backgroundColor: AppColors.accent,
                         child: Text(
-                          AppFormatters.toInitials(vm.fullName),
+                          AppFormatters.toInitials(authVm.fullName),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -54,16 +55,16 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        vm.fullName,
+                        authVm.fullName,
                         style: AppTextStyles.heading3.copyWith(color: Colors.white),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        vm.role,
+                        authVm.userRole.toUpperCase(),
                         style: AppTextStyles.body2.copyWith(color: Colors.white70),
                       ),
                       Text(
-                        vm.userId,
+                        authVm.email,
                         style: AppTextStyles.caption.copyWith(color: Colors.white60),
                       ),
                     ],
@@ -78,7 +79,7 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _ProfileInfoCard(vm: vm),
+                _ProfileInfoCard(authVm: authVm),
                 const SizedBox(height: 16),
                 _MenuGroup(
                   title: 'Aktivitas',
@@ -180,9 +181,9 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class _ProfileInfoCard extends StatelessWidget {
-  final ProfileViewModel vm;
+  final AuthViewModel authVm;
 
-  const _ProfileInfoCard({required this.vm});
+  const _ProfileInfoCard({required this.authVm});
 
   @override
   Widget build(BuildContext context) {
@@ -201,11 +202,11 @@ class _ProfileInfoCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _InfoRow(icon: Icons.email_outlined, label: 'Email', value: vm.email),
+          _InfoRow(icon: Icons.email_outlined, label: 'Email', value: authVm.email),
           const Divider(height: 20),
-          _InfoRow(icon: Icons.phone_outlined, label: 'No. HP', value: vm.phone),
+          _InfoRow(icon: Icons.phone_outlined, label: 'No. HP', value: authVm.phone),
           const Divider(height: 20),
-          _InfoRow(icon: Icons.badge_outlined, label: 'ID Anggota', value: vm.userId),
+          _InfoRow(icon: Icons.badge_outlined, label: 'Role', value: authVm.userRole),
         ],
       ),
     );

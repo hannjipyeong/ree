@@ -4,6 +4,7 @@ import 'package:bkj_app/core/components/components.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/profile/viewmodels/profile_viewmodel.dart';
+import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
 
 /// Edit Profile screen — allows updating full name, email, and phone number.
 class EditProfileScreen extends StatefulWidget {
@@ -22,10 +23,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final vm = context.read<ProfileViewModel>();
-    _nameCtrl = TextEditingController(text: vm.fullName);
-    _emailCtrl = TextEditingController(text: vm.email);
-    _phoneCtrl = TextEditingController(text: vm.phone);
+    final authVm = context.read<AuthViewModel>();
+    _nameCtrl = TextEditingController(text: authVm.fullName);
+    _emailCtrl = TextEditingController(text: authVm.email);
+    _phoneCtrl = TextEditingController(text: authVm.phone);
   }
 
   @override

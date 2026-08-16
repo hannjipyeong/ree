@@ -4,6 +4,7 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/home/viewmodels/home_viewmodel.dart';
+import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart' as bkj_app;
 
 /// The main Dashboard/Home screen.
 class HomeScreen extends StatefulWidget {
@@ -50,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAppBar(BuildContext context, HomeViewModel vm) {
+    final authVm = context.watch<bkj_app.AuthViewModel>();
     return SliverAppBar(
       expandedHeight: 140,
       floating: false,
@@ -73,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     radius: 26,
                     backgroundColor: AppColors.accent,
                     child: Text(
-                      AppFormatters.toInitials(vm.userName),
+                      AppFormatters.toInitials(authVm.fullName),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -94,13 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Text(
-                          vm.userName,
+                          authVm.fullName,
                           style: AppTextStyles.heading3.copyWith(
                             color: Colors.white,
                           ),
                         ),
                         Text(
-                          vm.userId,
+                          authVm.email,
                           style: AppTextStyles.caption.copyWith(
                             color: Colors.white60,
                           ),
