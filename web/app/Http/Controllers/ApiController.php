@@ -46,6 +46,41 @@ class ApiController extends Controller
         ]);
     }
 
+    // POST /api/register
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users',
+            'phone' => 'required|string',
+            'password' => 'required|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'role' => 'customer',
+        ]);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registrasi berhasil',
+            'token' => $token,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role,
+                'supir_type' => null,
+            ]
+        ]);
+    }
+
     // POST /api/logout
     public function logout(Request $request)
     {

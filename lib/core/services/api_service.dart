@@ -1,10 +1,23 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
+import 'package:bkj_app/main.dart'; // import rootScaffoldMessengerKey
+import 'package:bkj_app/core/theme/app_theme.dart';
 
 class ApiService {
+  static void _showErrorToast(String message) {
+    rootScaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   static String get baseUrl {
     if (kIsWeb) {
       return 'http://127.0.0.1:8000/api';
@@ -48,10 +61,52 @@ class ApiService {
           }
           return body['data'];
         }
+      } else {
+        _showErrorToast('Login gagal: Server merespons ${response.statusCode}');
       }
       return null;
     } catch (e) {
       debugPrint('API login error: $e');
+      _showErrorToast('Login gagal: Periksa koneksi internet atau server Anda.');
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> register({
+    required String name,
+    required String email,
+    required String phone,
+    required String password,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/register');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'phone': phone,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = jsonDecode(response.body);
+        if (body['success'] == true) {
+          final prefs = await SharedPreferences.getInstance();
+          if (body['token'] != null) {
+            await prefs.setString('auth_token', body['token']);
+          }
+          return body['data'];
+        }
+      } else {
+        _showErrorToast('Registrasi gagal: Server merespons ${response.statusCode}');
+      }
+      return null;
+    } catch (e) {
+      debugPrint('API register error: $e');
+      _showErrorToast('Registrasi gagal: Periksa koneksi internet atau server Anda.');
       return null;
     }
   }
@@ -62,8 +117,6 @@ class ApiService {
       final headers = await getHeaders();
       await http.post(url, headers: headers);
     } catch (e) {
-      debugPrint('API logout error: $e');
-    } finally {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('auth_token');
     }
@@ -77,10 +130,13 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
+      } else {
+        debugPrint('getUser failed: ${response.statusCode}');
       }
       return null;
     } catch (e) {
       debugPrint('API getUser error: $e');
+      _showErrorToast('Gagal terhubung ke server (CORS / Network Error).');
       return null;
     }
   }
@@ -130,10 +186,13 @@ class ApiService {
           }
           return appOrders;
         }
+      } else {
+        _showErrorToast('Gagal mengambil data order (${response.statusCode})');
       }
       return [];
     } catch (e) {
       debugPrint('API getOrders error: $e');
+      _showErrorToast('Gagal fetch order: Koneksi terputus.');
       return [];
     }
   }
@@ -191,10 +250,12 @@ class ApiService {
         return true;
       } else {
         debugPrint('Submit Order Failed: ${response.body}');
+        _showErrorToast('Submit Order Failed: ${response.statusCode}');
         return false;
       }
     } catch (e) {
       debugPrint('API submitOrder error: $e');
+      _showErrorToast('Gagal submit order: Periksa koneksi internet Anda.');
       return false;
     }
   }
@@ -230,10 +291,12 @@ class ApiService {
         return true;
       } else {
         debugPrint('Update Action Failed: ${response.body}');
+        _showErrorToast('Gagal update status: ${response.statusCode}');
         return false;
       }
     } catch (e) {
       debugPrint('API updateSubTaskAction error: $e');
+      _showErrorToast('Gagal update status: Periksa jaringan Anda.');
       return false;
     }
   }

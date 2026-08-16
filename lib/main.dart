@@ -11,6 +11,7 @@ import 'package:bkj_app/features/home/viewmodels/home_viewmodel.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,7 @@ class BkjApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'BKJ App',
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         initialRoute: AppRoutes.login,

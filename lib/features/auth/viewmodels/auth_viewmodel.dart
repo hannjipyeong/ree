@@ -90,17 +90,30 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 800));
-      _isLoading = false;
-      // Auto login after register
-      _email = email;
-      _fullName = fullName;
-      _phone = phone;
-      _userRole = 'customer'; // Default for new registration
-      _supirType = null;
-      _isAuthenticated = true;
-      notifyListeners();
-      return true;
+      final userData = await ApiService.register(
+        name: fullName,
+        email: email,
+        phone: phone,
+        password: password,
+      );
+
+      if (userData != null) {
+        // Auto login after register
+        _email = userData['email'] ?? email;
+        _fullName = userData['name'] ?? fullName;
+        _phone = userData['phone'] ?? phone;
+        _userRole = userData['role'] ?? 'customer'; // Default for new registration
+        _supirType = userData['supir_type'];
+        _isAuthenticated = true;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _isLoading = false;
+        _errorMessage = 'Gagal mendaftar: Pastikan email belum digunakan dan koneksi internet stabil.';
+        notifyListeners();
+        return false;
+      }
     } catch (e) {
       _isLoading = false;
       _errorMessage = 'Gagal mendaftar: $e';
