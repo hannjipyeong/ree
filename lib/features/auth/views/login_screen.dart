@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 AppTextField(
                   label: 'Email',
-                  hint: 'Masukkan email (mock: supir_haulage@bkj.com)',
+                  hint: 'Masukkan email . . .',
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) => v == null || v.isEmpty ? 'Email wajib diisi' : null,

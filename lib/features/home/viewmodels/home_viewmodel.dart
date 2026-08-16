@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:bkj_app/core/services/api_service.dart';
+import 'package:bkj_app/core/utils/app_formatters.dart';
 
 /// ViewModel for the Home/Dashboard screen.
 /// Responsible for fetching and holding user profile data,
@@ -8,41 +10,14 @@ class HomeViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Simulated user data (replace with API integration later)
-  final String userName = 'Andi Pratama';
-  final String userRole = 'Member BKJ';
-  final String userId = 'BKJ-2024-0042';
-
-  // Simulated Order Statistics
-  final Map<String, int> orderStats = {
-    'Selesai': 45,
-    'Proses': 12,
-    'Pending': 8,
+  // Order Statistics
+  Map<String, int> orderStats = {
+    'Selesai': 0,
+    'Proses': 0,
+    'Pending': 0,
   };
 
-  final List<Map<String, dynamic>> recentActivities = [
-    {
-      'title': 'Order ALL IN #A-2024-001',
-      'subtitle': 'Selatan • Bongkar • 3x 20\' GP',
-      'date': '10 Agu 2026',
-      'status': 'Selesai',
-      'statusColor': 0xFF27AE60,
-    },
-    {
-      'title': 'Order Koperasi #K-2024-018',
-      'subtitle': 'Utara • Muat Utara • Cargo',
-      'date': '08 Agu 2026',
-      'status': 'Proses',
-      'statusColor': 0xFFF39C12,
-    },
-    {
-      'title': 'Order PBM Lain #P-2024-007',
-      'subtitle': 'Eximen • 2x 40\' HC',
-      'date': '05 Agu 2026',
-      'status': 'Pending',
-      'statusColor': 0xFF2980B9,
-    },
-  ];
+  List<Map<String, dynamic>> recentActivities = [];
 
   // ─── Accessors ──────────────────────────────────────────────────────────────
   bool get isLoading => _isLoading;
@@ -53,10 +28,65 @@ class HomeViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 600));
+    try {
+      final orders = await ApiService.getOrders(role: 'customer');
+      
+      int selesai = 0;
+      int proses = 0;
+      int pending = 0;
+      List<Map<String, dynamic>> activities = [];
 
-    _isLoading = false;
-    notifyListeners();
+      for (var order in orders) {
+        String statusLabel = 'Pending';
+        int statusColor = 0xFF2980B9; // Blue
+
+        final lowerStatus = order.status.toLowerCase();
+        if (lowerStatus == 'submitted' || lowerStatus == 'masuk') {
+          pending++;
+          statusLabel = 'Pending';
+          statusColor = 0xFF2980B9;
+        } else if (lowerStatus == 'on progress' || lowerStatus == 'in' || lowerStatus == 'out') {
+          proses++;
+          statusLabel = 'Proses';
+          statusColor = 0xFFF39C12; // Orange
+        } else if (lowerStatus == 'done' || lowerStatus == 'selesai') {
+          selesai++;
+          statusLabel = 'Selesai';
+          statusColor = 0xFF27AE60; // Green
+        } else {
+          pending++; // Fallback
+        }
+
+        activities.add({
+          'title': 'Order ${order.source} #${order.id}',
+          'subtitle': order.customerName,
+          'date': AppFormatters.toDisplayDate(order.date),
+          'status': statusLabel,
+          'statusColor': statusColor,
+          'originalDate': order.date,
+        });
+      }
+
+      // Sort activities descending by date
+      activities.sort((a, b) => (b['originalDate'] as DateTime).compareTo(a['originalDate'] as DateTime));
+      
+      // Limit to 5 recent
+      if (activities.length > 5) {
+        activities = activities.sublist(0, 5);
+      }
+
+      orderStats = {
+        'Selesai': selesai,
+        'Proses': proses,
+        'Pending': pending,
+      };
+      recentActivities = activities;
+      
+    } catch (e) {
+      _errorMessage = 'Gagal memuat data dashboard.';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
