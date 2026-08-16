@@ -66,7 +66,9 @@ class _AppFileUploadTileState extends State<AppFileUploadTile> {
     if (result != null && result.files.isNotEmpty) {
       final file = result.files.first;
       _validationError = null;
-      widget.onFileSelected(file.name, file.bytes, file.path);
+      // file.path throws on Web — use bytes only there
+      final path = kIsWeb ? null : file.path;
+      widget.onFileSelected(file.name, file.bytes, path);
     }
   }
 
