@@ -154,6 +154,10 @@ class ApiService {
       final headers = await getHeaders();
       final response = await http.get(url, headers: headers);
 
+      debugPrint('DEBUG: getOrders URL: $url');
+      debugPrint('DEBUG: getOrders status: ${response.statusCode}');
+      debugPrint('DEBUG: getOrders body: ${response.body}');
+
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         if (body['success'] == true) {

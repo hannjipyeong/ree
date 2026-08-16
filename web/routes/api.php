@@ -9,7 +9,11 @@ Route::post('/register', [ApiController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        $user = $request->user();
+        if ($user->role === 'customer') {
+            $user->load(['orders.containers', 'orders.subTasks.supir']);
+        }
+        return $user;
     });
     Route::post('/logout', [ApiController::class, 'logout']);
     Route::get('/orders', [ApiController::class, 'getOrders']);
