@@ -176,14 +176,18 @@ class ApiService {
           } else {
             // Data is a list of Orders (For Customer history - if needed later)
             for (var order in data) {
-              appOrders.add(AppOrder(
-                id: order['order_number']?.toString() ?? order['id'].toString(),
-                customerName: order['nama_pt'] ?? 'Unknown Customer',
-                serviceType: 'Multiple',
-                source: order['source'] ?? 'ALL IN',
-                date: DateTime.tryParse(order['tanggal_order'] ?? '') ?? DateTime.now(),
-                status: order['status'] ?? 'Submitted',
-              ));
+              try {
+                appOrders.add(AppOrder(
+                  id: order['order_number']?.toString() ?? order['id'].toString(),
+                  customerName: order['nama_pt'] ?? 'Unknown Customer',
+                  serviceType: 'Multiple',
+                  source: order['source'] ?? 'ALL IN',
+                  date: DateTime.tryParse(order['tanggal_order'] ?? '') ?? DateTime.now(),
+                  status: order['status'] ?? 'Submitted',
+                ));
+              } catch (e) {
+                debugPrint('DEBUG: Error parsing order: $e, data: $order');
+              }
             }
           }
           return appOrders;

@@ -30,6 +30,7 @@ class HomeViewModel extends ChangeNotifier {
 
     try {
       final orders = await ApiService.getOrders(role: 'customer');
+      debugPrint('DEBUG: HomeViewModel loaded ${orders.length} orders');
       
       int selesai = 0;
       int proses = 0;
@@ -66,6 +67,7 @@ class HomeViewModel extends ChangeNotifier {
           'originalDate': order.date,
         });
       }
+      debugPrint('DEBUG: Activities count = ${activities.length}');
 
       // Sort activities descending by date
       activities.sort((a, b) => (b['originalDate'] as DateTime).compareTo(a['originalDate'] as DateTime));
