@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/features/all_in/viewmodels/all_in_viewmodel.dart';
@@ -13,8 +14,9 @@ import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
 
   // Lock the app to portrait orientation for a consistent mobile experience.
   SystemChrome.setPreferredOrientations([

@@ -86,6 +86,7 @@ class HomeViewModel extends ChangeNotifier {
       
     } catch (e) {
       _errorMessage = 'Gagal memuat data dashboard.';
+      debugPrint('DEBUG: HomeViewModel loadDashboard error: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
