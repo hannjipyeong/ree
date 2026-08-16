@@ -6,7 +6,6 @@ import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 import 'package:bkj_app/features/supir/views/supir_action_screen.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
-import 'package:bkj_app/core/utils/app_formatters.dart';
 
 class SupirHomeScreen extends StatefulWidget {
   const SupirHomeScreen({super.key});
@@ -23,8 +22,11 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     
-    // We no longer load mock data here because MockOrderRepository handles it.
-    // Data will be driven by Customer submissions.
+    // Fetch real data from backend API
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final supirType = context.read<AuthViewModel>().supirType ?? '';
+      context.read<SupirViewModel>().fetchOrders(supirType);
+    });
   }
 
   @override
@@ -43,8 +45,11 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
 
   Widget _buildOrderList(String status) {
     final vm = context.watch<SupirViewModel>();
-    final authVm = context.watch<AuthViewModel>();
-    final orders = vm.getOrdersByStatus(status, authVm.supirType ?? '');
+    final orders = vm.getOrdersByStatus(status);
+
+    if (vm.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     if (orders.isEmpty) {
       return Center(

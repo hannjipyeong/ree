@@ -1,16 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/features/all_in/models/container_entry.dart';
-import 'package:bkj_app/core/repositories/mock_order_repository.dart';
+import 'package:bkj_app/core/services/api_service.dart';
 
 /// ViewModel for the ALL IN multi-step order form.
 /// Manages all page state and business rules in isolation from the UI.
 class AllInViewModel extends ChangeNotifier {
-  final MockOrderRepository _orderRepository;
-
-  AllInViewModel({required MockOrderRepository orderRepository})
-      : _orderRepository = orderRepository;
-
   // ─── Page 1 State ────────────────────────────────────────────────────────────
   DateTime? _tanggalOrder;
   String? _wilayah;
@@ -184,21 +179,41 @@ class AllInViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      final servicesToSubmit = _selectedServices.isEmpty ? {'Haulage'} : _selectedServices;
+      
+      // Convert containers to a list of maps for the API
+      final containerList = _payloadType == AppConstants.payloadContainer 
+          ? _containers.map((c) => c.toJson()).toList() 
+          : null;
 
-      // Push to global mock repository for Supir to see
-      _orderRepository.addOrderFromCustomer(
-        customerName: _namaPt ?? 'Unknown PT',
+      final success = await ApiService.submitOrder(
         source: 'ALL IN',
-        selectedServices: _selectedServices,
+        namaPt: _namaPt ?? 'Unknown PT',
+        namaPbm: _namaPbm,
+        noTelp: _noTelp ?? '081234567890',
+        wilayah: _wilayah ?? 'Selatan',
+        lokasiFasilitas: _lokasiFasilitas ?? 'TPFT',
+        jenisKegiatan: _jenisKegiatan ?? 'cek fisik',
+        payloadType: _payloadType,
+        services: servicesToSubmit,
+        containers: containerList,
+        cargoFilePath: _cargoFilePath,
+        haulageFilePath: _haulageFilePath,
       );
 
-      _isSubmitting = false;
-      notifyListeners();
-      return true;
+      if (success) {
+        _isSubmitting = false;
+        notifyListeners();
+        return true;
+      } else {
+        _isSubmitting = false;
+        _errorMessage = 'Gagal mengirim order ke server.';
+        notifyListeners();
+        return false;
+      }
     } catch (e) {
       _isSubmitting = false;
-      _errorMessage = 'Gagal mengirim order. Silakan coba lagi.';
+      _errorMessage = 'Gagal mengirim order: $e';
       notifyListeners();
       return false;
     }

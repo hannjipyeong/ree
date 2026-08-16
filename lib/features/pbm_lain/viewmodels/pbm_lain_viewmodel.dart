@@ -1,16 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/features/all_in/models/container_entry.dart';
-import 'package:bkj_app/core/repositories/mock_order_repository.dart';
+import 'package:bkj_app/core/services/api_service.dart';
 
 /// ViewModel for the PBM LAIN streamlined multi-step order form.
 /// Page 2 handles Containers ONLY (no Cargo). Page 3 has fewer services.
 class PbmLainViewModel extends ChangeNotifier {
-  final MockOrderRepository _orderRepository;
-
-  PbmLainViewModel({required MockOrderRepository orderRepository})
-      : _orderRepository = orderRepository;
-
   // ─── Page 1 State ────────────────────────────────────────────────────────────
   DateTime? _tanggalOrder;
   String? _wilayah;
@@ -131,20 +126,36 @@ class PbmLainViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      final servicesToSubmit = _selectedServices.isEmpty ? {'TBKM'} : _selectedServices;
       
-      _orderRepository.addOrderFromCustomer(
-        customerName: _namaPt ?? 'Unknown PT',
+      final containerList = _containers.map((c) => c.toJson()).toList();
+
+      final success = await ApiService.submitOrder(
         source: 'PBM Lain',
-        selectedServices: _selectedServices,
+        namaPt: _namaPt ?? 'Unknown PT',
+        namaPbm: _namaPbm ?? 'Unknown PBM',
+        noTelp: _noTelp ?? '081234567890',
+        wilayah: _wilayah ?? 'Utara',
+        lokasiFasilitas: _lokasiFasilitas ?? 'TPFT',
+        jenisKegiatan: _jenisKegiatan ?? 'cek fisik',
+        payloadType: AppConstants.payloadContainer,
+        services: servicesToSubmit,
+        containers: containerList,
       );
 
-      _isSubmitting = false;
-      notifyListeners();
-      return true;
+      if (success) {
+        _isSubmitting = false;
+        notifyListeners();
+        return true;
+      } else {
+        _isSubmitting = false;
+        _errorMessage = 'Gagal mengirim order ke server.';
+        notifyListeners();
+        return false;
+      }
     } catch (e) {
       _isSubmitting = false;
-      _errorMessage = 'Gagal mengirim order. Silakan coba lagi.';
+      _errorMessage = 'Gagal mengirim order: $e';
       notifyListeners();
       return false;
     }

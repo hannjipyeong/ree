@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:bkj_app/core/services/api_service.dart';
 
 /// ViewModel for Authentication and Role Management.
 class AuthViewModel extends ChangeNotifier {
@@ -31,43 +32,25 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 800));
+      final userData = await ApiService.login(email, password);
 
-      _email = email;
-      _isAuthenticated = true;
-      _isLoading = false;
+      if (userData != null) {
+        _email = userData['email'] ?? email;
+        _fullName = userData['name'] ?? 'User';
+        _phone = userData['phone'] ?? '';
+        _userRole = userData['role'] ?? 'customer';
+        _supirType = userData['supir_type'];
 
-      // Mock logic: Determine role based on email string
-      if (email.toLowerCase().contains('supir_haulage')) {
-        _userRole = 'supir';
-        _supirType = 'Haulage';
-        _fullName = 'Supir Haulage 1';
-        _phone = '081234567801';
-      } else if (email.toLowerCase().contains('supir_lolo')) {
-        _userRole = 'supir';
-        _supirType = 'LOLO';
-        _fullName = 'Supir LOLO 1';
-        _phone = '081234567802';
-      } else if (email.toLowerCase().contains('supir_penumpukan')) {
-        _userRole = 'supir';
-        _supirType = 'Penumpukan';
-        _fullName = 'Supir Penumpukan 1';
-        _phone = '081234567803';
-      } else if (email.toLowerCase().contains('supir_tbkm')) {
-        _userRole = 'supir';
-        _supirType = 'TBKM';
-        _fullName = 'Supir TBKM 1';
-        _phone = '081234567804';
+        _isAuthenticated = true;
+        _isLoading = false;
+        notifyListeners();
+        return true;
       } else {
-        // Default Customer
-        _userRole = 'customer';
-        _supirType = null;
-        _fullName = 'Andi Pratama (Customer)';
-        _phone = '081234567890';
+        _isLoading = false;
+        _errorMessage = 'Gagal login: Email atau password salah, atau server tidak merespons.';
+        notifyListeners();
+        return false;
       }
-
-      notifyListeners();
-      return true;
     } catch (e) {
       _isLoading = false;
       _errorMessage = 'Gagal login: $e';
