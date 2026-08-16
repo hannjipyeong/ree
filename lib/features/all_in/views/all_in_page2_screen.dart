@@ -108,8 +108,8 @@ class _AllInPage2ScreenState extends State<AllInPage2Screen> {
                   hint: 'Upload manifest cargo',
                   fileName: vm.cargoFileName,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-                  onFileSelected: (name, path) =>
-                      vm.setCargoFile(name: name, path: path),
+                  onFileSelected: (name, bytes, path) =>
+                      vm.setCargoFile(name: name, path: path ?? ''),
                   onCleared: vm.clearCargoFile,
                 ),
               ],

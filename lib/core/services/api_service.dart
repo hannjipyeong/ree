@@ -266,6 +266,8 @@ class ApiService {
     required String actionType,
     required String note,
     String? photoPath,
+    Uint8List? photoBytes,
+    String? photoFileName,
   }) async {
     try {
       // API needs database ID. If taskId is task_number (REQ-...), we must ensure Laravel can handle it.
@@ -280,7 +282,9 @@ class ApiService {
       request.fields['action_type'] = actionType;
       request.fields['note'] = note;
 
-      if (photoPath != null) {
+      if (photoBytes != null && photoFileName != null) {
+        request.files.add(http.MultipartFile.fromBytes('photo', photoBytes, filename: photoFileName));
+      } else if (photoPath != null && photoPath.isNotEmpty) {
         request.files.add(await http.MultipartFile.fromPath('photo', photoPath));
       }
 

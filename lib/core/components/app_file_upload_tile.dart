@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
+import 'dart:typed_data';
 
 /// A tappable tile that triggers a file picker and displays the chosen file.
 ///
@@ -23,7 +24,7 @@ class AppFileUploadTile extends StatefulWidget {
   final String? hint;
   final String? fileName;
   final List<String>? allowedExtensions;
-  final void Function(String name, String path) onFileSelected;
+  final void Function(String name, Uint8List? bytes, String? path) onFileSelected;
   final VoidCallback onCleared;
   final String? Function()? validator;
 
@@ -52,15 +53,16 @@ class _AppFileUploadTileState extends State<AppFileUploadTile> {
     final result = await FilePicker.platform.pickFiles(
       type: widget.allowedExtensions != null ? FileType.custom : FileType.any,
       allowedExtensions: widget.allowedExtensions,
+      withData: true, // IMPORTANT: Needed for web bytes
     );
 
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null) {
       final file = result.files.single;
       _validationError = null;
-      widget.onFileSelected(file.name, file.path!);
+      widget.onFileSelected(file.name, file.bytes, file.path);
     }
   }
 

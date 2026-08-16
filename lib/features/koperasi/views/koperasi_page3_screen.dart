@@ -123,8 +123,8 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
                   hint: 'Upload surat jalan / DO (PDF)',
                   fileName: vm.haulageFileName,
                   allowedExtensions: ['pdf'],
-                  onFileSelected: (name, path) =>
-                      vm.setHaulageFile(name: name, path: path),
+                  onFileSelected: (name, bytes, path) =>
+                      vm.setHaulageFile(name: name, path: path ?? ''),
                   onCleared: vm.clearHaulageFile,
                 ),
               ),

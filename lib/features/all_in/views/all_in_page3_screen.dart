@@ -138,8 +138,8 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
                   hint: 'Upload surat jalan (PDF / JPG / PNG)',
                   fileName: vm.haulageFileName,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-                  onFileSelected: (n, p) =>
-                      vm.setHaulageFile(name: n, path: p),
+                  onFileSelected: (name, bytes, path) =>
+                      vm.setHaulageFile(name: name, path: path ?? ''),
                   onCleared: vm.clearHaulageFile,
                 ),
               ),

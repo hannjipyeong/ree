@@ -6,6 +6,7 @@ import 'package:bkj_app/core/components/app_file_upload_tile.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
+import 'dart:typed_data';
 
 class SupirActionScreenArgs {
   final AppOrder order;
@@ -25,6 +26,8 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
   final _noteCtrl = TextEditingController();
   bool _isLoading = false;
   String? _selectedFileName;
+  String? _selectedFilePath;
+  Uint8List? _selectedFileBytes;
 
   @override
   void dispose() {
@@ -40,6 +43,9 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
       orderId: order.id,
       actionType: actionType,
       note: _noteCtrl.text,
+      photoPath: _selectedFilePath,
+      photoBytes: _selectedFileBytes,
+      photoFileName: _selectedFileName,
     );
 
     if (!mounted) return;
@@ -116,11 +122,19 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
               AppFileUploadTile(
                 label: 'Upload Foto Bukti',
                 fileName: _selectedFileName,
-                onFileSelected: (name, path) {
-                  setState(() => _selectedFileName = name);
+                onFileSelected: (name, bytes, path) {
+                  setState(() {
+                    _selectedFileName = name;
+                    _selectedFileBytes = bytes;
+                    _selectedFilePath = path;
+                  });
                 },
                 onCleared: () {
-                  setState(() => _selectedFileName = null);
+                  setState(() {
+                    _selectedFileName = null;
+                    _selectedFileBytes = null;
+                    _selectedFilePath = null;
+                  });
                 },
               ),
               
