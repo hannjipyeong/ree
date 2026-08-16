@@ -29,9 +29,12 @@ class ApiController extends Controller
             ], 401);
         }
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil',
+            'token' => $token,
             'data' => [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -40,6 +43,17 @@ class ApiController extends Controller
                 'role' => $user->role,
                 'supir_type' => $user->supir_type,
             ]
+        ]);
+    }
+
+    // POST /api/logout
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout berhasil'
         ]);
     }
 

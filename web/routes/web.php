@@ -6,7 +6,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupirController;
-use App\Http\Controllers\ApiController;
 
 // Guest Auth Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -28,10 +27,3 @@ Route::middleware('auth')->group(function () {
     Route::resource('supir', SupirController::class);
 });
 
-// REST API Routes (for Mobile Flutter App)
-Route::prefix('api')->group(function () {
-    Route::post('/login', [ApiController::class, 'login']);
-    Route::get('/orders', [ApiController::class, 'getOrders']);
-    Route::post('/orders', [ApiController::class, 'createOrder']);
-    Route::patch('/sub-tasks/{id}/action', [ApiController::class, 'updateSubTaskAction']);
-});

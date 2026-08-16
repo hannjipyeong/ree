@@ -26,6 +26,26 @@ class AuthViewModel extends ChangeNotifier {
   String get email => _email;
   String get phone => _phone;
 
+  Future<void> checkLoginStatus() async {
+    _isLoading = true;
+    notifyListeners();
+
+    final userData = await ApiService.getUser();
+    if (userData != null) {
+      _email = userData['email'] ?? '';
+      _fullName = userData['name'] ?? 'User';
+      _phone = userData['phone'] ?? '';
+      _userRole = userData['role'] ?? 'customer';
+      _supirType = userData['supir_type'];
+      _isAuthenticated = true;
+    } else {
+      _isAuthenticated = false;
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
@@ -89,7 +109,8 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await ApiService.logout();
     _isAuthenticated = false;
     _userRole = 'customer';
     _supirType = null;

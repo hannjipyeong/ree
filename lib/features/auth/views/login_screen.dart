@@ -19,6 +19,23 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passCtrl = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAutoLogin();
+    });
+  }
+
+  Future<void> _checkAutoLogin() async {
+    final vm = context.read<AuthViewModel>();
+    await vm.checkLoginStatus();
+    if (!mounted) return;
+    if (vm.isAuthenticated) {
+      Navigator.pushReplacementNamed(context, AppRoutes.shell);
+    }
+  }
+
+  @override
   void dispose() {
     _emailCtrl.dispose();
     _passCtrl.dispose();

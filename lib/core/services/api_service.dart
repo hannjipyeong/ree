@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 
 class ApiService {
-  // Base URL for Laravel API backend
   static String get baseUrl {
     if (kIsWeb) {
       return 'http://127.0.0.1:8000/api';
@@ -12,6 +12,17 @@ class ApiService {
     return defaultTargetPlatform == TargetPlatform.android
         ? 'http://10.0.2.2:8000/api'
         : 'http://127.0.0.1:8000/api';
+  }
+
+  static Future<Map<String, String>> getHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    
+    final headers = {'Accept': 'application/json'};
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
   }
 
   /// 1. Login Endpoint
@@ -31,12 +42,45 @@ class ApiService {
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         if (body['success'] == true) {
+          final prefs = await SharedPreferences.getInstance();
+          if (body['token'] != null) {
+            await prefs.setString('auth_token', body['token']);
+          }
           return body['data'];
         }
       }
       return null;
     } catch (e) {
       debugPrint('API login error: $e');
+      return null;
+    }
+  }
+
+  static Future<void> logout() async {
+    try {
+      final url = Uri.parse('$baseUrl/logout');
+      final headers = await getHeaders();
+      await http.post(url, headers: headers);
+    } catch (e) {
+      debugPrint('API logout error: $e');
+    } finally {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('auth_token');
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getUser() async {
+    try {
+      final url = Uri.parse('$baseUrl/user');
+      final headers = await getHeaders();
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('API getUser error: $e');
       return null;
     }
   }
@@ -49,10 +93,8 @@ class ApiService {
         urlStr += '&supir_type=$supirType';
       }
       final url = Uri.parse(urlStr);
-      final response = await http.get(
-        url,
-        headers: {'Accept': 'application/json'},
-      );
+      final headers = await getHeaders();
+      final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
@@ -114,7 +156,8 @@ class ApiService {
     try {
       final url = Uri.parse('$baseUrl/orders');
       var request = http.MultipartRequest('POST', url);
-      request.headers['Accept'] = 'application/json';
+      final headers = await getHeaders();
+      request.headers.addAll(headers);
 
       // Text fields
       request.fields['source'] = source;
@@ -168,7 +211,8 @@ class ApiService {
       // Laravel route: /api/sub-tasks/{id}/action. 
       final url = Uri.parse('$baseUrl/sub-tasks/$taskId/action');
       var request = http.MultipartRequest('POST', url);
-      request.headers['Accept'] = 'application/json';
+      final headers = await getHeaders();
+      request.headers.addAll(headers);
       
       // Spoof PATCH request for Laravel
       request.fields['_method'] = 'PATCH';
