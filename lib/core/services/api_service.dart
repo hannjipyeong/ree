@@ -241,16 +241,19 @@ class ApiService {
         request.fields['containers'] = jsonEncode(containers);
       }
 
-      // Files — use bytes on Web, path on native
+      // Files — always use bytes since file_picker withData: true provides bytes on all platforms
+      // and fromPath crashes the Dart web compiler.
       if (cargoFileBytes != null && cargoFileName != null) {
         request.files.add(http.MultipartFile.fromBytes('cargo_file', cargoFileBytes, filename: cargoFileName));
       } else if (cargoFilePath != null && cargoFilePath.isNotEmpty) {
-        request.files.add(await http.MultipartFile.fromPath('cargo_file', cargoFilePath));
+        // Fallback for native if bytes are missing for some reason
+        debugPrint('Warning: Missing cargo bytes on native. Cannot upload via path on Web.');
       }
+      
       if (haulageFileBytes != null && haulageFileName != null) {
         request.files.add(http.MultipartFile.fromBytes('haulage_file', haulageFileBytes, filename: haulageFileName));
       } else if (haulageFilePath != null && haulageFilePath.isNotEmpty) {
-        request.files.add(await http.MultipartFile.fromPath('haulage_file', haulageFilePath));
+        debugPrint('Warning: Missing haulage bytes on native. Cannot upload via path on Web.');
       }
 
       final streamedResponse = await request.send();
@@ -295,7 +298,7 @@ class ApiService {
       if (photoBytes != null && photoFileName != null) {
         request.files.add(http.MultipartFile.fromBytes('photo', photoBytes, filename: photoFileName));
       } else if (photoPath != null && photoPath.isNotEmpty) {
-        request.files.add(await http.MultipartFile.fromPath('photo', photoPath));
+        debugPrint('Warning: Missing photo bytes. Cannot upload via path on Web.');
       }
 
       final streamedResponse = await request.send();
