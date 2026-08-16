@@ -124,7 +124,8 @@ class ApiService {
 
   static Future<Map<String, dynamic>?> getUser() async {
     try {
-      final url = Uri.parse('$baseUrl/user');
+      final t = DateTime.now().millisecondsSinceEpoch;
+      final url = Uri.parse('$baseUrl/user?_t=$t');
       final headers = await getHeaders();
       final response = await http.get(url, headers: headers);
 
@@ -144,7 +145,8 @@ class ApiService {
   /// 2. Fetch Orders
   static Future<List<AppOrder>> getOrders({required String role, String? supirType}) async {
     try {
-      var urlStr = '$baseUrl/orders?role=$role';
+      final t = DateTime.now().millisecondsSinceEpoch;
+      var urlStr = '$baseUrl/orders?role=$role&_t=$t';
       if (supirType != null) {
         urlStr += '&supir_type=$supirType';
       }
