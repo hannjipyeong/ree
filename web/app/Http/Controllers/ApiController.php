@@ -162,6 +162,8 @@ class ApiController extends Controller
         $hasAsuransi = (is_array($services) && in_array('Asuransi', $services)) || $request->boolean('has_asuransi');
         $asuransiValue = $request->input('asuransi_value');
 
+        $orderNumber = 'ORD-' . date('Ymd') . '-' . rand(100, 999);
+
         $order = Order::create([
             'order_number' => $orderNumber,
             'customer_id' => optional($request->user())->id,
