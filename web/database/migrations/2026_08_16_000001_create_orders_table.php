@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('no_telp');
             $table->string('wilayah'); // Selatan, Eximen, Utara
             $table->string('lokasi_fasilitas'); // TPFT, CFS, loss cargo, gudang, tps
-            $table->string('jenis_kegiatan'); // cek fisik, striping / staffing, penumpukan
+            $table->string('jenis_kegiatan'); // cek fisik, stripping / staffing, penumpukan
             $table->string('payload_type')->default('Container'); // Container, Cargo
             $table->string('cargo_file_path')->nullable();
             $table->string('haulage_file_path')->nullable();

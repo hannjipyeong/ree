@@ -71,8 +71,8 @@ class AppConstants {
 
   static const Map<String, String> jenisKegiatanMapping = {
     'TPFT': 'cek fisik',
-    'CFS': 'striping / staffing',
-    'cfs': 'striping / staffing',
+    'CFS': 'stripping / staffing',
+    'cfs': 'stripping / staffing',
     'loss cargo': 'penumpukan',
     'gudang': 'penumpukan',
     'tps': 'penumpukan',
