@@ -78,8 +78,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $supirLolo1 = User::create([
-            'name' => 'Supir LOLO Utama',
-            'email' => 'supir_lolo@bkj.com',
+            'name' => 'Operator (Telly) Utama',
+            'email' => 'operator_lolo@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001102',
             'role' => 'supir',
@@ -87,7 +87,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $supirLolo2 = User::create([
-            'name' => 'Agus Hermawan (LOLO 2)',
+            'name' => 'Agus Hermawan (Operator LOLO 2)',
             'email' => 'agus_lolo@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001106',
@@ -96,8 +96,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $supirPenumpukan1 = User::create([
-            'name' => 'Supir Penumpukan Utama',
-            'email' => 'supir_penumpukan@bkj.com',
+            'name' => 'Admin Penumpukan Utama',
+            'email' => 'admin_penumpukan@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001103',
             'role' => 'supir',
@@ -105,8 +105,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $supirTbkm1 = User::create([
-            'name' => 'Supir TKBM Utama',
-            'email' => 'supir_tkbm@bkj.com',
+            'name' => 'Koordinator TKBM Utama',
+            'email' => 'koordinator_tkbm@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001104',
             'role' => 'supir',
