@@ -44,9 +44,9 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <i class="fa-solid fa-envelope text-sm"></i>
                         </span>
-                        <input type="email" name="email" value="{{ old('email', 'admin@bkj.com') }}" required 
+                        <input type="email" name="email" value="{{ old('email') }}" required 
                             class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
-                            placeholder="admin@bkj.com">
+                            placeholder="nama@bkj.com">
                     </div>
                 </div>
 
@@ -56,7 +56,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <i class="fa-solid fa-lock text-sm"></i>
                         </span>
-                        <input type="password" name="password" required value="password"
+                        <input type="password" name="password" required
                             class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
                             placeholder="••••••••">
                     </div>
@@ -74,46 +74,6 @@
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </form>
-
-            <!-- Quick Account Selector -->
-            <div class="mt-6 pt-5 border-t border-slate-100">
-                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 text-center">
-                    Pilih Akun Demo Cepat
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="fillLogin('admin.allin@bkj.com', 'password')" 
-                        class="p-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-left transition group">
-                        <div class="font-bold text-xs flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-purple-500"></span> Admin ALL IN
-                        </div>
-                        <div class="text-[10px] text-purple-600/70 truncate mt-0.5">admin.allin@bkj.com</div>
-                    </button>
-
-                    <button type="button" onclick="fillLogin('admin.koperasi@bkj.com', 'password')" 
-                        class="p-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-left transition group">
-                        <div class="font-bold text-xs flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Admin Koperasi
-                        </div>
-                        <div class="text-[10px] text-amber-700/70 truncate mt-0.5">admin.koperasi@bkj.com</div>
-                    </button>
-
-                    <button type="button" onclick="fillLogin('admin.pbmlain@bkj.com', 'password')" 
-                        class="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-left transition group">
-                        <div class="font-bold text-xs flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-blue-500"></span> Admin PBM Lain
-                        </div>
-                        <div class="text-[10px] text-blue-600/70 truncate mt-0.5">admin.pbmlain@bkj.com</div>
-                    </button>
-
-                    <button type="button" onclick="fillLogin('admin@bkj.com', 'password')" 
-                        class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-xl text-left transition group">
-                        <div class="font-bold text-xs flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-slate-500"></span> Super Admin
-                        </div>
-                        <div class="text-[10px] text-slate-500 truncate mt-0.5">admin@bkj.com</div>
-                    </button>
-                </div>
-            </div>
         </div>
 
         <div class="px-8 py-4 bg-slate-50 border-t border-slate-100 text-center text-xs text-slate-500 font-medium">
@@ -121,16 +81,5 @@
         </div>
     </div>
 
-    <script>
-        function fillLogin(email, password) {
-            const emailInput = document.querySelector('input[name="email"]');
-            const passInput = document.querySelector('input[name="password"]');
-            if (emailInput && passInput) {
-                emailInput.value = email;
-                passInput.value = password;
-                emailInput.focus();
-            }
-        }
-    </script>
 </body>
 </html>
