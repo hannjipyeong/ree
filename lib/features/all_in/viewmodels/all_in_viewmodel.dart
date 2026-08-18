@@ -18,6 +18,12 @@ class AllInViewModel extends ChangeNotifier {
   // ─── Page 2 State ────────────────────────────────────────────────────────────
   String _payloadType = AppConstants.payloadContainer;
   final List<ContainerEntry> _containers = [ContainerEntry()];
+  
+  // Cargo fields
+  String? _jenisBarang;
+  String? _jumlahTonase;
+  String? _nomorContainerCargo;
+
   String? _cargoFileName;
   String? _cargoFilePath;
   Uint8List? _cargoFileBytes;
@@ -61,6 +67,11 @@ class AllInViewModel extends ChangeNotifier {
   String get payloadType => _payloadType;
   List<ContainerEntry> get containers => List.unmodifiable(_containers);
   bool get canAddContainer => _containers.length < AppConstants.maxContainers;
+  
+  String? get jenisBarang => _jenisBarang;
+  String? get jumlahTonase => _jumlahTonase;
+  String? get nomorContainerCargo => _nomorContainerCargo;
+
   String? get cargoFileName => _cargoFileName;
   String? get cargoFilePath => _cargoFilePath;
 
@@ -135,6 +146,10 @@ class AllInViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setJenisBarang(String value) { _jenisBarang = value; notifyListeners(); }
+  void setJumlahTonase(String value) { _jumlahTonase = value; notifyListeners(); }
+  void setNomorContainerCargo(String value) { _nomorContainerCargo = value; notifyListeners(); }
+
   void setCargoFile({required String name, required String path, Uint8List? bytes}) {
     _cargoFileName = name;
     _cargoFilePath = path;
@@ -203,6 +218,9 @@ class AllInViewModel extends ChangeNotifier {
         payloadType: _payloadType,
         services: servicesToSubmit,
         containers: containerList,
+        jenisBarang: _jenisBarang,
+        jumlahTonase: _jumlahTonase,
+        nomorContainerCargo: _nomorContainerCargo,
         cargoFilePath: _cargoFilePath,
         haulageFilePath: _haulageFilePath,
         cargoFileBytes: _cargoFileBytes,
@@ -240,6 +258,9 @@ class AllInViewModel extends ChangeNotifier {
     _payloadType = AppConstants.payloadContainer;
     _containers.clear();
     _containers.add(ContainerEntry());
+    _jenisBarang = null;
+    _jumlahTonase = null;
+    _nomorContainerCargo = null;
     _cargoFileName = null;
     _cargoFilePath = null;
     _cargoFileBytes = null;

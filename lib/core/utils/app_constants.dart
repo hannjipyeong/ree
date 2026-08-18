@@ -118,9 +118,6 @@ class AppConstants {
   ];
 
   static const List<String> servicesKoperasi = [
-    serviceHaulage,
-    serviceLolo,
-    servicePenumpukan,
     serviceTKBM,
     serviceAsuransi,
   ];

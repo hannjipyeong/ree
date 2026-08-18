@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
@@ -21,6 +23,9 @@ class Order extends Model
         'lokasi_fasilitas',
         'jenis_kegiatan',
         'payload_type',
+        'jenis_barang',
+        'jumlah_tonase',
+        'nomor_container_cargo',
         'cargo_file_path',
         'haulage_file_path',
         'tkbm_option',
@@ -29,27 +34,25 @@ class Order extends Model
         'status',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'tanggal_order' => 'date',
-            'has_asuransi' => 'boolean',
-            'asuransi_value' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'tanggal_order' => 'date',
+        'has_asuransi' => 'boolean',
+        'asuransi_value' => 'decimal:2',
+        'jumlah_tonase' => 'decimal:2',
+    ];
 
-    public function customer()
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
     }
 
-    public function containers()
+    public function containers(): HasMany
     {
-        return $this->hasMany(OrderContainer::class, 'order_id');
+        return $this->hasMany(OrderContainer::class);
     }
 
-    public function subTasks()
+    public function subTasks(): HasMany
     {
-        return $this->hasMany(SubTask::class, 'order_id');
+        return $this->hasMany(SubTask::class);
     }
 }

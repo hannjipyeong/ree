@@ -4,6 +4,7 @@ import 'package:bkj_app/core/components/components.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
+import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/koperasi/viewmodels/koperasi_viewmodel.dart';
 
 /// Koperasi — Page 2: Payload selection (Container or Cargo).
@@ -18,20 +19,45 @@ class KoperasiPage2Screen extends StatefulWidget {
 
 class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
   final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _jenisBarangCtrl;
+  late final TextEditingController _jumlahTonaseCtrl;
+  late final TextEditingController _nomorContainerCargoCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final vm = context.read<KoperasiViewModel>();
+    _jenisBarangCtrl = TextEditingController(text: vm.jenisBarang ?? '');
+    _jumlahTonaseCtrl = TextEditingController(text: vm.jumlahTonase ?? '');
+    _nomorContainerCargoCtrl = TextEditingController(text: vm.nomorContainerCargo ?? '');
+  }
+
+  @override
+  void dispose() {
+    _jenisBarangCtrl.dispose();
+    _jumlahTonaseCtrl.dispose();
+    _nomorContainerCargoCtrl.dispose();
+    super.dispose();
+  }
 
   void _handleNext() {
     final vm = context.read<KoperasiViewModel>();
 
-    // Validate Cargo file selection if Cargo is chosen
-    if (vm.payloadType == AppConstants.payloadCargo &&
-        (vm.cargoFileName == null || vm.cargoFileName!.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Silakan upload dokumen manifest cargo terlebih dahulu.'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
+    // Validate Cargo if chosen
+    if (vm.payloadType == AppConstants.payloadCargo) {
+      if (vm.cargoFileName == null || vm.cargoFileName!.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Silakan upload dokumen manifest cargo terlebih dahulu.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+      
+      vm.setJenisBarang(_jenisBarangCtrl.text);
+      vm.setJumlahTonase(_jumlahTonaseCtrl.text);
+      vm.setNomorContainerCargo(_nomorContainerCargoCtrl.text);
     }
 
     if (_formKey.currentState!.validate()) {
@@ -66,16 +92,17 @@ class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
           ),
 
           // ── Payload Type Selector ──────────────────────────────────────────
-          SectionCard(
-            title: 'Tipe Muatan',
-            icon: Icons.inventory_2_outlined,
-            children: [
-              _PayloadTypeSelector(
-                selected: vm.payloadType,
-                onSelected: vm.setPayloadType,
-              ),
-            ],
-          ),
+          if (vm.wilayah != AppConstants.wilayahUtara)
+            SectionCard(
+              title: 'Tipe Muatan',
+              icon: Icons.inventory_2_outlined,
+              children: [
+                _PayloadTypeSelector(
+                  selected: vm.payloadType,
+                  onSelected: vm.setPayloadType,
+                ),
+              ],
+            ),
 
           // ── Dynamic Content based on Payload Type ─────────────────────────
           if (vm.payloadType == AppConstants.payloadContainer)
@@ -97,9 +124,32 @@ class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
               title: 'Dokumen Cargo',
               icon: Icons.description_outlined,
               children: [
+                if (vm.wilayah == AppConstants.wilayahEximen && vm.lokasiFasilitas?.toLowerCase() == 'gudang')
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: AppTextField(
+                      label: 'Nomor Container (Opsional)',
+                      hint: 'Masukkan nomor container',
+                      controller: _nomorContainerCargoCtrl,
+                    ),
+                  ),
+                AppTextField(
+                  label: 'Jenis Barang',
+                  hint: 'Masukkan jenis barang',
+                  controller: _jenisBarangCtrl,
+                  validator: (v) => AppValidators.required(v, fieldName: 'Jenis Barang'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Jumlah Tonase (Ton)',
+                  hint: 'Contoh: 10.5',
+                  controller: _jumlahTonaseCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  validator: (v) => AppValidators.required(v, fieldName: 'Jumlah Tonase'),
+                ),
+                const SizedBox(height: 16),
                 const FormInfoBanner(
-                  message: 'Upload manifest atau dokumen cargo dalam format '
-                      'PDF, JPG, atau PNG.',
+                  message: 'Upload manifest atau dokumen cargo dalam format PDF, JPG, atau PNG.',
                   icon: Icons.info_outline,
                 ),
                 const SizedBox(height: 8),

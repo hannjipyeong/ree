@@ -31,16 +31,7 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
       return;
     }
 
-    if (vm.isServiceSelected(AppConstants.serviceHaulage) &&
-        (vm.haulageFileName == null || vm.haulageFileName!.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Silakan upload dokumen untuk layanan Haulage.'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
+    // Koperasi only has TKBM and Asuransi, so we removed Haulage check.
 
     if (vm.isServiceSelected(AppConstants.serviceTKBM) &&
         vm.tkbmOption == null) {
@@ -110,41 +101,7 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
             title: 'Daftar Layanan',
             icon: Icons.add_task_outlined,
             children: [
-              ServiceCheckboxTile(
-                serviceKey: AppConstants.serviceHaulage,
-                label: 'Haulage',
-                icon: Icons.local_shipping_outlined,
-                isSelected:
-                    vm.isServiceSelected(AppConstants.serviceHaulage),
-                onToggle: () =>
-                    vm.toggleService(AppConstants.serviceHaulage),
-                expandedChild: AppFileUploadTile(
-                  label: 'Dokumen Haulage',
-                  hint: 'Upload SP2 / DO (PDF)',
-                  fileName: vm.haulageFileName,
-                  allowedExtensions: ['pdf'],
-                  onFileSelected: (name, bytes, path) =>
-                      vm.setHaulageFile(name: name, path: path ?? '', bytes: bytes),
-                  onCleared: vm.clearHaulageFile,
-                ),
-              ),
-              const Divider(height: 1),
-              ServiceCheckboxTile(
-                serviceKey: AppConstants.serviceLolo,
-                label: 'LOLO',
-                icon: Icons.precision_manufacturing_outlined,
-                isSelected: vm.isServiceSelected(AppConstants.serviceLolo),
-                onToggle: () => vm.toggleService(AppConstants.serviceLolo),
-              ),
-              const Divider(height: 1),
-              ServiceCheckboxTile(
-                serviceKey: AppConstants.servicePenumpukan,
-                label: 'Penumpukan',
-                icon: Icons.layers_outlined,
-                isSelected: vm.isServiceSelected(AppConstants.servicePenumpukan),
-                onToggle: () => vm.toggleService(AppConstants.servicePenumpukan),
-              ),
-              const Divider(height: 1),
+              // Koperasi only has TKBM and Asuransi
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceTKBM,
                 label: 'TKBM',

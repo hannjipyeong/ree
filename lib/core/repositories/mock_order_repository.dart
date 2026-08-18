@@ -1,6 +1,53 @@
 import 'package:flutter/foundation.dart';
 import 'package:bkj_app/core/services/api_service.dart';
 
+class AppContainerProgress {
+  final int id;
+  final int subTaskId;
+  final int containerId;
+  String status;
+  String? inNote;
+  String? inPhotoPath;
+  DateTime? inTime;
+  String? outNote;
+  String? outPhotoPath;
+  DateTime? outTime;
+
+  String? lockedReasonIn;
+  String? lockedReasonOut;
+
+  AppContainerProgress({
+    required this.id,
+    required this.subTaskId,
+    required this.containerId,
+    required this.status,
+    this.inNote,
+    this.inPhotoPath,
+    this.inTime,
+    this.outNote,
+    this.outPhotoPath,
+    this.outTime,
+    this.lockedReasonIn,
+    this.lockedReasonOut,
+  });
+}
+
+class AppContainer {
+  final int id;
+  final String type;
+  final String size;
+  final String number;
+  AppContainerProgress? progress;
+
+  AppContainer({
+    required this.id,
+    required this.type,
+    required this.size,
+    required this.number,
+    this.progress,
+  });
+}
+
 /// Represents a single task/order assigned to a specific service type.
 class AppOrder {
   final String id;
@@ -8,10 +55,17 @@ class AppOrder {
   final String serviceType; // e.g., 'Haulage', 'LOLO', 'Penumpukan', 'TKBM'
   final String source; // e.g., 'ALL IN', 'Koperasi', 'PBM Lain'
   final DateTime date;
+  final String? payloadType; // 'Container' or 'Cargo'
+  final List<AppContainer> containers;
   
   String status; // 'Masuk', 'In', 'Out', 'Done'
   String? inNote;
   String? outNote;
+  
+  // Cargo fields
+  final String? jenisBarang;
+  final String? jumlahTonase;
+  final String? nomorContainerCargo;
 
   AppOrder({
     required this.id,
@@ -19,7 +73,14 @@ class AppOrder {
     required this.serviceType,
     required this.source,
     required this.date,
+    this.payloadType,
+    this.containers = const [],
     this.status = 'Masuk',
+    this.inNote,
+    this.outNote,
+    this.jenisBarang,
+    this.jumlahTonase,
+    this.nomorContainerCargo,
   });
 }
 

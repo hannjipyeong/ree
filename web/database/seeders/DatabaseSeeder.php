@@ -315,5 +315,23 @@ class DatabaseSeeder extends Seeder
             'status' => 'Done',
             'in_note' => 'Bongkar muat Man Power selesai tepat waktu',
         ]);
+        // Loop through all SubTasks and create container progress if the order has containers
+        $subTasks = SubTask::all();
+        foreach ($subTasks as $st) {
+            $containers = OrderContainer::where('order_id', $st->order_id)->get();
+            foreach ($containers as $c) {
+                \App\Models\SubTaskContainerProgress::create([
+                    'sub_task_id' => $st->id,
+                    'order_container_id' => $c->id,
+                    'status' => $st->status === 'Done' ? 'Out' : ($st->status === 'In' ? 'In' : 'Pending'),
+                    'in_note' => $st->in_note,
+                    'in_photo_path' => $st->in_photo_path,
+                    'in_time' => $st->status !== 'Masuk' ? now()->subHours(2) : null,
+                    'out_note' => $st->out_note,
+                    'out_photo_path' => $st->out_photo_path,
+                    'out_time' => $st->status === 'Done' ? now() : null,
+                ]);
+            }
+        }
     }
 }

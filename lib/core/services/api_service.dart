@@ -168,6 +168,87 @@ class ApiService {
             // Data is a list of SubTasks
             for (var task in data) {
               final order = task['order'] ?? {};
+              
+              // Calculate hierarchy logic
+              final rawSubTasks = order['sub_tasks'] ?? [];
+              final hierarchy = ['Haulage', 'Lolo', 'Penumpukan', 'TKBM'];
+              final sortedSubTasks = (rawSubTasks as List)
+                  .where((st) => hierarchy.contains(st['service_type']))
+                  .toList();
+              sortedSubTasks.sort((a, b) => hierarchy.indexOf(a['service_type']).compareTo(hierarchy.indexOf(b['service_type'])));
+              
+              int currentIndex = sortedSubTasks.indexWhere((st) => st['id'] == task['id']);
+
+              // Parse containers and their progress
+              List<AppContainer> parsedContainers = [];
+              final rawContainers = order['containers'] ?? [];
+              final rawProgress = task['container_progress'] ?? task['containerProgress'] ?? [];
+              
+              for (var c in rawContainers) {
+                // Find matching progress
+                final progressMap = rawProgress.firstWhere(
+                  (p) => p['order_container_id'] == c['id'],
+                  orElse: () => null,
+                );
+                
+                AppContainerProgress? progObj;
+                if (progressMap != null) {
+                  String? lockedIn;
+                  String? lockedOut;
+
+                  if (currentIndex != -1) {
+                    // Check IN constraint (look at previous subtask in hierarchy)
+                    if (currentIndex > 0) {
+                      final prevSubTask = sortedSubTasks[currentIndex - 1];
+                      final prevProgressList = prevSubTask['container_progress'] ?? prevSubTask['containerProgress'] ?? [];
+                      final prevProg = prevProgressList.firstWhere(
+                        (p) => p['order_container_id'] == c['id'],
+                        orElse: () => null,
+                      );
+                      if (prevProg == null || (prevProg['status'] != 'In' && prevProg['status'] != 'Out')) {
+                        lockedIn = "Menunggu IN dari ${prevSubTask['service_type']}";
+                      }
+                    }
+
+                    // Check OUT constraint (look at next subtask in hierarchy)
+                    if (currentIndex < sortedSubTasks.length - 1) {
+                      final nextSubTask = sortedSubTasks[currentIndex + 1];
+                      final nextProgressList = nextSubTask['container_progress'] ?? nextSubTask['containerProgress'] ?? [];
+                      final nextProg = nextProgressList.firstWhere(
+                        (p) => p['order_container_id'] == c['id'],
+                        orElse: () => null,
+                      );
+                      if (nextProg == null || nextProg['status'] != 'Out') {
+                        lockedOut = "Menunggu OUT dari ${nextSubTask['service_type']}";
+                      }
+                    }
+                  }
+
+                  progObj = AppContainerProgress(
+                    id: progressMap['id'] ?? 0,
+                    subTaskId: progressMap['sub_task_id'] ?? 0,
+                    containerId: progressMap['order_container_id'] ?? 0,
+                    status: progressMap['status'] ?? 'Pending',
+                    inNote: progressMap['in_note'],
+                    inPhotoPath: progressMap['in_photo_path'],
+                    inTime: DateTime.tryParse(progressMap['in_time'] ?? ''),
+                    outNote: progressMap['out_note'],
+                    outPhotoPath: progressMap['out_photo_path'],
+                    outTime: DateTime.tryParse(progressMap['out_time'] ?? ''),
+                    lockedReasonIn: lockedIn,
+                    lockedReasonOut: lockedOut,
+                  );
+                }
+                
+                parsedContainers.add(AppContainer(
+                  id: c['id'] ?? 0,
+                  type: c['container_type'] ?? '',
+                  size: c['container_size'] ?? '',
+                  number: c['container_number'] ?? '',
+                  progress: progObj,
+                ));
+              }
+
               appOrders.add(AppOrder(
                 id: task['task_number']?.toString() ?? task['id'].toString(),
                 customerName: order['nama_pt'] ?? 'Unknown Customer',
@@ -175,6 +256,13 @@ class ApiService {
                 source: order['source'] ?? 'ALL IN',
                 date: DateTime.tryParse(task['created_at'] ?? '') ?? DateTime.now(),
                 status: task['status'] ?? 'Masuk',
+                payloadType: order['payload_type'] ?? 'Container',
+                jenisBarang: order['jenis_barang'],
+                jumlahTonase: order['jumlah_tonase']?.toString(),
+                nomorContainerCargo: order['nomor_container_cargo'],
+                containers: parsedContainers,
+                inNote: task['in_note'],
+                outNote: task['out_note'],
               ));
             }
           } else {
@@ -188,6 +276,10 @@ class ApiService {
                   source: order['source'] ?? 'ALL IN',
                   date: DateTime.tryParse(order['tanggal_order'] ?? '') ?? DateTime.now(),
                   status: order['status'] ?? 'Submitted',
+                  payloadType: order['payload_type'] ?? 'Container',
+                  jenisBarang: order['jenis_barang'],
+                  jumlahTonase: order['jumlah_tonase']?.toString(),
+                  nomorContainerCargo: order['nomor_container_cargo'],
                 ));
               } catch (e) {
                 debugPrint('DEBUG: Error parsing order: $e, data: $order');
@@ -221,6 +313,9 @@ class ApiService {
     required String payloadType,
     required Set<String> services,
     List<Map<String, dynamic>>? containers,
+    String? jenisBarang,
+    String? jumlahTonase,
+    String? nomorContainerCargo,
     String? cargoFilePath,
     String? haulageFilePath,
     Uint8List? cargoFileBytes,
@@ -244,6 +339,10 @@ class ApiService {
       request.fields['lokasi_fasilitas'] = lokasiFasilitas;
       request.fields['jenis_kegiatan'] = jenisKegiatan;
       request.fields['payload_type'] = payloadType;
+      
+      if (jenisBarang != null) request.fields['jenis_barang'] = jenisBarang;
+      if (jumlahTonase != null) request.fields['jumlah_tonase'] = jumlahTonase;
+      if (nomorContainerCargo != null) request.fields['nomor_container_cargo'] = nomorContainerCargo;
       
       // JSON strings for arrays
       request.fields['services'] = jsonEncode(services.toList());
@@ -285,25 +384,27 @@ class ApiService {
 
   /// 4. Update Supir Action (Multipart)
   static Future<bool> updateSubTaskAction({
-    required String taskId, 
+    required String taskId,
     required String actionType,
     required String note,
+    int? containerId,
     String? photoPath,
     Uint8List? photoBytes,
     String? photoFileName,
   }) async {
     try {
-      // API needs database ID. If taskId is task_number (REQ-...), we must ensure Laravel can handle it.
-      // Laravel route: /api/sub-tasks/{id}/action. 
       final url = Uri.parse('$baseUrl/sub-tasks/$taskId/action');
-      var request = http.MultipartRequest('POST', url);
       final headers = await getHeaders();
+      
+      final request = http.MultipartRequest('POST', url);
       request.headers.addAll(headers);
       
-      // Spoof PATCH request for Laravel
-      request.fields['_method'] = 'PATCH';
+      request.fields['_method'] = 'PATCH'; // Laravel spoofing
       request.fields['action_type'] = actionType;
       request.fields['note'] = note;
+      if (containerId != null) {
+        request.fields['container_id'] = containerId.toString();
+      }
 
       if (photoBytes != null && photoFileName != null) {
         request.files.add(http.MultipartFile.fromBytes('photo', photoBytes, filename: photoFileName));

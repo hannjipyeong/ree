@@ -15,8 +15,17 @@ class PbmLainViewModel extends ChangeNotifier {
   String? _lokasiFasilitas;
   String? _jenisKegiatan;
 
-  // ─── Page 2 State (Container ONLY) ──────────────────────────────────────────
+  // ─── Page 2 State ────────────────────────────────────────────────────────────
+  String _payloadType = AppConstants.payloadContainer;
   final List<ContainerEntry> _containers = [ContainerEntry()];
+
+  // Cargo fields
+  String? _jenisBarang;
+  String? _jumlahTonase;
+  String? _nomorContainerCargo;
+  String? _cargoFileName;
+  String? _cargoFilePath;
+  Uint8List? _cargoFileBytes;
 
   // ─── Page 3 State (fewer services) ──────────────────────────────────────────
   final Set<String> _selectedServices = {};
@@ -40,8 +49,14 @@ class PbmLainViewModel extends ChangeNotifier {
   }
 
   // ─── Page 2 Getters ──────────────────────────────────────────────────────────
+  String get payloadType => _payloadType;
   List<ContainerEntry> get containers => List.unmodifiable(_containers);
   bool get canAddContainer => _containers.length < AppConstants.maxContainers;
+
+  String? get jenisBarang => _jenisBarang;
+  String? get jumlahTonase => _jumlahTonase;
+  String? get nomorContainerCargo => _nomorContainerCargo;
+  String? get cargoFileName => _cargoFileName;
 
   // ─── Page 3 Getters ──────────────────────────────────────────────────────────
   Set<String> get selectedServices => Set.unmodifiable(_selectedServices);
@@ -88,6 +103,11 @@ class PbmLainViewModel extends ChangeNotifier {
   }
 
   // ─── Page 2 Setters ──────────────────────────────────────────────────────────
+  void setPayloadType(String value) {
+    _payloadType = value;
+    notifyListeners();
+  }
+
   void addContainer() {
     if (!canAddContainer) return;
     _containers.add(ContainerEntry());
@@ -103,6 +123,23 @@ class PbmLainViewModel extends ChangeNotifier {
   void updateContainer(int index, ContainerEntry updated) {
     if (index < 0 || index >= _containers.length) return;
     _containers[index] = updated;
+    notifyListeners();
+  }
+
+  void setJenisBarang(String value) { _jenisBarang = value; notifyListeners(); }
+  void setJumlahTonase(String value) { _jumlahTonase = value; notifyListeners(); }
+  void setNomorContainerCargo(String value) { _nomorContainerCargo = value; notifyListeners(); }
+  void setCargoFile({required String name, required String path, Uint8List? bytes}) {
+    _cargoFileName = name;
+    _cargoFilePath = path;
+    _cargoFileBytes = bytes;
+    notifyListeners();
+  }
+
+  void clearCargoFile() {
+    _cargoFileName = null;
+    _cargoFilePath = null;
+    _cargoFileBytes = null;
     notifyListeners();
   }
 
@@ -138,9 +175,15 @@ class PbmLainViewModel extends ChangeNotifier {
         wilayah: _wilayah ?? 'Utara',
         lokasiFasilitas: _lokasiFasilitas ?? 'TPFT',
         jenisKegiatan: _jenisKegiatan ?? 'cek fisik',
-        payloadType: AppConstants.payloadContainer,
+        payloadType: _payloadType,
         services: servicesToSubmit,
         containers: containerList,
+        jenisBarang: _jenisBarang,
+        jumlahTonase: _jumlahTonase,
+        nomorContainerCargo: _nomorContainerCargo,
+        cargoFilePath: _cargoFilePath,
+        cargoFileBytes: _cargoFileBytes,
+        cargoFileName: _cargoFileName,
       );
 
       if (success) {
@@ -169,8 +212,15 @@ class PbmLainViewModel extends ChangeNotifier {
     _noTelp = null;
     _lokasiFasilitas = null;
     _jenisKegiatan = null;
+    _payloadType = AppConstants.payloadContainer;
     _containers.clear();
     _containers.add(ContainerEntry());
+    _jenisBarang = null;
+    _jumlahTonase = null;
+    _nomorContainerCargo = null;
+    _cargoFileName = null;
+    _cargoFilePath = null;
+    _cargoFileBytes = null;
     _selectedServices.clear();
     _tkbmOption = null;
     _errorMessage = null;

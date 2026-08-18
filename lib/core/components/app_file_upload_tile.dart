@@ -1,24 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 
-/// A tappable tile that triggers a file picker and displays the chosen file.
-///
-/// Supports allowed extensions filtering. Calls [onFileSelected] with the
-/// file name and path, or [onCleared] when the user removes the selection.
-///
-/// Usage:
-/// ```dart
-/// AppFileUploadTile(
-///   label: 'Dokumen Haulage',
-///   hint: 'Upload SP2 (PDF/JPG)',
-///   fileName: vm.haulageFileName,
-///   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-///   onFileSelected: (name, path) => vm.setHaulageFile(name: name, path: path),
-///   onCleared: vm.clearHaulageFile,
-/// )
-/// ```
 class AppFileUploadTile extends StatefulWidget {
   final String label;
   final String? hint;
@@ -46,29 +31,83 @@ class AppFileUploadTile extends StatefulWidget {
 class _AppFileUploadTileState extends State<AppFileUploadTile> {
   bool _isLoading = false;
   String? _validationError;
+  final ImagePicker _imagePicker = ImagePicker();
+
+  Future<void> _showPickerOptions(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Kamera'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Galeri / File'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickFile();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    setState(() => _isLoading = true);
+    
+    try {
+      final XFile? image = await _imagePicker.pickImage(source: source);
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        final path = kIsWeb ? null : image.path;
+        widget.onFileSelected(image.name, bytes, path);
+        _validationError = null;
+      }
+    } catch (e) {
+      _validationError = 'Gagal mengambil gambar: $e';
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   Future<void> _pickFile() async {
     setState(() => _isLoading = true);
 
-    final type = (kIsWeb || widget.allowedExtensions == null)
-        ? FileType.any
-        : FileType.custom;
+    try {
+      final type = (kIsWeb || widget.allowedExtensions == null)
+          ? FileType.any
+          : FileType.custom;
 
-    final result = await FilePicker.platform.pickFiles(
-      type: type,
-      allowedExtensions: kIsWeb ? null : widget.allowedExtensions,
-      withData: true, // IMPORTANT: Needed for web bytes
-    );
+      final result = await FilePicker.platform.pickFiles(
+        type: type,
+        allowedExtensions: kIsWeb ? null : widget.allowedExtensions,
+        withData: true, 
+      );
 
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (result != null && result.files.isNotEmpty) {
-      final file = result.files.first;
-      _validationError = null;
-      // file.path throws on Web — use bytes only there
-      final path = kIsWeb ? null : file.path;
-      widget.onFileSelected(file.name, file.bytes, path);
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        _validationError = null;
+        final path = kIsWeb ? null : file.path;
+        widget.onFileSelected(file.name, file.bytes, path);
+      }
+    } catch (e) {
+       _validationError = 'Gagal memilih file: $e';
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -95,7 +134,7 @@ class _AppFileUploadTileState extends State<AppFileUploadTile> {
         Text(widget.label, style: AppTextStyles.label),
         const SizedBox(height: 6),
         GestureDetector(
-          onTap: hasFile ? null : _pickFile,
+          onTap: hasFile ? null : () => _showPickerOptions(context),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -173,7 +212,7 @@ class _UploadPrompt extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                hint ?? 'Ketuk untuk memilih file',
+                hint ?? 'Ketuk untuk memilih file / foto',
                 style: AppTextStyles.body1,
               ),
               if (extensions.isNotEmpty)

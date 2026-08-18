@@ -14,13 +14,13 @@ class SupirHomeScreen extends StatefulWidget {
   State<SupirHomeScreen> createState() => _SupirHomeScreenState();
 }
 
-class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _SupirHomeScreenState extends State<SupirHomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
     
     // Fetch real data from backend API
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -31,21 +31,35 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
-  void _navigateToActionScreen(BuildContext context, AppOrder order, String actionType) {
+  void _navigateToActionScreen(BuildContext context, AppOrder order) {
     Navigator.pushNamed(
       context,
       AppRoutes.supirAction,
-      arguments: SupirActionScreenArgs(order: order, actionType: actionType),
-    );
+      arguments: SupirActionScreenArgs(order: order, actionType: 'DETAIL'),
+    ).then((_) {
+      final supirType = context.read<AuthViewModel>().supirType ?? '';
+      context.read<SupirViewModel>().fetchOrders(supirType);
+    });
   }
 
-  Widget _buildOrderList(String status) {
+  Widget _buildOrderList() {
     final vm = context.watch<SupirViewModel>();
-    final orders = vm.getOrdersByStatus(status);
+    final allOrders = vm.getAllOrders();
+    
+    final orders = allOrders.where((order) {
+      if (_searchQuery.isEmpty) return true;
+      final q = _searchQuery.toLowerCase();
+      
+      final matchId = order.id.toLowerCase().contains(q);
+      final matchCustomer = order.customerName.toLowerCase().contains(q);
+      final matchContainer = order.containers.any((c) => c.number.toLowerCase().contains(q));
+      
+      return matchId || matchCustomer || matchContainer;
+    }).toList();
 
     if (vm.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -53,7 +67,10 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
 
     if (orders.isEmpty) {
       return Center(
-        child: Text('Tidak ada order dengan status $status', style: AppTextStyles.body2),
+        child: Text(
+          _searchQuery.isEmpty ? 'Tidak ada data order' : 'Tidak ditemukan hasil pencarian',
+          style: AppTextStyles.body2
+        ),
       );
     }
 
@@ -62,65 +79,56 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
+        final formattedDate = "${order.date.day.toString().padLeft(2, '0')}/${order.date.month.toString().padLeft(2, '0')}/${order.date.year} ${order.date.hour.toString().padLeft(2, '0')}:${order.date.minute.toString().padLeft(2, '0')}";
+        
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(order.id, style: AppTextStyles.caption),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        order.status,
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => _navigateToActionScreen(context, order),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(order.id, style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(order.customerName, style: AppTextStyles.heading3),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time, size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(formattedDate, style: AppTextStyles.caption),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Layanan: ${order.serviceType} • Tipe: ${order.payloadType}', style: AppTextStyles.body2),
+                  const SizedBox(height: 12),
+                  if (order.containers.isNotEmpty) ...[
+                    Text('Containers (${order.containers.length}):', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: order.containers.map((c) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: Text(
+                            c.number.isNotEmpty ? c.number : 'No Container',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Text(order.customerName, style: AppTextStyles.heading3),
-                const SizedBox(height: 4),
-                Text('Layanan: ${order.serviceType}', style: AppTextStyles.body2),
-                const SizedBox(height: 16),
-                if (status == 'Masuk')
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _navigateToActionScreen(context, order, 'IN'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Lihat Detail & Proses IN'),
-                    ),
-                  ),
-                if (status == 'In')
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _navigateToActionScreen(context, order, 'OUT'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.warning,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Proses OUT'),
-                    ),
-                  ),
-                if (status == 'Out')
-                  const Text('Sedang menunggu persetujuan Admin.', style: AppTextStyles.caption),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -136,28 +144,33 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> with SingleTickerProv
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Dashboard ${authVm.supirType ?? ''}'),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
-          tabs: const [
-            Tab(text: 'Masuk'),
-            Tab(text: 'In'),
-            Tab(text: 'Out'),
-            Tab(text: 'Done'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (val) {
+                setState(() {
+                  _searchQuery = val;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Cari PT, No Request, Container...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildOrderList('Masuk'),
-          _buildOrderList('In'),
-          _buildOrderList('Out'),
-          _buildOrderList('Done'),
-        ],
-      ),
+      body: _buildOrderList(),
     );
   }
 }

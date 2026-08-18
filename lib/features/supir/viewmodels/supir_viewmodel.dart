@@ -15,6 +15,9 @@ class SupirViewModel extends ChangeNotifier {
     return _orders.where((o) => o.status == status).toList();
   }
 
+  List<AppOrder> getAllOrders() {
+    return _orders;
+  }
   Future<void> fetchOrders(String supirType) async {
     _isLoading = true;
     _errorMessage = null;
@@ -34,6 +37,7 @@ class SupirViewModel extends ChangeNotifier {
     required String orderId,
     required String actionType,
     required String note,
+    int? containerId,
     String? photoPath,
     Uint8List? photoBytes,
     String? photoFileName,
@@ -47,21 +51,13 @@ class SupirViewModel extends ChangeNotifier {
         taskId: orderId,
         actionType: actionType,
         note: note,
+        containerId: containerId,
         photoPath: photoPath,
         photoBytes: photoBytes,
         photoFileName: photoFileName,
       );
 
       if (success) {
-        // Update local state without re-fetching
-        final index = _orders.indexWhere((o) => o.id == orderId);
-        if (index != -1) {
-          _orders[index].status = actionType == 'IN' ? 'In' : 'Out';
-          if (actionType == 'IN') _orders[index].inNote = note;
-          if (actionType == 'OUT') _orders[index].outNote = note;
-        }
-        _isLoading = false;
-        notifyListeners();
         return true;
       } else {
         _isLoading = false;

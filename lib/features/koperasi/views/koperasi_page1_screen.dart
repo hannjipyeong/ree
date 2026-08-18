@@ -53,6 +53,11 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
   Widget build(BuildContext context) {
     final vm = context.watch<KoperasiViewModel>();
 
+    // Sync PBM Name controller with VM (in case it was set to BACT by Wilayah change)
+    if (_namaPbmCtrl.text != (vm.namaPbm ?? '')) {
+      _namaPbmCtrl.text = vm.namaPbm ?? '';
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -101,6 +106,7 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                 label: 'Nama PBM',
                 hint: 'Masukkan nama PBM',
                 controller: _namaPbmCtrl,
+                readOnly: vm.wilayah == AppConstants.wilayahUtara,
                 validator: (v) => AppValidators.required(v, fieldName: 'Nama PBM'),
               ),
               AppTextField(

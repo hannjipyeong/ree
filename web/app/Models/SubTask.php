@@ -30,4 +30,9 @@ class SubTask extends Model
     {
         return $this->belongsTo(User::class, 'supir_id');
     }
+
+    public function containerProgress()
+    {
+        return $this->hasMany(SubTaskContainerProgress::class, 'sub_task_id');
+    }
 }
