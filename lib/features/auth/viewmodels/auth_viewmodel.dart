@@ -8,7 +8,7 @@ class AuthViewModel extends ChangeNotifier {
   String? _errorMessage;
 
   String _userRole = 'customer'; // 'customer' or 'supir'
-  String? _supirType; // e.g., 'Haulage', 'LOLO', 'Penumpukan', 'TBKM'
+  String? _supirType; // e.g., 'Haulage', 'LOLO', 'Penumpukan', 'TKBM'
 
   // User Profile Data
   String _fullName = '';

@@ -124,7 +124,7 @@ class AppConditionalDropdown<T> extends StatelessWidget {
 }
 
 /// A radio-button group styled as a segmented selector.
-/// Used for binary or small-set choices (e.g., TBKM options).
+/// Used for binary or small-set choices (e.g., TKBM options).
 class AppRadioGroup<T> extends StatelessWidget {
   final String label;
   final T? groupValue;

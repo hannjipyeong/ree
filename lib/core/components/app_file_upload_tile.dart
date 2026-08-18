@@ -12,7 +12,7 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 /// ```dart
 /// AppFileUploadTile(
 ///   label: 'Dokumen Haulage',
-///   hint: 'Upload surat jalan (PDF/JPG)',
+///   hint: 'Upload SP2 (PDF/JPG)',
 ///   fileName: vm.haulageFileName,
 ///   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
 ///   onFileSelected: (name, path) => vm.setHaulageFile(name: name, path: path),

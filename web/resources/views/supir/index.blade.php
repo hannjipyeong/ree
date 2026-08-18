@@ -23,7 +23,7 @@
                 <option value="Haulage" {{ request('supir_type') == 'Haulage' ? 'selected' : '' }}>Haulage</option>
                 <option value="LOLO" {{ request('supir_type') == 'LOLO' ? 'selected' : '' }}>LOLO</option>
                 <option value="Penumpukan" {{ request('supir_type') == 'Penumpukan' ? 'selected' : '' }}>Penumpukan</option>
-                <option value="TBKM" {{ request('supir_type') == 'TBKM' ? 'selected' : '' }}>TBKM</option>
+                <option value="TKBM" {{ request('supir_type') == 'TKBM' ? 'selected' : '' }}>TKBM</option>
             </select>
 
             <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-semibold hover:bg-slate-900 transition">
@@ -69,7 +69,7 @@
                                     {{ $s->supir_type == 'Haulage' ? 'bg-purple-100 text-purple-700 border border-purple-200' : '' }}
                                     {{ $s->supir_type == 'LOLO' ? 'bg-blue-100 text-blue-700 border border-blue-200' : '' }}
                                     {{ $s->supir_type == 'Penumpukan' ? 'bg-amber-100 text-amber-700 border border-amber-200' : '' }}
-                                    {{ $s->supir_type == 'TBKM' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : '' }}">
+                                    {{ $s->supir_type == 'TKBM' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : '' }}">
                                     {{ $s->supir_type }}
                                 </span>
                             </td>
@@ -137,7 +137,7 @@
                     <option value="Haulage">Haulage</option>
                     <option value="LOLO">LOLO</option>
                     <option value="Penumpukan">Penumpukan</option>
-                    <option value="TBKM">TBKM</option>
+                    <option value="TKBM">TKBM</option>
                 </select>
             </div>
 
@@ -193,7 +193,7 @@
                     <option value="Haulage">Haulage</option>
                     <option value="LOLO">LOLO</option>
                     <option value="Penumpukan">Penumpukan</option>
-                    <option value="TBKM">TBKM</option>
+                    <option value="TKBM">TKBM</option>
                 </select>
             </div>
 

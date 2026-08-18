@@ -5,7 +5,7 @@ import 'package:bkj_app/core/services/api_service.dart';
 class AppOrder {
   final String id;
   final String customerName;
-  final String serviceType; // e.g., 'Haulage', 'LOLO', 'Penumpukan', 'TBKM'
+  final String serviceType; // e.g., 'Haulage', 'LOLO', 'Penumpukan', 'TKBM'
   final String source; // e.g., 'ALL IN', 'Koperasi', 'PBM Lain'
   final DateTime date;
   
@@ -42,10 +42,10 @@ class MockOrderRepository extends ChangeNotifier {
     AppOrder(id: 'REQ-3002-PEN', customerName: 'PT Lintas Samudra', serviceType: 'Penumpukan', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 3)), status: 'In'),
     AppOrder(id: 'REQ-3003-PEN', customerName: 'PT Logistik Utama', serviceType: 'Penumpukan', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
     
-    // --- TBKM Mock Data ---
-    AppOrder(id: 'REQ-4001-TBK', customerName: 'PT Samudra Jaya', serviceType: 'TBKM', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
-    AppOrder(id: 'REQ-4002-TBK', customerName: 'PT Kargo Lestari', serviceType: 'TBKM', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 4)), status: 'In'),
-    AppOrder(id: 'REQ-4003-TBK', customerName: 'PT Trans Nusa', serviceType: 'TBKM', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 3)), status: 'Out'),
+    // --- TKBM Mock Data ---
+    AppOrder(id: 'REQ-4001-TBK', customerName: 'PT Samudra Jaya', serviceType: 'TKBM', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-4002-TBK', customerName: 'PT Kargo Lestari', serviceType: 'TKBM', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 4)), status: 'In'),
+    AppOrder(id: 'REQ-4003-TBK', customerName: 'PT Trans Nusa', serviceType: 'TKBM', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 3)), status: 'Out'),
   ];
 
   List<AppOrder> get orders => List.unmodifiable(_orders);
@@ -81,7 +81,7 @@ class MockOrderRepository extends ChangeNotifier {
     ApiService.submitOrder(
       source: source,
       namaPt: customerName,
-      namaPbm: 'PT. ABC',
+      namaPbm: 'PT Bintang Kepri Jaya',
       noTelp: '081234567890',
       wilayah: 'Selatan',
       lokasiFasilitas: 'TPFT',

@@ -45,7 +45,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-2">Nama PBM *</label>
-                        <input type="text" name="nama_pbm" value="PT. ABC" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <input type="text" name="nama_pbm" value="PT Bintang Kepri Jaya" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
                     </div>
 
                     <div>
@@ -131,8 +131,8 @@
                     </label>
 
                     <label class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="services[]" value="TBKM" class="w-4 h-4 text-blue-600 rounded">
-                        <span class="text-sm font-semibold text-slate-800">TBKM</span>
+                        <input type="checkbox" name="services[]" value="TKBM" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm font-semibold text-slate-800">TKBM</span>
                     </label>
                 </div>
             </div>

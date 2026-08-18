@@ -105,12 +105,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $supirTbkm1 = User::create([
-            'name' => 'Supir TBKM Utama',
-            'email' => 'supir_tbkm@bkj.com',
+            'name' => 'Supir TKBM Utama',
+            'email' => 'supir_tkbm@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001104',
             'role' => 'supir',
-            'supir_type' => 'TBKM',
+            'supir_type' => 'TKBM',
         ]);
 
         // 4. Sample Orders & Sub-Tasks
@@ -122,13 +122,13 @@ class DatabaseSeeder extends Seeder
             'source' => 'ALL IN',
             'tanggal_order' => now(),
             'nama_pt' => 'PT. Transport Nusantara',
-            'nama_pbm' => 'PT. ABC',
+            'nama_pbm' => 'PT Bintang Kepri Jaya',
             'no_telp' => '081234567890',
             'wilayah' => 'Selatan',
             'lokasi_fasilitas' => 'TPFT',
             'jenis_kegiatan' => 'cek fisik',
             'payload_type' => 'Container',
-            'tbkm_option' => 'Man Power + Forklift',
+            'tkbm_option' => 'Man Power + Forklift',
             'has_asuransi' => true,
             'asuransi_value' => 75000000,
             'status' => 'In Progress',
@@ -183,7 +183,7 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '081399887766',
             'wilayah' => 'Eximen',
             'lokasi_fasilitas' => 'CFS',
-            'jenis_kegiatan' => 'striping / staffing',
+            'jenis_kegiatan' => 'stripping / staffing',
             'payload_type' => 'Container',
             'status' => 'Submitted',
             'created_at' => now()->subMinutes(30),
@@ -199,7 +199,7 @@ class DatabaseSeeder extends Seeder
         SubTask::create([
             'task_number' => 'REQ-1002-TBK',
             'order_id' => $order2->id,
-            'service_type' => 'TBKM',
+            'service_type' => 'TKBM',
             'supir_id' => $supirTbkm1->id,
             'status' => 'Masuk',
         ]);
@@ -255,13 +255,13 @@ class DatabaseSeeder extends Seeder
             'source' => 'ALL IN',
             'tanggal_order' => now()->subDays(2),
             'nama_pt' => 'PT. Bahari Kargo Indonesia',
-            'nama_pbm' => 'PT. ABC',
+            'nama_pbm' => 'PT Bintang Kepri Jaya',
             'no_telp' => '081800112233',
             'wilayah' => 'Selatan',
             'lokasi_fasilitas' => 'CFS',
-            'jenis_kegiatan' => 'striping / staffing',
+            'jenis_kegiatan' => 'stripping / staffing',
             'payload_type' => 'Container',
-            'tbkm_option' => 'Man Power',
+            'tkbm_option' => 'Man Power',
             'status' => 'In Progress',
             'created_at' => now()->subDays(2),
         ]);
@@ -310,7 +310,7 @@ class DatabaseSeeder extends Seeder
         SubTask::create([
             'task_number' => 'REQ-1005-TBK',
             'order_id' => $order5->id,
-            'service_type' => 'TBKM',
+            'service_type' => 'TKBM',
             'supir_id' => $supirTbkm1->id,
             'status' => 'Done',
             'in_note' => 'Bongkar muat Man Power selesai tepat waktu',

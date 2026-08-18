@@ -61,7 +61,7 @@ class RequestController extends Controller
             'containers' => 'nullable|array',
             'cargo_file' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
             'haulage_file' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
-            'tbkm_option' => 'nullable|string',
+            'tkbm_option' => 'nullable|string',
         ]);
 
         $cargoPath = null;
@@ -92,7 +92,7 @@ class RequestController extends Controller
             'payload_type' => $validated['payload_type'],
             'cargo_file_path' => $cargoPath,
             'haulage_file_path' => $haulagePath,
-            'tbkm_option' => $request->tbkm_option,
+            'tkbm_option' => $request->tkbm_option,
             'has_asuransi' => $hasAsuransi,
             'asuransi_value' => $asuransiValue,
             'status' => 'Submitted',
@@ -112,7 +112,7 @@ class RequestController extends Controller
             }
         }
 
-        // Sub Tasks per selected supir service ONLY (Haulage, LOLO, Penumpukan, TBKM)
+        // Sub Tasks per selected supir service ONLY (Haulage, LOLO, Penumpukan, TKBM)
         $supirServices = array_filter($validated['services'], fn($s) => $s !== 'Asuransi');
         foreach ($supirServices as $service) {
             $taskCode = strtoupper(substr($service, 0, 3));

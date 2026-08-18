@@ -7,7 +7,7 @@ import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 
-/// PBM Lain — Page 3: Additional services (LOLO, TBKM, Asuransi).
+/// PBM Lain — Page 3: Additional services (LOLO, TKBM, Asuransi).
 class PbmLainPage3Screen extends StatefulWidget {
   const PbmLainPage3Screen({super.key});
 
@@ -31,11 +31,11 @@ class _PbmLainPage3ScreenState extends State<PbmLainPage3Screen> {
       return;
     }
 
-    if (vm.isServiceSelected(AppConstants.serviceTBKM) &&
-        vm.tbkmOption == null) {
+    if (vm.isServiceSelected(AppConstants.serviceTKBM) &&
+        vm.tkbmOption == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Silakan pilih opsi untuk layanan TBKM.'),
+          content: Text('Silakan pilih opsi untuk layanan TKBM.'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -107,20 +107,20 @@ class _PbmLainPage3ScreenState extends State<PbmLainPage3Screen> {
               ),
               const Divider(height: 1),
               ServiceCheckboxTile(
-                serviceKey: AppConstants.serviceTBKM,
-                label: 'TBKM',
+                serviceKey: AppConstants.serviceTKBM,
+                label: 'TKBM',
                 icon: Icons.people_alt_outlined,
-                isSelected: vm.isServiceSelected(AppConstants.serviceTBKM),
-                onToggle: () => vm.toggleService(AppConstants.serviceTBKM),
+                isSelected: vm.isServiceSelected(AppConstants.serviceTKBM),
+                onToggle: () => vm.toggleService(AppConstants.serviceTKBM),
                 expandedChild: AppRadioGroup<String>(
-                  label: 'Opsi TBKM',
-                  groupValue: vm.tbkmOption,
-                  options: AppConstants.tbkmOptions,
+                  label: 'Opsi TKBM',
+                  groupValue: vm.tkbmOption,
+                  options: AppConstants.tkbmOptions,
                   optionLabel: (v) => v,
                   onChanged: vm.setTbkmOption,
                   validator: (v) => AppValidators.requiredDropdown(
                     v,
-                    fieldName: 'Opsi TBKM',
+                    fieldName: 'Opsi TKBM',
                   ),
                 ),
               ),

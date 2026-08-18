@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('task_number')->unique();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->string('service_type'); // Haulage, LOLO, Penumpukan, TBKM
+            $table->string('service_type'); // Haulage, LOLO, Penumpukan, TKBM
             $table->foreignId('supir_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('status')->default('Masuk'); // Masuk, In, Out, Done
             $table->text('in_note')->nullable();

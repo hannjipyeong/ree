@@ -106,14 +106,14 @@ class AppConstants {
   static const String serviceHaulage = 'Haulage';
   static const String serviceLolo = 'LOLO';
   static const String servicePenumpukan = 'Penumpukan';
-  static const String serviceTBKM = 'TBKM';
+  static const String serviceTKBM = 'TKBM';
   static const String serviceAsuransi = 'Asuransi';
 
   static const List<String> servicesAllIn = [
     serviceHaulage,
     serviceLolo,
     servicePenumpukan,
-    serviceTBKM,
+    serviceTKBM,
     serviceAsuransi,
   ];
 
@@ -121,18 +121,18 @@ class AppConstants {
     serviceHaulage,
     serviceLolo,
     servicePenumpukan,
-    serviceTBKM,
+    serviceTKBM,
     serviceAsuransi,
   ];
 
   static const List<String> servicesPbmLain = [
     serviceLolo,
-    serviceTBKM,
+    serviceTKBM,
     serviceAsuransi,
   ];
 
-  // ─── TBKM Options ───────────────────────────────────────────────────────────
-  static const List<String> tbkmOptions = ['Man Power', 'Man Power + Forklift'];
+  // ─── TKBM Options ───────────────────────────────────────────────────────────
+  static const List<String> tkbmOptions = ['Man Power', 'Man Power + Forklift'];
 
   // ─── Pagination / UI ────────────────────────────────────────────────────────
   static const int totalStepsAllIn = 3;

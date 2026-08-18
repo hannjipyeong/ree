@@ -20,7 +20,7 @@ class PbmLainViewModel extends ChangeNotifier {
 
   // ─── Page 3 State (fewer services) ──────────────────────────────────────────
   final Set<String> _selectedServices = {};
-  String? _tbkmOption;
+  String? _tkbmOption;
 
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -46,7 +46,7 @@ class PbmLainViewModel extends ChangeNotifier {
   // ─── Page 3 Getters ──────────────────────────────────────────────────────────
   Set<String> get selectedServices => Set.unmodifiable(_selectedServices);
   bool isServiceSelected(String service) => _selectedServices.contains(service);
-  String? get tbkmOption => _tbkmOption;
+  String? get tkbmOption => _tkbmOption;
 
   bool get isSubmitting => _isSubmitting;
   String? get errorMessage => _errorMessage;
@@ -117,7 +117,7 @@ class PbmLainViewModel extends ChangeNotifier {
   }
 
   void setTbkmOption(String? option) {
-    _tbkmOption = option;
+    _tkbmOption = option;
     notifyListeners();
   }
 
@@ -126,7 +126,7 @@ class PbmLainViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final servicesToSubmit = _selectedServices.isEmpty ? {'TBKM'} : _selectedServices;
+      final servicesToSubmit = _selectedServices.isEmpty ? {'TKBM'} : _selectedServices;
       
       final containerList = _containers.map((c) => c.toJson()).toList();
 
@@ -172,7 +172,7 @@ class PbmLainViewModel extends ChangeNotifier {
     _containers.clear();
     _containers.add(ContainerEntry());
     _selectedServices.clear();
-    _tbkmOption = null;
+    _tkbmOption = null;
     _errorMessage = null;
     notifyListeners();
   }

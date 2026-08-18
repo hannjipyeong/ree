@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone')->nullable();
             $table->string('role')->default('customer'); // 'admin', 'customer', 'supir'
-            $table->string('supir_type')->nullable(); // 'Haulage', 'LOLO', 'Penumpukan', 'TBKM'
+            $table->string('supir_type')->nullable(); // 'Haulage', 'LOLO', 'Penumpukan', 'TKBM'
             $table->rememberToken();
             $table->timestamps();
         });

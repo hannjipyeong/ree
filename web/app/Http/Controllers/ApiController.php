@@ -143,7 +143,7 @@ class ApiController extends Controller
             'payload_type' => 'required|string',
             'services' => 'required', // Array or JSON string
             'containers' => 'nullable', // Array or JSON string
-            'tbkm_option' => 'nullable|string',
+            'tkbm_option' => 'nullable|string',
         ]);
 
         $cargoPath = null;
@@ -170,7 +170,7 @@ class ApiController extends Controller
             'source' => $validated['source'],
             'tanggal_order' => $validated['tanggal_order'],
             'nama_pt' => $validated['nama_pt'],
-            'nama_pbm' => $validated['nama_pbm'] ?? 'PT. ABC',
+            'nama_pbm' => $validated['nama_pbm'] ?? 'PT Bintang Kepri Jaya',
             'no_telp' => $validated['no_telp'],
             'wilayah' => $validated['wilayah'],
             'lokasi_fasilitas' => $validated['lokasi_fasilitas'],
@@ -178,7 +178,7 @@ class ApiController extends Controller
             'payload_type' => $validated['payload_type'],
             'cargo_file_path' => $cargoPath ? Storage::url($cargoPath) : null,
             'haulage_file_path' => $haulagePath ? Storage::url($haulagePath) : null,
-            'tbkm_option' => $request->tbkm_option,
+            'tkbm_option' => $request->tkbm_option,
             'has_asuransi' => $hasAsuransi,
             'asuransi_value' => $asuransiValue,
             'status' => 'Submitted',

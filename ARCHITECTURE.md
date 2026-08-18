@@ -196,10 +196,10 @@ All constants live in `lib/core/utils/app_constants.dart`. Never hardcode these 
 ### Layanan / Services (Page 3)
 | Service | ALL IN | Koperasi | PBM Lain | Sub-option |
 |---------|--------|----------|----------|------------|
-| Haulage | ✅ | ✅ | ❌ | File upload (surat jalan) |
+| Haulage | ✅ | ✅ | ❌ | File upload (SP2) |
 | LOLO | ✅ | ✅ | ✅ | None |
 | Penumpukan | ✅ | ✅ | ✅ | None |
-| TBKM | ✅ | ✅ | ✅ | Radio: `Dalam Pelabuhan` / `Luar Pelabuhan` |
+| TKBM | ✅ | ✅ | ✅ | Radio: `Dalam Pelabuhan` / `Luar Pelabuhan` |
 | Asuransi | ✅ | ✅ | ❌ | Numeric input (nilai asuransi) |
 
 ---
@@ -223,7 +223,7 @@ All constants live in `lib/core/utils/app_constants.dart`. Never hardcode these 
 | `cargoFileName` | `String?` | Cargo file name |
 | `selectedServices` | `Set<String>` | Selected service keys |
 | `haulageFileName` | `String?` | Haulage document |
-| `tbkmOption` | `String?` | TBKM radio selection |
+| `tkbmOption` | `String?` | TKBM radio selection |
 | `asuransiValue` | `double` | Insurance value |
 | `isSubmitting` | `bool` | Loading state during submit |
 
@@ -238,7 +238,7 @@ Key methods: `setWilayah()`, `setJenisKegiatan()`, `addContainer()`, `removeCont
 ### PbmLainViewModel (`lib/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart`)
 **Streamlined version:**
 - Page 2: Container ONLY (no `payloadType` toggle, no Cargo)
-- Page 3: LOLO, Penumpukan, TBKM only (no Haulage, no Asuransi)
+- Page 3: LOLO, Penumpukan, TKBM only (no Haulage, no Asuransi)
 - Has `namaPbm` field for PBM name
 
 ### ProfileViewModel (`lib/features/profile/viewmodels/profile_viewmodel.dart`)
@@ -313,7 +313,7 @@ AppButton(label: 'Hapus', onPressed: _delete, variant: AppButtonVariant.danger)
 ```dart
 AppFileUploadTile(
   label: 'Dokumen Haulage',
-  hint: 'Upload surat jalan (PDF/JPG)',
+  hint: 'Upload SP2 (PDF/JPG)',
   fileName: vm.haulageFileName,
   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
   onFileSelected: (name, path) => vm.setHaulageFile(name: name, path: path),

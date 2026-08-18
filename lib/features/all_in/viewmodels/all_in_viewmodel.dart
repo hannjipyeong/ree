@@ -10,7 +10,7 @@ class AllInViewModel extends ChangeNotifier {
   DateTime? _tanggalOrder;
   String? _wilayah;
   String? _namaPt;
-  final String _namaPbm = 'PT. ABC'; // Auto-filled per business rule
+  final String _namaPbm = 'PT Bintang Kepri Jaya'; // Auto-filled per business rule
   String? _noTelp;
   String? _lokasiFasilitas;
   String? _jenisKegiatan;
@@ -28,8 +28,8 @@ class AllInViewModel extends ChangeNotifier {
   String? _haulageFileName;
   String? _haulageFilePath;
   Uint8List? _haulageFileBytes;
-  // TBKM
-  String? _tbkmOption;
+  // TKBM
+  String? _tkbmOption;
 
   // ─── Shared ──────────────────────────────────────────────────────────────────
   bool _isSubmitting = false;
@@ -69,7 +69,7 @@ class AllInViewModel extends ChangeNotifier {
   bool isServiceSelected(String service) => _selectedServices.contains(service);
   String? get haulageFileName => _haulageFileName;
   String? get haulageFilePath => _haulageFilePath;
-  String? get tbkmOption => _tbkmOption;
+  String? get tkbmOption => _tkbmOption;
 
   // ─── Shared Getters ──────────────────────────────────────────────────────────
   bool get isSubmitting => _isSubmitting;
@@ -174,7 +174,7 @@ class AllInViewModel extends ChangeNotifier {
   }
 
   void setTbkmOption(String? option) {
-    _tbkmOption = option;
+    _tkbmOption = option;
     notifyListeners();
   }
 
@@ -247,7 +247,7 @@ class AllInViewModel extends ChangeNotifier {
     _haulageFileName = null;
     _haulageFilePath = null;
     _haulageFileBytes = null;
-    _tbkmOption = null;
+    _tkbmOption = null;
     _errorMessage = null;
     notifyListeners();
   }

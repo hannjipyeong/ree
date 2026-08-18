@@ -27,7 +27,7 @@ class KoperasiViewModel extends ChangeNotifier {
   String? _haulageFileName;
   String? _haulageFilePath;
   Uint8List? _haulageFileBytes;
-  String? _tbkmOption;
+  String? _tkbmOption;
 
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -67,7 +67,7 @@ class KoperasiViewModel extends ChangeNotifier {
   bool isServiceSelected(String service) => _selectedServices.contains(service);
   String? get haulageFileName => _haulageFileName;
   String? get haulageFilePath => _haulageFilePath;
-  String? get tbkmOption => _tbkmOption;
+  String? get tkbmOption => _tkbmOption;
 
   bool get isSubmitting => _isSubmitting;
   String? get errorMessage => _errorMessage;
@@ -172,7 +172,7 @@ class KoperasiViewModel extends ChangeNotifier {
   }
 
   void setTbkmOption(String? option) {
-    _tbkmOption = option;
+    _tkbmOption = option;
     notifyListeners();
   }
 
@@ -190,7 +190,7 @@ class KoperasiViewModel extends ChangeNotifier {
       final success = await ApiService.submitOrder(
         source: 'Koperasi',
         namaPt: _namaPt ?? 'Unknown PT',
-        namaPbm: _namaPbm ?? 'PT. ABC',
+        namaPbm: _namaPbm ?? 'PT Bintang Kepri Jaya',
         noTelp: _noTelp ?? '081234567890',
         wilayah: _wilayah ?? 'Utara',
         lokasiFasilitas: _lokasiFasilitas ?? 'TPFT',
@@ -242,7 +242,7 @@ class KoperasiViewModel extends ChangeNotifier {
     _haulageFileName = null;
     _haulageFilePath = null;
     _haulageFileBytes = null;
-    _tbkmOption = null;
+    _tkbmOption = null;
     _errorMessage = null;
     notifyListeners();
   }

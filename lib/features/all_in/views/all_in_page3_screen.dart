@@ -8,7 +8,7 @@ import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/all_in/viewmodels/all_in_viewmodel.dart';
 
 /// ALL IN — Page 3: Multi-select services with conditional sub-options.
-/// Services: Haulage (+ file), LOLO, Penumpukan, TBKM (+ radio), Asuransi (+ value)
+/// Services: Haulage (+ file), LOLO, Penumpukan, TKBM (+ radio), Asuransi (+ value)
 class AllInPage3Screen extends StatefulWidget {
   const AllInPage3Screen({super.key});
 
@@ -44,12 +44,12 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
       return;
     }
 
-    // Validate TBKM option if selected
-    if (vm.isServiceSelected(AppConstants.serviceTBKM) &&
-        vm.tbkmOption == null) {
+    // Validate TKBM option if selected
+    if (vm.isServiceSelected(AppConstants.serviceTKBM) &&
+        vm.tkbmOption == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Pilih lokasi TBKM terlebih dahulu.'),
+          content: Text('Pilih lokasi TKBM terlebih dahulu.'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -135,7 +135,7 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
                 onToggle: () => vm.toggleService(AppConstants.serviceHaulage),
                 expandedChild: AppFileUploadTile(
                   label: 'Dokumen Haulage',
-                  hint: 'Upload surat jalan (PDF / JPG / PNG)',
+                  hint: 'Upload SP2 (PDF / JPG / PNG)',
                   fileName: vm.haulageFileName,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                   onFileSelected: (name, bytes, path) =>
@@ -164,22 +164,22 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
                     vm.toggleService(AppConstants.servicePenumpukan),
               ),
 
-              // ── TBKM ───────────────────────────────────────────────────────
+              // ── TKBM ───────────────────────────────────────────────────────
               ServiceCheckboxTile(
-                serviceKey: AppConstants.serviceTBKM,
-                label: 'TBKM',
+                serviceKey: AppConstants.serviceTKBM,
+                label: 'TKBM',
                 icon: Icons.security_outlined,
-                isSelected: vm.isServiceSelected(AppConstants.serviceTBKM),
-                onToggle: () => vm.toggleService(AppConstants.serviceTBKM),
+                isSelected: vm.isServiceSelected(AppConstants.serviceTKBM),
+                onToggle: () => vm.toggleService(AppConstants.serviceTKBM),
                 expandedChild: AppRadioGroup<String>(
-                  label: 'Lokasi TBKM',
-                  groupValue: vm.tbkmOption,
-                  options: AppConstants.tbkmOptions,
+                  label: 'Lokasi TKBM',
+                  groupValue: vm.tkbmOption,
+                  options: AppConstants.tkbmOptions,
                   optionLabel: (v) => v,
                   onChanged: vm.setTbkmOption,
                   validator: (v) => AppValidators.requiredDropdown(
                     v,
-                    fieldName: 'Lokasi TBKM',
+                    fieldName: 'Lokasi TKBM',
                   ),
                 ),
               ),

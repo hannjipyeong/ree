@@ -37,7 +37,7 @@ class SupirController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string',
             'password' => 'required|string|min:6',
-            'supir_type' => 'required|in:Haulage,LOLO,Penumpukan,TBKM',
+            'supir_type' => 'required|in:Haulage,LOLO,Penumpukan,TKBM',
         ]);
 
         User::create([
@@ -59,7 +59,7 @@ class SupirController extends Controller
             'email' => 'required|email|unique:users,email,' . $supir->id,
             'phone' => 'required|string',
             'password' => 'nullable|string|min:6',
-            'supir_type' => 'required|in:Haulage,LOLO,Penumpukan,TBKM',
+            'supir_type' => 'required|in:Haulage,LOLO,Penumpukan,TKBM',
         ]);
 
         $supir->name = $validated['name'];

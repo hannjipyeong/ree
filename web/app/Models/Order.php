@@ -23,7 +23,7 @@ class Order extends Model
         'payload_type',
         'cargo_file_path',
         'haulage_file_path',
-        'tbkm_option',
+        'tkbm_option',
         'has_asuransi',
         'asuransi_value',
         'status',

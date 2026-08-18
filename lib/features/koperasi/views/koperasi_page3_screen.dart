@@ -42,11 +42,11 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
       return;
     }
 
-    if (vm.isServiceSelected(AppConstants.serviceTBKM) &&
-        vm.tbkmOption == null) {
+    if (vm.isServiceSelected(AppConstants.serviceTKBM) &&
+        vm.tkbmOption == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Silakan pilih opsi untuk layanan TBKM.'),
+          content: Text('Silakan pilih opsi untuk layanan TKBM.'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -120,7 +120,7 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
                     vm.toggleService(AppConstants.serviceHaulage),
                 expandedChild: AppFileUploadTile(
                   label: 'Dokumen Haulage',
-                  hint: 'Upload surat jalan / DO (PDF)',
+                  hint: 'Upload SP2 / DO (PDF)',
                   fileName: vm.haulageFileName,
                   allowedExtensions: ['pdf'],
                   onFileSelected: (name, bytes, path) =>
@@ -146,20 +146,20 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
               ),
               const Divider(height: 1),
               ServiceCheckboxTile(
-                serviceKey: AppConstants.serviceTBKM,
-                label: 'TBKM',
+                serviceKey: AppConstants.serviceTKBM,
+                label: 'TKBM',
                 icon: Icons.people_alt_outlined,
-                isSelected: vm.isServiceSelected(AppConstants.serviceTBKM),
-                onToggle: () => vm.toggleService(AppConstants.serviceTBKM),
+                isSelected: vm.isServiceSelected(AppConstants.serviceTKBM),
+                onToggle: () => vm.toggleService(AppConstants.serviceTKBM),
                 expandedChild: AppRadioGroup<String>(
-                  label: 'Opsi TBKM',
-                  groupValue: vm.tbkmOption,
-                  options: AppConstants.tbkmOptions,
+                  label: 'Opsi TKBM',
+                  groupValue: vm.tkbmOption,
+                  options: AppConstants.tkbmOptions,
                   optionLabel: (v) => v,
                   onChanged: vm.setTbkmOption,
                   validator: (v) => AppValidators.requiredDropdown(
                     v,
-                    fieldName: 'Opsi TBKM',
+                    fieldName: 'Opsi TKBM',
                   ),
                 ),
               ),
