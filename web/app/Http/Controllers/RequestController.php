@@ -76,6 +76,9 @@ class RequestController extends Controller
 
         $orderNumber = 'ORD-' . date('Ymd') . '-' . rand(100, 999);
 
+        $hasAsuransi = in_array('Asuransi', $validated['services']) || $request->boolean('has_asuransi');
+        $asuransiValue = $request->input('asuransi_value');
+
         $order = Order::create([
             'order_number' => $orderNumber,
             'source' => $validated['source'],
@@ -90,6 +93,8 @@ class RequestController extends Controller
             'cargo_file_path' => $cargoPath,
             'haulage_file_path' => $haulagePath,
             'tbkm_option' => $request->tbkm_option,
+            'has_asuransi' => $hasAsuransi,
+            'asuransi_value' => $asuransiValue,
             'status' => 'Submitted',
         ]);
 
@@ -107,8 +112,9 @@ class RequestController extends Controller
             }
         }
 
-        // Sub Tasks per selected service
-        foreach ($validated['services'] as $service) {
+        // Sub Tasks per selected supir service ONLY (Haulage, LOLO, Penumpukan, TBKM)
+        $supirServices = array_filter($validated['services'], fn($s) => $s !== 'Asuransi');
+        foreach ($supirServices as $service) {
             $taskCode = strtoupper(substr($service, 0, 3));
             $taskNumber = 'REQ-' . time() . '-' . rand(10, 99) . '-' . $taskCode;
 

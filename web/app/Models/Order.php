@@ -24,6 +24,8 @@ class Order extends Model
         'cargo_file_path',
         'haulage_file_path',
         'tbkm_option',
+        'has_asuransi',
+        'asuransi_value',
         'status',
     ];
 
@@ -31,6 +33,8 @@ class Order extends Model
     {
         return [
             'tanggal_order' => 'date',
+            'has_asuransi' => 'boolean',
+            'asuransi_value' => 'decimal:2',
         ];
     }
 

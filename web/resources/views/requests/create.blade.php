@@ -137,6 +137,26 @@
                 </div>
             </div>
 
+            <!-- Section 4: Layanan Tambahan (Additional Services / Non-Supir) -->
+            <div>
+                <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                    4. Layanan Tambahan (Extra Services / Non-Supir)
+                </h3>
+
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="has_asuransi" value="1" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm font-semibold text-slate-800">Gunakan Jasa Asuransi Cargo / Freight Protection</span>
+                    </label>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nilai Pertanggungan Asuransi (Rp)</label>
+                        <input type="number" name="asuransi_value" placeholder="Contoh: 50000000" class="w-full md:w-1/2 py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs">
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit Button -->
             <div class="pt-4 border-t border-slate-100 flex justify-end">
                 <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-lg shadow-blue-600/30 transition">

@@ -18,7 +18,7 @@
     </div>
 
     <!-- Overview Card -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
             <div class="text-xs text-slate-400 font-bold uppercase">Customer / PT</div>
             <div class="text-lg font-bold text-slate-800 mt-1">{{ $order->nama_pt }}</div>
@@ -32,9 +32,25 @@
         </div>
 
         <div>
-            <div class="text-xs text-slate-400 font-bold uppercase">Tanggal Order</div>
+            <div class="text-xs text-slate-400 font-bold uppercase">Tanggal Order & Payload</div>
             <div class="text-base font-bold text-slate-800 mt-1">{{ $order->tanggal_order->format('d F Y') }}</div>
             <div class="text-xs text-slate-500 mt-0.5">Payload: {{ $order->payload_type }}</div>
+        </div>
+
+        <div>
+            <div class="text-xs text-slate-400 font-bold uppercase">Layanan Tambahan</div>
+            <div class="text-base font-bold text-slate-800 mt-1">
+                @if($order->has_asuransi)
+                    <span class="text-emerald-600 flex items-center gap-1 text-sm">
+                        <i class="fa-solid fa-shield-halved"></i> Asuransi Cargo Aktif
+                    </span>
+                    @if($order->asuransi_value)
+                        <div class="text-xs text-slate-500 font-normal">Pertanggungan: Rp {{ number_format($order->asuransi_value, 0, ',', '.') }}</div>
+                    @endif
+                @else
+                    <span class="text-slate-400 font-normal text-sm">Tanpa Asuransi</span>
+                @endif
+            </div>
         </div>
     </div>
 

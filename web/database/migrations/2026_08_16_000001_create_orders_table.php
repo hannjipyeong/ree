@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('cargo_file_path')->nullable();
             $table->string('haulage_file_path')->nullable();
             $table->string('tbkm_option')->nullable(); // Man Power, Man Power + Forklift
+            $table->boolean('has_asuransi')->default(false); // Additional Service
+            $table->decimal('asuransi_value', 15, 2)->nullable(); // Nilai Asuransi
             $table->string('status')->default('Submitted'); // Submitted, In Progress, Completed, Cancelled
             $table->timestamps();
         });

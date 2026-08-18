@@ -159,11 +159,12 @@ class ApiController extends Controller
         $services = is_string($validated['services']) ? json_decode($validated['services'], true) : $validated['services'];
         $containers = is_string($request->containers) ? json_decode($request->containers, true) : $request->containers;
 
-        $orderNumber = 'ORD-' . date('Ymd') . '-' . rand(100, 999);
+        $hasAsuransi = (is_array($services) && in_array('Asuransi', $services)) || $request->boolean('has_asuransi');
+        $asuransiValue = $request->input('asuransi_value');
 
         $order = Order::create([
             'order_number' => $orderNumber,
-            'customer_id' => $request->user()->id,
+            'customer_id' => optional($request->user())->id,
             'source' => $validated['source'],
             'tanggal_order' => $validated['tanggal_order'],
             'nama_pt' => $validated['nama_pt'],
@@ -176,6 +177,8 @@ class ApiController extends Controller
             'cargo_file_path' => $cargoPath ? Storage::url($cargoPath) : null,
             'haulage_file_path' => $haulagePath ? Storage::url($haulagePath) : null,
             'tbkm_option' => $request->tbkm_option,
+            'has_asuransi' => $hasAsuransi,
+            'asuransi_value' => $asuransiValue,
             'status' => 'Submitted',
         ]);
 
@@ -193,7 +196,8 @@ class ApiController extends Controller
         }
 
         if (is_array($services)) {
-            foreach ($services as $service) {
+            $supirServices = array_filter($services, fn($s) => $s !== 'Asuransi');
+            foreach ($supirServices as $service) {
                 $taskCode = strtoupper(substr($service, 0, 3));
                 $taskNumber = 'REQ-' . time() . '-' . rand(10, 99) . '-' . $taskCode;
 

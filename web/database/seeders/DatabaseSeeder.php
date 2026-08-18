@@ -129,6 +129,8 @@ class DatabaseSeeder extends Seeder
             'jenis_kegiatan' => 'cek fisik',
             'payload_type' => 'Container',
             'tbkm_option' => 'Man Power + Forklift',
+            'has_asuransi' => true,
+            'asuransi_value' => 75000000,
             'status' => 'In Progress',
             'created_at' => now(),
         ]);
