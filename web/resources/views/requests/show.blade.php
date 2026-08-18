@@ -69,7 +69,7 @@
             Monitoring Tiket Layanan Supir (Diproses dari Mobile App / Web)
         </h3>
 
-        <div class="space-y-4">
+        <div class="space-y-6">
             @foreach($order->subTasks as $st)
                 <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -99,53 +99,97 @@
                     </div>
 
                     <!-- Notes & Photo Proofs -->
-                    @if($st->in_note || $st->out_note || $st->in_photo_path || $st->out_photo_path)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-200 text-xs">
-                            @if($st->in_note || $st->in_photo_path)
-                                <div class="p-3 bg-white rounded-xl border border-slate-200">
-                                    <div class="font-bold text-blue-600 mb-1"><i class="fa-solid fa-right-to-bracket me-1"></i> Aksi IN (Masuk Gerbang)</div>
-                                    <div class="text-slate-600">{{ $st->in_note ?? 'Tidak ada catatan' }}</div>
-                                    @if($st->in_photo_path)
-                                        <a href="{{ asset($st->in_photo_path) }}" target="_blank" class="mt-2 inline-block text-blue-600 font-semibold hover:underline">
-                                            <i class="fa-solid fa-image me-1"></i> Lihat Foto Bukti IN
-                                        </a>
-                                    @endif
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-200 text-xs">
+                        
+                        <!-- Bukti IN -->
+                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                            <div class="font-bold text-blue-600 flex items-center justify-between">
+                                <span><i class="fa-solid fa-right-to-bracket me-1"></i> Aksi IN (Masuk Gerbang)</span>
+                                @if($st->in_photo_path)
+                                    <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-semibold border border-blue-200">Ada Bukti Foto</span>
+                                @endif
+                            </div>
+                            <div class="text-slate-600 font-medium">{{ $st->in_note ?? 'Belum ada catatan IN' }}</div>
+                            
+                            @if($st->in_photo_path)
+                                @php
+                                    $inUrl = Str::startsWith($st->in_photo_path, ['http://', 'https://']) ? $st->in_photo_path : asset($st->in_photo_path);
+                                @endphp
+                                <div class="pt-2">
+                                    <button type="button" onclick="openPhotoModal('{{ $inUrl }}', 'Foto Bukti IN - {{ $st->task_number }}')" class="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg transition flex items-center justify-center gap-2 border border-blue-200">
+                                        <i class="fa-solid fa-image"></i>
+                                        <span>Lihat Foto Bukti IN</span>
+                                    </button>
                                 </div>
-                            @endif
-
-                            @if($st->out_note || $st->out_photo_path)
-                                <div class="p-3 bg-white rounded-xl border border-slate-200">
-                                    <div class="font-bold text-amber-600 mb-1"><i class="fa-solid fa-right-from-bracket me-1"></i> Aksi OUT (Keluar Gerbang)</div>
-                                    <div class="text-slate-600">{{ $st->out_note ?? 'Tidak ada catatan' }}</div>
-                                    @if($st->out_photo_path)
-                                        <a href="{{ asset($st->out_photo_path) }}" target="_blank" class="mt-2 inline-block text-amber-600 font-semibold hover:underline">
-                                            <i class="fa-solid fa-image me-1"></i> Lihat Foto Bukti OUT
-                                        </a>
-                                    @endif
-                                </div>
+                            @else
+                                <div class="text-[11px] text-slate-400 italic">Belum ada foto bukti IN</div>
                             @endif
                         </div>
-                    @endif
 
-                    <!-- Admin Update Status Form -->
-                    <form action="{{ route('subtasks.updateStatus', $st->id) }}" method="POST" class="pt-3 border-t border-slate-200 flex flex-wrap items-center gap-3">
+                        <!-- Bukti OUT -->
+                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                            <div class="font-bold text-amber-600 flex items-center justify-between">
+                                <span><i class="fa-solid fa-right-from-bracket me-1"></i> Aksi OUT (Keluar Gerbang)</span>
+                                @if($st->out_photo_path)
+                                    <span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded text-[10px] font-semibold border border-amber-200">Ada Bukti Foto</span>
+                                @endif
+                            </div>
+                            <div class="text-slate-600 font-medium">{{ $st->out_note ?? 'Belum ada catatan OUT' }}</div>
+
+                            @if($st->out_photo_path)
+                                @php
+                                    $outUrl = Str::startsWith($st->out_photo_path, ['http://', 'https://']) ? $st->out_photo_path : asset($st->out_photo_path);
+                                @endphp
+                                <div class="pt-2">
+                                    <button type="button" onclick="openPhotoModal('{{ $outUrl }}', 'Foto Bukti OUT - {{ $st->task_number }}')" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg transition flex items-center justify-center gap-2 border border-amber-200">
+                                        <i class="fa-solid fa-image"></i>
+                                        <span>Lihat Foto Bukti OUT</span>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="text-[11px] text-slate-400 italic">Belum ada foto bukti OUT</div>
+                            @endif
+                        </div>
+
+                    </div>
+
+                    <!-- Admin Update Status & Upload Form -->
+                    <form action="{{ route('subtasks.updateStatus', $st->id) }}" method="POST" enctype="multipart/form-data" class="pt-3 border-t border-slate-200 space-y-3">
                         @csrf
                         @method('PATCH')
 
-                        <span class="text-xs font-bold text-slate-700">Update Status Manual (Admin):</span>
+                        <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                            Update Status & Unggah Foto Bukti Manual (Admin):
+                        </div>
                         
-                        <select name="status" class="py-1.5 px-3 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800">
-                            <option value="Masuk" {{ $st->status == 'Masuk' ? 'selected' : '' }}>Masuk (Pending)</option>
-                            <option value="In" {{ $st->status == 'In' ? 'selected' : '' }}>In (Progres IN)</option>
-                            <option value="Out" {{ $st->status == 'Out' ? 'selected' : '' }}>Out (Progres OUT)</option>
-                            <option value="Done" {{ $st->status == 'Done' ? 'selected' : '' }}>Done (Selesai)</option>
-                        </select>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Tiket</label>
+                                <select name="status" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                                    <option value="Masuk" {{ $st->status == 'Masuk' ? 'selected' : '' }}>Masuk (Pending)</option>
+                                    <option value="In" {{ $st->status == 'In' ? 'selected' : '' }}>In (Progres IN)</option>
+                                    <option value="Out" {{ $st->status == 'Out' ? 'selected' : '' }}>Out (Progres OUT)</option>
+                                    <option value="Done" {{ $st->status == 'Done' ? 'selected' : '' }}>Done (Selesai)</option>
+                                </select>
+                            </div>
 
-                        <input type="text" name="note" placeholder="Tambahkan catatan admin..." class="py-1.5 px-3 bg-white border border-slate-300 rounded-lg text-xs flex-1">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Catatan</label>
+                                <input type="text" name="note" placeholder="Catatan pergerakan..." class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                            </div>
 
-                        <button type="submit" class="px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-900 transition">
-                            Simpan Perubahan
-                        </button>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Upload Foto Bukti</label>
+                                <input type="file" name="photo" accept="image/*" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700">
+                            </div>
+
+                            <div class="flex items-end">
+                                <button type="submit" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow transition">
+                                    Simpan Perubahan
+                                </button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             @endforeach
@@ -153,4 +197,42 @@
     </div>
 
 </div>
+
+<!-- Modal Popup Viewer Foto Bukti -->
+<div id="photoModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl space-y-4">
+        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+            <h4 id="photoModalTitle" class="font-bold text-sm">Foto Bukti</h4>
+            <button onclick="closePhotoModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="p-6 flex flex-col items-center justify-center bg-slate-100 min-h-[300px]">
+            <img id="photoModalImg" src="" alt="Bukti Foto" class="max-h-[70vh] w-auto rounded-2xl object-contain shadow-lg border border-slate-200">
+        </div>
+
+        <div class="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+            <span class="text-xs text-slate-500 font-medium">Klik kanan atau tombol di samping untuk mengunduh</span>
+            <a id="photoModalDownload" href="" download target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl transition flex items-center gap-2 shadow-lg shadow-blue-600/30">
+                <i class="fa-solid fa-download"></i>
+                <span>Download Foto</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openPhotoModal(imgUrl, title) {
+        document.getElementById('photoModalTitle').innerText = title;
+        document.getElementById('photoModalImg').src = imgUrl;
+        document.getElementById('photoModalDownload').href = imgUrl;
+        document.getElementById('photoModal').classList.remove('hidden');
+    }
+
+    function closePhotoModal() {
+        document.getElementById('photoModal').classList.add('hidden');
+        document.getElementById('photoModalImg').src = '';
+    }
+</script>
 @endsection

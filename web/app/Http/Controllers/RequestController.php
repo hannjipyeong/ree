@@ -145,6 +145,7 @@ class RequestController extends Controller
             'status' => 'required|in:Masuk,In,Out,Done',
             'supir_id' => 'nullable|exists:users,id',
             'note' => 'nullable|string',
+            'photo' => 'nullable|image|max:5120',
         ]);
 
         $subTask->status = $validated['status'];
@@ -152,14 +153,22 @@ class RequestController extends Controller
             $subTask->supir_id = $validated['supir_id'];
         }
 
+        $photoPath = null;
+        if ($req->hasFile('photo')) {
+            $path = $req->file('photo')->store('uploads/supir_proofs', 'public');
+            $photoPath = 'storage/' . $path;
+        }
+
         if ($validated['status'] === 'In') {
-            $subTask->in_note = $validated['note'];
+            if ($validated['note']) $subTask->in_note = $validated['note'];
+            if ($photoPath) $subTask->in_photo_path = $photoPath;
         } elseif ($validated['status'] === 'Out' || $validated['status'] === 'Done') {
-            $subTask->out_note = $validated['note'];
+            if ($validated['note']) $subTask->out_note = $validated['note'];
+            if ($photoPath) $subTask->out_photo_path = $photoPath;
         }
 
         $subTask->save();
 
-        return back()->with('success', 'Status tiket tugas supir berhasil diperbarui!');
+        return back()->with('success', 'Status & bukti foto tiket tugas supir berhasil diperbarui!');
     }
 }
