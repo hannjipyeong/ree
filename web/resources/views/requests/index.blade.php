@@ -19,17 +19,18 @@
                     class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white">
             </div>
 
-            <select name="source" onchange="this.form.submit()" class="py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none">
-                <option value="">-- Semua Source --</option>
-                <option value="ALL IN" {{ request('source') == 'ALL IN' ? 'selected' : '' }}>ALL IN</option>
-                <option value="Koperasi" {{ request('source') == 'Koperasi' ? 'selected' : '' }}>Koperasi</option>
-                <option value="PBM Lain" {{ request('source') == 'PBM Lain' ? 'selected' : '' }}>PBM Lain</option>
+            <select name="layanan" onchange="this.form.submit()" class="py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none">
+                <option value="">-- Semua Layanan --</option>
+                <option value="TKBM"      {{ request('layanan') == 'TKBM'      ? 'selected' : '' }}>TKBM</option>
+                <option value="Trucking"  {{ request('layanan') == 'Trucking'  ? 'selected' : '' }}>Trucking</option>
+                <option value="Forklift"  {{ request('layanan') == 'Forklift'  ? 'selected' : '' }}>Forklift</option>
+                <option value="Lashing"   {{ request('layanan') == 'Lashing'   ? 'selected' : '' }}>Lashing</option>
             </select>
 
             <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-semibold hover:bg-slate-900 transition">
                 Filter
             </button>
-            @if(request()->anyFilled(['search', 'source']))
+            @if(request()->anyFilled(['search', 'layanan']))
                 <a href="{{ route('requests.index') }}" class="text-xs text-slate-500 hover:text-slate-800 font-medium">Reset</a>
             @endif
         </form>
@@ -82,9 +83,20 @@
                                 <div class="text-xs text-slate-400">Kegiatan: {{ $ord->jenis_kegiatan }}</div>
                             </td>
                             <td class="py-4 px-6">
-                                <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium">
-                                    {{ $ord->payload_type }} ({{ $ord->containers->count() }} kontainer)
-                                </span>
+                                @if(strtolower($ord->payload_type) === 'cargo')
+                                    <div class="inline-flex flex-col items-start gap-0.5">
+                                        <span class="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                                            <i class="fa-solid fa-boxes-packing text-amber-600"></i> Cargo
+                                        </span>
+                                        <span class="text-[11px] text-slate-500 font-medium">
+                                            {{ $ord->jumlah_tonase ? str_replace('.', ',', (float)$ord->jumlah_tonase) . ' Ton' : ($ord->jenis_barang ?: 'General Cargo') }}
+                                        </span>
+                                    </div>
+                                @else
+                                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium inline-flex items-center gap-1.5">
+                                        <i class="fa-solid fa-box text-blue-600"></i> Container ({{ $ord->containers->count() }})
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-4 px-6">
                                 <div class="flex flex-col gap-1">
@@ -105,15 +117,20 @@
                                     @endforeach
                                 </div>
                             </td>
-                            <td class="py-4 px-6 text-right space-x-1">
-                                <a href="{{ route('requests.show', $ord->id) }}" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-semibold transition">
-                                    <i class="fa-solid fa-eye me-1"></i> Detail
+                            <td class="py-4 px-6 text-right space-x-1 whitespace-nowrap">
+                                <a href="{{ route('requests.exportPdf', $ord->id) }}" target="_blank" class="px-2.5 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg text-xs font-semibold transition inline-flex items-center gap-1 shadow-sm" title="Ekspor Surat PDF Permohonan">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                    <span>Surat PDF</span>
+                                </a>
+
+                                <a href="{{ route('requests.show', $ord->id) }}" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
+                                    <i class="fa-solid fa-eye"></i> Detail
                                 </a>
 
                                 <form action="{{ route('requests.destroy', $ord->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus order ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-2.5 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg text-xs font-semibold transition">
+                                    <button type="submit" class="px-2.5 py-1.5 bg-slate-100 text-slate-600 hover:bg-rose-600 hover:text-white rounded-lg text-xs font-semibold transition" title="Hapus Order">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 </form>

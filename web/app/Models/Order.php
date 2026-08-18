@@ -55,4 +55,9 @@ class Order extends Model
     {
         return $this->hasMany(SubTask::class);
     }
+
+    public function serviceChanges(): HasMany
+    {
+        return $this->hasMany(OrderServiceChange::class)->latest();
+    }
 }

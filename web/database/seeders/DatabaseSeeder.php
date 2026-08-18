@@ -16,13 +16,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Admin User
-        $admin = User::create([
-            'name' => 'Admin BKJ Ops',
+        // 1. Admin Users (Super Admin + 3 Source Admins)
+        $superAdmin = User::create([
+            'name' => 'Super Admin BKJ Ops',
             'email' => 'admin@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081122334455',
             'role' => 'admin',
+            'admin_source' => null,
+        ]);
+
+        $adminAllIn = User::create([
+            'name' => 'Admin ALL IN',
+            'email' => 'admin.allin@bkj.com',
+            'password' => Hash::make('password'),
+            'phone' => '081122334401',
+            'role' => 'admin',
+            'admin_source' => 'ALL IN',
+        ]);
+
+        $adminKoperasi = User::create([
+            'name' => 'Admin Koperasi',
+            'email' => 'admin.koperasi@bkj.com',
+            'password' => Hash::make('password'),
+            'phone' => '081122334402',
+            'role' => 'admin',
+            'admin_source' => 'Koperasi',
+        ]);
+
+        $adminPbmLain = User::create([
+            'name' => 'Admin PBM Lain',
+            'email' => 'admin.pbmlain@bkj.com',
+            'password' => Hash::make('password'),
+            'phone' => '081122334403',
+            'role' => 'admin',
+            'admin_source' => 'PBM Lain',
         ]);
 
         // 2. Customer Users
@@ -314,6 +342,78 @@ class DatabaseSeeder extends Seeder
             'supir_id' => $supirTbkm1->id,
             'status' => 'Done',
             'in_note' => 'Bongkar muat Man Power selesai tepat waktu',
+        ]);
+
+        // --- ORDER 6: ALL IN (Cargo Payload - Penumpukan Gudang) ---
+        $order6 = Order::create([
+            'order_number' => 'ORD-' . date('Ymd') . '-006',
+            'customer_id' => $customer1->id,
+            'source' => 'ALL IN',
+            'tanggal_order' => now(),
+            'nama_pt' => 'PT. Jaya Mandiri Logistik',
+            'nama_pbm' => 'PT. Bintang Kepri Jaya',
+            'no_telp' => '081198765432',
+            'wilayah' => 'Batu Ampar',
+            'lokasi_fasilitas' => 'gudang',
+            'jenis_kegiatan' => 'penumpukan',
+            'payload_type' => 'Cargo',
+            'jenis_barang' => 'Sparepart Mesin Industri & Heavy Tools',
+            'jumlah_tonase' => 8.5,
+            'nomor_container_cargo' => 'CRGO-BAM-9982',
+            'cargo_file_path' => 'uploads/cargo/sample_manifest.jpg',
+            'tkbm_option' => 'Man Power + Forklift',
+            'has_asuransi' => true,
+            'asuransi_value' => 120000000,
+            'status' => 'In Progress',
+            'created_at' => now()->subHours(2),
+        ]);
+
+        SubTask::create([
+            'task_number' => 'REQ-1006-PEN',
+            'order_id' => $order6->id,
+            'service_type' => 'Penumpukan',
+            'supir_id' => $supirPenumpukan1->id,
+            'status' => 'In',
+            'in_note' => 'Barang cargo telah masuk dan ditumpuk di Gudang Terminal Batu Ampar',
+            'in_photo_path' => 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&auto=format&fit=crop&q=80',
+        ]);
+        SubTask::create([
+            'task_number' => 'REQ-1006-TBK',
+            'order_id' => $order6->id,
+            'service_type' => 'TKBM',
+            'supir_id' => $supirTbkm1->id,
+            'status' => 'Masuk',
+        ]);
+
+        // --- ORDER 7: Koperasi (Cargo Payload - Stripping / Staffing di CFS) ---
+        $order7 = Order::create([
+            'order_number' => 'ORD-' . date('Ymd') . '-007',
+            'customer_id' => $customer2->id,
+            'source' => 'Koperasi',
+            'tanggal_order' => now(),
+            'nama_pt' => 'PT. Berkah Samudera Abadi',
+            'nama_pbm' => 'PBM Bahari Mandiri',
+            'no_telp' => '081288776655',
+            'wilayah' => 'Batu Ampar',
+            'lokasi_fasilitas' => 'CFS',
+            'jenis_kegiatan' => 'stripping / staffing',
+            'payload_type' => 'Cargo',
+            'jenis_barang' => 'Tekstil & Garment Ekspor',
+            'jumlah_tonase' => 14.2,
+            'nomor_container_cargo' => 'CRGO-CFS-1104',
+            'cargo_file_path' => 'uploads/cargo/sample_manifest.jpg',
+            'tkbm_option' => 'Man Power',
+            'has_asuransi' => false,
+            'status' => 'Submitted',
+            'created_at' => now()->subMinutes(45),
+        ]);
+
+        SubTask::create([
+            'task_number' => 'REQ-1007-TBK',
+            'order_id' => $order7->id,
+            'service_type' => 'TKBM',
+            'supir_id' => $supirTbkm1->id,
+            'status' => 'Masuk',
         ]);
         // Loop through all SubTasks and create container progress if the order has containers
         $subTasks = SubTask::all();

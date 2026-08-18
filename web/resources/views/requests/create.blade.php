@@ -26,11 +26,22 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-2">Source Formulir *</label>
-                        <select name="source" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                            <option value="ALL IN">ALL IN</option>
-                            <option value="Koperasi">Koperasi</option>
-                            <option value="PBM Lain">PBM Lain</option>
-                        </select>
+                        @if($adminSource)
+                            <div class="relative">
+                                <select name="source" class="w-full py-2.5 px-3 bg-slate-100 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 pointer-events-none cursor-not-allowed">
+                                    <option value="{{ $adminSource }}" selected>{{ $adminSource }} (Terkunci Sesuai Akun)</option>
+                                </select>
+                                <input type="hidden" name="source" value="{{ $adminSource }}">
+                            </div>
+                            <p class="text-[11px] text-blue-600 mt-1 font-medium"><i class="fa-solid fa-lock text-[10px]"></i> Akun Anda dibatasi untuk membuat order dengan source: <strong>{{ $adminSource }}</strong></p>
+                        @else
+                            <select name="source" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <option value="ALL IN">ALL IN</option>
+                                <option value="Koperasi">Koperasi</option>
+                                <option value="PBM Lain">PBM Lain</option>
+                                <option value="BKJ-PBM">BKJ-PBM</option>
+                            </select>
+                        @endif
                     </div>
 
                     <div>
@@ -56,6 +67,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-2">Wilayah Operasional *</label>
                         <select name="wilayah" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="Batu Ampar">Batu Ampar</option>
                             <option value="Selatan">Selatan</option>
                             <option value="Eximen">Eximen</option>
                             <option value="Utara">Utara</option>
@@ -65,49 +77,78 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-2">Lokasi Fasilitas *</label>
                         <select name="lokasi_fasilitas" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="gudang">Gudang</option>
                             <option value="TPFT">TPFT</option>
                             <option value="CFS">CFS</option>
                             <option value="loss cargo">Loss Cargo</option>
-                            <option value="gudang">Gudang</option>
                             <option value="tps">TPS</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-2">Jenis Kegiatan *</label>
-                        <input type="text" name="jenis_kegiatan" value="cek fisik" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <input type="text" name="jenis_kegiatan" value="penumpukan" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
                     </div>
                 </div>
             </div>
 
-            <!-- Section 2: Detail Muatan & Kontainer -->
+            <!-- Section 2: Detail Muatan & Payload -->
             <div>
                 <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                     <i class="fa-solid fa-box text-blue-600"></i>
-                    2. Detail Muatan & Kontainer
+                    2. Detail Muatan & Dokumen
                 </h3>
 
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-2">Tipe Payload *</label>
-                        <select name="payload_type" class="w-full md:w-1/2 py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none">
-                            <option value="Container">Container</option>
-                            <option value="Cargo">Cargo</option>
+                        <select id="payload_type_select" name="payload_type" onchange="togglePayloadSections(this.value)" class="w-full md:w-1/2 py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="Container" selected>Container (Peti Kemas)</option>
+                            <option value="Cargo">Cargo (General Cargo / Muatan Bebas)</option>
                         </select>
                     </div>
 
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                        <label class="block text-xs font-bold text-slate-700 mb-3">Detail Kontainer 1</label>
+                    <!-- Container Section -->
+                    <div id="container_section" class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                        <label class="block text-xs font-bold text-slate-700">Detail Kontainer 1</label>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <input type="text" name="containers[0][container_type]" value="20' GP" placeholder="Tipe (20' GP)" class="py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs">
                             <input type="text" name="containers[0][container_size]" value="20 ft" placeholder="Ukuran (20 ft)" class="py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs">
                             <input type="text" name="containers[0][container_number]" placeholder="No. Kontainer (ABCD 123456 7)" class="py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs">
                         </div>
                     </div>
+
+                    <!-- Cargo Section -->
+                    <div id="cargo_section" class="hidden p-5 bg-amber-50/50 border border-amber-200 rounded-xl space-y-4">
+                        <div class="flex items-center gap-2 text-amber-800 font-bold text-sm border-b border-amber-200 pb-2">
+                            <i class="fa-solid fa-boxes-packing"></i> Rincian Cargo & Manifest Dokumen
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Barang *</label>
+                                <input type="text" name="jenis_barang" placeholder="Contoh: General Cargo / Pakaian Jadi" class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Tonase (Ton) *</label>
+                                <input type="number" step="0.1" name="jumlah_tonase" placeholder="Contoh: 5.2" class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Container Cargo (Opsional)</label>
+                                <input type="text" name="nomor_container_cargo" placeholder="Nomor kontainer jika ada" class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Upload File Manifest Cargo (PDF / JPG / PNG) *</label>
+                                <input type="file" name="cargo_file" accept=".pdf,.jpg,.jpeg,.png" class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200">
+                                <p class="text-[11px] text-slate-500 mt-1">Dokumen ini otomatis menjadi Halaman 2 pada Cetak Surat Permohonan Cargo.</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <!-- Section 3: Pilihan Layanan (Membuat SubTask Supir) -->
+            <!-- Section 3: Pilihan Layanan -->
             <div>
                 <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                     <i class="fa-solid fa-truck-ramp-box text-blue-600"></i>
@@ -137,7 +178,7 @@
                 </div>
             </div>
 
-            <!-- Section 4: Layanan Tambahan (Additional Services / Non-Supir) -->
+            <!-- Section 4: Layanan Tambahan -->
             <div>
                 <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                     <i class="fa-solid fa-shield-halved text-blue-600"></i>
@@ -168,4 +209,18 @@
     </div>
 
 </div>
+
+<script>
+function togglePayloadSections(type) {
+    const containerSection = document.getElementById('container_section');
+    const cargoSection = document.getElementById('cargo_section');
+    if (type === 'Cargo') {
+        containerSection.classList.add('hidden');
+        cargoSection.classList.remove('hidden');
+    } else {
+        containerSection.classList.remove('hidden');
+        cargoSection.classList.add('hidden');
+    }
+}
+</script>
 @endsection

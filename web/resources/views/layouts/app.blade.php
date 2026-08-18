@@ -17,6 +17,39 @@
         .bg-navy-800 { background-color: #1b263b; }
         .bg-navy-700 { background-color: #415a77; }
         .text-navy-900 { color: #0d1b2a; }
+
+        /* ===== NOTIFIKASI PANEL ===== */
+        @keyframes bellRing {
+            0%,100% { transform: rotate(0deg); }
+            10%      { transform: rotate(14deg); }
+            20%      { transform: rotate(-12deg); }
+            30%      { transform: rotate(10deg); }
+            40%      { transform: rotate(-8deg); }
+            50%      { transform: rotate(6deg); }
+            60%      { transform: rotate(-4deg); }
+            70%      { transform: rotate(2deg); }
+        }
+        .bell-icon:hover .bell-svg { animation: bellRing 0.6s ease; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        #notif-panel {
+            animation: slideDown 0.2s ease;
+        }
+        .notif-item {
+            transition: background 0.15s;
+        }
+        .notif-item:hover {
+            background-color: #f1f5f9;
+        }
+        .notif-badge-in {
+            background: #dbeafe; color: #1d4ed8;
+        }
+        .notif-badge-out {
+            background: #fef3c7; color: #92400e;
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800">
@@ -64,16 +97,16 @@
         <!-- Footer / Admin Info & Logout -->
         <div class="p-4 border-t border-slate-700/50 bg-slate-900/50">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-sm font-semibold text-white">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-sm font-semibold text-white shrink-0">
                         <i class="fa-solid fa-user-shield"></i>
                     </div>
-                    <div class="text-xs">
-                        <div class="font-semibold text-white">{{ Auth::user()->name ?? 'Admin Ops' }}</div>
-                        <div class="text-slate-400">Administrator</div>
+                    <div class="text-xs min-w-0">
+                        <div class="font-semibold text-white truncate">{{ Auth::user()->name ?? 'Admin Ops' }}</div>
+                        <div class="text-[11px] text-blue-400 font-medium truncate">{{ Auth::user()->role_title ?? 'Administrator' }}</div>
                     </div>
                 </div>
-                <form action="{{ route('logout') }}" method="POST">
+                <form action="{{ route('logout') }}" method="POST" class="shrink-0">
                     @csrf
                     <button type="submit" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center text-xs" title="Logout">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -90,6 +123,18 @@
         <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10 shrink-0">
             <div class="flex items-center gap-4">
                 <h2 class="text-xl font-bold text-slate-800">@yield('page_heading', 'Dashboard Overview')</h2>
+                @if(Auth::user()->admin_source)
+                    <span class="px-3 py-1 text-xs font-bold rounded-full border shadow-sm
+                        {{ Auth::user()->admin_source === 'ALL IN' ? 'bg-purple-50 text-purple-700 border-purple-200' : '' }}
+                        {{ Auth::user()->admin_source === 'Koperasi' ? 'bg-amber-50 text-amber-700 border-amber-200' : '' }}
+                        {{ Auth::user()->admin_source === 'PBM Lain' ? 'bg-blue-50 text-blue-700 border-blue-200' : '' }}">
+                        <i class="fa-solid fa-filter text-[10px] me-1"></i> Modul: {{ Auth::user()->admin_source }}
+                    </span>
+                @else
+                    <span class="px-3 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 shadow-sm">
+                        <i class="fa-solid fa-globe text-[10px] me-1"></i> Semua Modul (Super Admin)
+                    </span>
+                @endif
             </div>
             <div class="flex items-center gap-4">
                 <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -99,6 +144,56 @@
                 <div class="text-xs text-slate-500 font-medium">
                     {{ date('d M Y, H:i') }} WIB
                 </div>
+
+                <!-- ===== BELL NOTIFICATION BUTTON ===== -->
+                <div class="relative bell-icon" id="notif-wrapper">
+                    <button id="notif-btn"
+                        onclick="toggleNotifPanel()"
+                        class="relative w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-600 hover:text-blue-600 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <svg class="bell-svg w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <!-- Badge jumlah notifikasi -->
+                        <span id="notif-count-badge"
+                            class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center hidden">
+                            0
+                        </span>
+                    </button>
+
+                    <!-- ===== NOTIFICATION PANEL DROPDOWN ===== -->
+                    <div id="notif-panel"
+                        class="hidden absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 z-50 overflow-hidden"
+                        style="max-height: 520px;">
+
+                        <!-- Header Panel -->
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-800 to-slate-700">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <span class="text-white font-bold text-sm">Riwayat Bukti IN/OUT</span>
+                            </div>
+                            <span id="notif-total-text" class="text-xs text-slate-400 font-medium">Memuat...</span>
+                        </div>
+
+                        <!-- List Notifikasi (scrollable) -->
+                        <div id="notif-list" class="overflow-y-auto" style="max-height: 420px;">
+                            <!-- Konten diisi JS -->
+                            <div class="py-10 text-center" id="notif-loading">
+                                <div class="inline-flex items-center gap-2 text-slate-400 text-sm">
+                                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                    Memuat data...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ===== END NOTIFICATION ===== -->
+
             </div>
         </header>
 
@@ -136,4 +231,150 @@
     </div>
 
 </body>
+
+<script>
+    // ===== NOTIFICATION PANEL LOGIC =====
+    const NOTIF_URL = '{{ route("notifications") }}';
+
+    // URL builder untuk halaman detail container
+    function buildDetailUrl(orderId, containerId) {
+        if (orderId && containerId) {
+            // Arahkan ke halaman detail container
+            return `/requests/${orderId}/containers/${containerId}`;
+        } else if (orderId) {
+            return `/requests/${orderId}`;
+        }
+        return '#';
+    }
+
+    // Format tanggal lokal
+    function fmtTime(isoStr) {
+        if (!isoStr) return '-';
+        const d = new Date(isoStr);
+        return d.toLocaleDateString('id-ID', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        }) + ', ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    let notifLoaded = false;
+
+    function toggleNotifPanel() {
+        const panel = document.getElementById('notif-panel');
+        const isHidden = panel.classList.contains('hidden');
+
+        if (isHidden) {
+            panel.classList.remove('hidden');
+            if (!notifLoaded) {
+                loadNotifications();
+            }
+        } else {
+            panel.classList.add('hidden');
+        }
+    }
+
+    function loadNotifications() {
+        fetch(NOTIF_URL, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(res => {
+            notifLoaded = true;
+            const list   = document.getElementById('notif-list');
+            const badge  = document.getElementById('notif-count-badge');
+            const totTxt = document.getElementById('notif-total-text');
+
+            const data  = res.data || [];
+            const total = res.total || 0;
+
+            // Update badge
+            if (total > 0) {
+                badge.textContent = total > 99 ? '99+' : total;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            totTxt.textContent = total + ' rekaman';
+
+            if (data.length === 0) {
+                list.innerHTML = `
+                    <div class="py-12 text-center">
+                        <svg class="w-10 h-10 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <p class="text-slate-400 text-sm">Belum ada bukti IN/OUT</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = data.map(item => {
+                const url        = buildDetailUrl(item.order_id, item.container_id);
+                const isIn       = item.type === 'IN';
+                const badgeCls   = isIn ? 'notif-badge-in' : 'notif-badge-out';
+                const badgeIcon  = isIn
+                    ? '<i class="fa-solid fa-arrow-down-to-bracket"></i>'
+                    : '<i class="fa-solid fa-arrow-up-from-bracket"></i>';
+                const containerInfo = item.container_num
+                    ? `<span class="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${item.container_num}</span>`
+                    : '';
+                const noteHtml = item.note
+                    ? `<p class="text-[11px] text-slate-400 mt-0.5 truncate">${item.note}</p>`
+                    : '';
+
+                return `
+                <a href="${url}" class="notif-item flex items-start gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 cursor-pointer no-underline">
+                    <!-- Type Badge -->
+                    <span class="mt-0.5 shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-xl text-xs font-bold gap-1 ${badgeCls}">
+                        ${badgeIcon}
+                    </span>
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs font-bold text-slate-700">${item.service_type || '-'}</span>
+                            <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${badgeCls}">${item.type}</span>
+                            ${containerInfo}
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5 truncate">
+                            ${item.order_number || ''}
+                            ${item.nama_pt ? '· ' + item.nama_pt : ''}
+                        </p>
+                        ${noteHtml}
+                        <p class="text-[10px] text-slate-400 mt-1">
+                            <i class="fa-regular fa-clock mr-1"></i>${fmtTime(item.time)}
+                        </p>
+                    </div>
+                    <!-- Arrow -->
+                    <span class="mt-2 shrink-0 text-slate-300">
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </span>
+                </a>`;
+            }).join('');
+        })
+        .catch(() => {
+            document.getElementById('notif-list').innerHTML =
+                '<p class="py-8 text-center text-red-400 text-sm">Gagal memuat notifikasi.</p>';
+        });
+    }
+
+    // Klik di luar panel = tutup panel
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('notif-wrapper');
+        const panel   = document.getElementById('notif-panel');
+        if (wrapper && !wrapper.contains(e.target)) {
+            panel.classList.add('hidden');
+        }
+    });
+
+    // Auto-load badge count di background setiap halaman
+    fetch(NOTIF_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(res => {
+            const total = res.total || 0;
+            const badge = document.getElementById('notif-count-badge');
+            if (total > 0) {
+                badge.textContent = total > 99 ? '99+' : total;
+                badge.classList.remove('hidden');
+            }
+        }).catch(() => {});
+</script>
 </html>

@@ -4,7 +4,31 @@
 @section('page_heading', 'Dashboard Overview')
 
 @section('content')
-<div class="space-y-8">
+<div class="space-y-6">
+
+    @if(!empty($adminSource))
+        <!-- Source Scope Banner -->
+        <div class="p-5 rounded-2xl shadow-sm border flex flex-col sm:flex-row sm:items-center justify-between gap-4
+            {{ $adminSource === 'ALL IN' ? 'bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 text-purple-100 border-purple-700' : '' }}
+            {{ $adminSource === 'Koperasi' ? 'bg-gradient-to-r from-amber-900 via-amber-800 to-orange-900 text-amber-100 border-amber-700' : '' }}
+            {{ $adminSource === 'PBM Lain' ? 'bg-gradient-to-r from-blue-900 via-blue-800 to-slate-900 text-blue-100 border-blue-700' : '' }}">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center font-bold text-white text-xl shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h4 class="text-base font-bold text-white flex items-center gap-2">
+                        Portal Operasional: Modul {{ $adminSource }}
+                        <span class="px-2.5 py-0.5 bg-white/20 rounded-full text-[10px] font-semibold uppercase tracking-wider">Terkunci</span>
+                    </h4>
+                    <p class="text-xs text-white/80 mt-0.5">Semua data metrik, tiket supir, dan daftar order di halaman ini dikhususkan untuk source <strong>{{ $adminSource }}</strong>.</p>
+                </div>
+            </div>
+            <a href="{{ route('requests.create') }}" class="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow shrink-0">
+                <i class="fa-solid fa-plus text-blue-600"></i> Buat Order {{ $adminSource }}
+            </a>
+        </div>
+    @endif
 
     <!-- KPI Metric Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -63,48 +87,120 @@
 
     </div>
 
-    <!-- Status Breakdown Cards -->
+    <!-- Status Breakdown Cards (clickable filter) -->
+    @php $activeStatus = request('tiket_status'); @endphp
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div class="bg-slate-800 text-white p-4 rounded-xl flex items-center justify-between">
+
+        {{-- Masuk --}}
+        <a href="{{ $activeStatus == 'Masuk' ? route('dashboard') : route('dashboard', ['tiket_status' => 'Masuk']) }}"
+           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+                  bg-slate-800 text-white shadow
+                  {{ $activeStatus && $activeStatus != 'Masuk' ? 'opacity-40 grayscale' : '' }}
+                  {{ $activeStatus == 'Masuk' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-slate-700' }}">
             <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-slate-400"></span>
-                <span class="text-sm font-medium">Tiket Status 'Masuk'</span>
+                <span class="w-3 h-3 rounded-full bg-slate-400 {{ $activeStatus == 'Masuk' ? 'animate-pulse' : '' }}"></span>
+                <span class="text-sm font-medium">Status 'Masuk'</span>
             </div>
-            <span class="font-bold text-lg">{{ $subTaskStats['masuk'] }}</span>
-        </div>
-        <div class="bg-blue-600 text-white p-4 rounded-xl flex items-center justify-between shadow-lg shadow-blue-600/20">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-lg">{{ $subTaskStats['masuk'] }}</span>
+                @if($activeStatus == 'Masuk')
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                    </span>
+                @endif
+            </div>
+        </a>
+
+        {{-- IN --}}
+        <a href="{{ $activeStatus == 'In' ? route('dashboard') : route('dashboard', ['tiket_status' => 'In']) }}"
+           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+                  bg-blue-600 text-white shadow-lg shadow-blue-600/20
+                  {{ $activeStatus && $activeStatus != 'In' ? 'opacity-40 grayscale' : '' }}
+                  {{ $activeStatus == 'In' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-blue-500' }}">
             <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-blue-200 animate-ping"></span>
-                <span class="text-sm font-medium">Tiket Status 'IN'</span>
+                <span class="w-3 h-3 rounded-full bg-blue-200 {{ $activeStatus == 'In' ? 'animate-ping' : '' }}"></span>
+                <span class="text-sm font-medium">Status 'IN'</span>
             </div>
-            <span class="font-bold text-lg">{{ $subTaskStats['in'] }}</span>
-        </div>
-        <div class="bg-amber-500 text-white p-4 rounded-xl flex items-center justify-between shadow-lg shadow-amber-500/20">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-lg">{{ $subTaskStats['in'] }}</span>
+                @if($activeStatus == 'In')
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                    </span>
+                @endif
+            </div>
+        </a>
+
+        {{-- OUT --}}
+        <a href="{{ $activeStatus == 'Out' ? route('dashboard') : route('dashboard', ['tiket_status' => 'Out']) }}"
+           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+                  bg-amber-500 text-white shadow-lg shadow-amber-500/20
+                  {{ $activeStatus && $activeStatus != 'Out' ? 'opacity-40 grayscale' : '' }}
+                  {{ $activeStatus == 'Out' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-amber-400' }}">
             <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-amber-200"></span>
-                <span class="text-sm font-medium">Tiket Status 'OUT'</span>
+                <span class="text-sm font-medium">Status 'OUT'</span>
             </div>
-            <span class="font-bold text-lg">{{ $subTaskStats['out'] }}</span>
-        </div>
-        <div class="bg-emerald-600 text-white p-4 rounded-xl flex items-center justify-between shadow-lg shadow-emerald-600/20">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-lg">{{ $subTaskStats['out'] }}</span>
+                @if($activeStatus == 'Out')
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                    </span>
+                @endif
+            </div>
+        </a>
+
+        {{-- Done --}}
+        <a href="{{ $activeStatus == 'Done' ? route('dashboard') : route('dashboard', ['tiket_status' => 'Done']) }}"
+           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+                  bg-emerald-600 text-white shadow-lg shadow-emerald-600/20
+                  {{ $activeStatus && $activeStatus != 'Done' ? 'opacity-40 grayscale' : '' }}
+                  {{ $activeStatus == 'Done' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-emerald-500' }}">
             <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-emerald-200"></span>
-                <span class="text-sm font-medium">Tiket Status 'Done'</span>
+                <span class="text-sm font-medium">Status 'Done'</span>
             </div>
-            <span class="font-bold text-lg">{{ $subTaskStats['done'] }}</span>
-        </div>
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-lg">{{ $subTaskStats['done'] }}</span>
+                @if($activeStatus == 'Done')
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                    </span>
+                @endif
+            </div>
+        </a>
+
     </div>
 
     <!-- Recent Orders Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
-                <h3 class="font-bold text-slate-800 text-lg">Order Terbaru (Terhubung App)</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Order yang di-submit dari aplikasi mobile secara real-time</p>
+                <h3 class="font-bold text-slate-800 text-lg">
+                    Order Terbaru
+                    @if($activeStatus)
+                        <span class="ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full
+                            {{ $activeStatus == 'In' ? 'bg-blue-100 text-blue-700' : '' }}
+                            {{ $activeStatus == 'Out' ? 'bg-amber-100 text-amber-700' : '' }}
+                            {{ $activeStatus == 'Done' ? 'bg-emerald-100 text-emerald-700' : '' }}
+                            {{ $activeStatus == 'Masuk' ? 'bg-slate-100 text-slate-700' : '' }}">
+                            Filter: {{ $activeStatus }}
+                        </span>
+                    @endif
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Order dari aplikasi mobile — klik kartu status di atas untuk filter</p>
             </div>
-            <a href="{{ route('requests.index') }}" class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold text-xs rounded-xl transition">
-                Lihat Semua Order <i class="fa-solid fa-arrow-right ms-1"></i>
-            </a>
+            <div class="flex items-center gap-2">
+                @if($activeStatus)
+                    <a href="{{ route('dashboard') }}" class="px-3 py-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold text-xs rounded-xl transition flex items-center gap-1">
+                        <i class="fa-solid fa-xmark"></i> Hapus Filter
+                    </a>
+                @endif
+                <a href="{{ route('requests.index') }}" class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold text-xs rounded-xl transition">
+                    Lihat Semua <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
         </div>
 
         <div class="overflow-x-auto">

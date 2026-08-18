@@ -18,6 +18,7 @@ class User extends Authenticatable
         'password',
         'phone',
         'role',
+        'admin_source',
         'supir_type',
     ];
 
@@ -37,6 +38,58 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'admin' && empty($this->admin_source);
+    }
+
+    public function isAdminSource(string $source): bool
+    {
+        return $this->role === 'admin' && strcasecmp((string)$this->admin_source, $source) === 0;
+    }
+
+    /**
+     * Cek apakah user memiliki hak akses ke order dengan source tertentu.
+     * Super Admin memiliki akses ke semua source.
+     * Admin scoped hanya memiliki akses ke source miliknya.
+     */
+    public function hasSourceAccess(?string $source): bool
+    {
+        if (!$this->isAdmin()) {
+            return false;
+        }
+
+        // Super Admin has access to everything
+        if (empty($this->admin_source)) {
+            return true;
+        }
+
+        if (empty($source)) {
+            return false;
+        }
+
+        return strcasecmp(trim($this->admin_source), trim($source)) === 0;
+    }
+
+    /**
+     * Label role yang diformat ramah pengguna
+     */
+    public function getRoleTitleAttribute(): string
+    {
+        if ($this->isAdmin()) {
+            if ($this->admin_source) {
+                return 'Admin ' . $this->admin_source;
+            }
+            return 'Super Administrator';
+        }
+
+        if ($this->isSupir()) {
+            return 'Supir ' . ($this->supir_type ?: 'Operasional');
+        }
+
+        return 'Customer';
     }
 
     public function isSupir(): bool

@@ -15,10 +15,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Protected Admin Dashboard Routes
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
 
     // 1. Monitoring & CRUD Request
     Route::resource('requests', RequestController::class);
+    Route::post('requests/{request}/update-services', [RequestController::class, 'updateServices'])->name('requests.updateServices');
+    Route::get('requests/{request}/containers/{container}', [RequestController::class, 'showContainer'])->name('requests.containers.show');
+    Route::post('requests/{request}/containers/{container}/update-services', [RequestController::class, 'updateContainerServices'])->name('requests.containers.updateServices');
     Route::patch('sub-tasks/{subTask}/status', [RequestController::class, 'updateSubTaskStatus'])->name('subtasks.updateStatus');
+    Route::get('requests/{request}/export-pdf', [RequestController::class, 'exportPdf'])->name('requests.exportPdf');
 
     // 2. Monitoring & CRUD Akun Customer
     Route::resource('customers', UserController::class);
