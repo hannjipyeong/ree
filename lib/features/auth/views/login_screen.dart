@@ -126,20 +126,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _handleLogin,
                   isLoading: vm.isLoading,
                 ),
-                
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Belum punya akun?', style: AppTextStyles.body2),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.register);
-                      },
-                      child: const Text('Daftar di sini'),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

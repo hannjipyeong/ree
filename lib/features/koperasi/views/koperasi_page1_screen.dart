@@ -152,10 +152,14 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                   padding: const EdgeInsets.only(top: 16),
                   child: AppTextField(
                     label: 'Jenis Kegiatan',
-                    controller: TextEditingController(
-                      text: vm.jenisKegiatan!.toUpperCase(),
-                    ),
-                    readOnly: true,
+                    hint: 'Masukkan Jenis Kegiatan',
+                    initialValue: vm.jenisKegiatan!.toUpperCase(),
+                    readOnly: !(vm.lokasiFasilitas?.toLowerCase() == 'tpft' || 
+                                vm.lokasiFasilitas?.toLowerCase() == 'gudang' || 
+                                vm.lokasiFasilitas?.toLowerCase() == 'loss cargo' || 
+                                vm.lokasiFasilitas?.toLowerCase() == 'los cargo'),
+                    onChanged: vm.setJenisKegiatan,
+                    validator: (v) => AppValidators.required(v, fieldName: 'Jenis Kegiatan'),
                   ),
                 ),
             ],

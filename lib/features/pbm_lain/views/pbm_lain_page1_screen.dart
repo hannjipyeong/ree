@@ -7,7 +7,7 @@ import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 
-/// PBM Lain — Page 1: Informasi Dasar Order (Wilayah, Nama PT, Lokasi).
+/// LOLO — Page 1: Informasi Dasar Order (Wilayah, Nama PT, Lokasi).
 class PbmLainPage1Screen extends StatefulWidget {
   const PbmLainPage1Screen({super.key});
 
@@ -56,7 +56,7 @@ class _PbmLainPage1ScreenState extends State<PbmLainPage1Screen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Order PBM Lain'),
+        title: const Text('Order LOLO'),
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: const Icon(Icons.arrow_back_ios),

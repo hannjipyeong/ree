@@ -9,6 +9,7 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 class AppTextField extends StatefulWidget {
   final String label;
   final String? hint;
+  final String? initialValue;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
@@ -30,6 +31,7 @@ class AppTextField extends StatefulWidget {
     super.key,
     required this.label,
     this.hint,
+    this.initialValue,
     this.controller,
     this.validator,
     this.onChanged,
@@ -71,6 +73,7 @@ class _AppTextFieldState extends State<AppTextField> {
         const SizedBox(height: 6),
         TextFormField(
           controller: widget.controller,
+          initialValue: widget.initialValue,
           validator: widget.validator,
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onFieldSubmitted,

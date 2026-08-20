@@ -168,7 +168,7 @@ class PbmLainViewModel extends ChangeNotifier {
       final containerList = _containers.map((c) => c.toJson()).toList();
 
       final success = await ApiService.submitOrder(
-        source: 'PBM Lain',
+        source: 'LOLO',
         namaPt: _namaPt ?? 'Unknown PT',
         namaPbm: _namaPbm ?? 'Unknown PBM',
         noTelp: _noTelp ?? '081234567890',

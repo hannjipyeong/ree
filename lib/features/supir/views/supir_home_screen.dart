@@ -7,6 +7,8 @@ import 'package:bkj_app/features/supir/views/supir_action_screen.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 
+import 'dart:async';
+
 class SupirHomeScreen extends StatefulWidget {
   const SupirHomeScreen({super.key});
 
@@ -18,19 +20,29 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  Timer? _pollingTimer;
+
   @override
   void initState() {
     super.initState();
     
-    // Fetch real data from backend API
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final supirType = context.read<AuthViewModel>().supirType ?? '';
-      context.read<SupirViewModel>().fetchOrders(supirType);
+      _fetchData();
+      // Polling every 10 seconds for pseudo-realtime
+      _pollingTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+        _fetchData();
+      });
     });
+  }
+
+  Future<void> _fetchData() async {
+    final supirType = context.read<AuthViewModel>().supirType ?? '';
+    await context.read<SupirViewModel>().fetchOrders(supirType);
   }
 
   @override
   void dispose() {
+    _pollingTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -74,65 +86,68 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: orders.length,
-      itemBuilder: (context, index) {
-        final order = orders[index];
-        final formattedDate = "${order.date.day.toString().padLeft(2, '0')}/${order.date.month.toString().padLeft(2, '0')}/${order.date.year} ${order.date.hour.toString().padLeft(2, '0')}:${order.date.minute.toString().padLeft(2, '0')}";
-        
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: () => _navigateToActionScreen(context, order),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(order.id, style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(order.customerName, style: AppTextStyles.heading3),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 14, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(formattedDate, style: AppTextStyles.caption),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Layanan: ${order.serviceType} • Tipe: ${order.payloadType}', style: AppTextStyles.body2),
-                  const SizedBox(height: 12),
-                  if (order.containers.isNotEmpty) ...[
-                    Text('Containers (${order.containers.length}):', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+    return RefreshIndicator(
+      onRefresh: _fetchData,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: orders.length,
+        itemBuilder: (context, index) {
+          final order = orders[index];
+          final formattedDate = "${order.date.day.toString().padLeft(2, '0')}/${order.date.month.toString().padLeft(2, '0')}/${order.date.year} ${order.date.hour.toString().padLeft(2, '0')}:${order.date.minute.toString().padLeft(2, '0')}";
+          
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => _navigateToActionScreen(context, order),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(order.id, style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text(order.customerName, style: AppTextStyles.heading3),
                     const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: order.containers.map((c) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: Text(
-                            c.number.isNotEmpty ? c.number : 'No Container',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        );
-                      }).toList(),
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, size: 14, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(formattedDate, style: AppTextStyles.caption),
+                      ],
                     ),
+                    const SizedBox(height: 8),
+                    Text('Layanan: ${order.serviceType} • Tipe: ${order.payloadType}', style: AppTextStyles.body2),
+                    const SizedBox(height: 12),
+                    if (order.containers.isNotEmpty) ...[
+                      Text('Containers (${order.containers.length}):', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: order.containers.map((c) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Text(
+                              c.number.isNotEmpty ? c.number : 'No Container',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

@@ -226,6 +226,7 @@
                     <form action="{{ route('subtasks.updateStatus', $st->id) }}" method="POST" enctype="multipart/form-data" class="pt-3 border-t border-slate-200 space-y-3">
                         @csrf
                         @method('PATCH')
+                        <input type="hidden" name="container_id" value="{{ $container->id }}">
 
                         <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                             <i class="fa-solid fa-pen-to-square text-blue-600"></i>

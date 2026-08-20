@@ -7,7 +7,7 @@ import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 
-/// PBM Lain — Page 2: Payload selection (Container or Cargo).
+/// LOLO — Page 2: Payload selection (Container or Cargo).
 class PbmLainPage2Screen extends StatefulWidget {
   const PbmLainPage2Screen({super.key});
 
@@ -70,7 +70,7 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Order PBM Lain'),
+        title: const Text('Order LOLO'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),

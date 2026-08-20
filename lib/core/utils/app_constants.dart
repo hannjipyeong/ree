@@ -97,7 +97,7 @@ class AppConstants {
   ];
 
   // ─── Ukuran Container ───────────────────────────────────────────────────────
-  static const List<String> containerSizes = ['10 ft', '20 ft', '40 ft', '45 ft', '60 ft'];
+  static const List<String> containerSizes = ['10 ft', '20 ft', '40 ft', '45 ft'];
 
   // ─── Max Container Entries ──────────────────────────────────────────────────
   static const int maxContainers = 60;
@@ -124,7 +124,6 @@ class AppConstants {
 
   static const List<String> servicesPbmLain = [
     serviceLolo,
-    serviceTKBM,
     serviceAsuransi,
   ];
 

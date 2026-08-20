@@ -331,13 +331,13 @@ class RequestController extends Controller
     public function updateSubTaskStatus(Request $req, SubTask $subTask)
     {
         $validated = $req->validate([
-            'status' => 'required|in:Masuk,In,Out,Done',
+            'status' => 'required|in:Masuk,In,Out,Done,Pending',
             'supir_id' => 'nullable|exists:users,id',
             'note' => 'nullable|string',
             'photo' => 'nullable|image|max:5120',
+            'container_id' => 'nullable|exists:order_containers,id',
         ]);
 
-        $subTask->status = $validated['status'];
         if (isset($validated['supir_id'])) {
             $subTask->supir_id = $validated['supir_id'];
         }
@@ -348,15 +348,59 @@ class RequestController extends Controller
             $photoPath = 'storage/' . $path;
         }
 
-        if ($validated['status'] === 'In') {
-            if ($validated['note']) $subTask->in_note = $validated['note'];
-            if ($photoPath) $subTask->in_photo_path = $photoPath;
-        } elseif ($validated['status'] === 'Out' || $validated['status'] === 'Done') {
-            if ($validated['note']) $subTask->out_note = $validated['note'];
-            if ($photoPath) $subTask->out_photo_path = $photoPath;
+        if (!empty($validated['container_id'])) {
+            // Update the container progress specifically
+            $progress = \App\Models\SubTaskContainerProgress::where('sub_task_id', $subTask->id)
+                ->where('order_container_id', $validated['container_id'])
+                ->first();
+
+            if ($progress) {
+                $progress->status = $validated['status'];
+                if ($validated['status'] === 'In') {
+                    if ($validated['note']) $progress->in_note = $validated['note'];
+                    if ($photoPath) $progress->in_photo_path = $photoPath;
+                    if (!$progress->in_time) $progress->in_time = now();
+                } elseif ($validated['status'] === 'Out' || $validated['status'] === 'Done') {
+                    if ($validated['note']) $progress->out_note = $validated['note'];
+                    if ($photoPath) $progress->out_photo_path = $photoPath;
+                    if (!$progress->out_time) $progress->out_time = now();
+                }
+                $progress->save();
+            }
+
+            // Check if all containers for this subtask are out
+            $allProgress = \App\Models\SubTaskContainerProgress::where('sub_task_id', $subTask->id)->get();
+            $allOut = $allProgress->every(fn($p) => $p->status === 'Out');
+            $anyIn = $allProgress->some(fn($p) => $p->status === 'In' || $p->status === 'Out');
+            
+            if ($allOut && $allProgress->count() > 0) {
+                $subTask->status = 'Done';
+            } else if ($anyIn && $subTask->status === 'Masuk') {
+                $subTask->status = 'In';
+            }
+        } else {
+            // Global update for the SubTask
+            $subTask->status = $validated['status'];
+            if ($validated['status'] === 'In') {
+                if ($validated['note']) $subTask->in_note = $validated['note'];
+                if ($photoPath) $subTask->in_photo_path = $photoPath;
+            } elseif ($validated['status'] === 'Out' || $validated['status'] === 'Done') {
+                if ($validated['note']) $subTask->out_note = $validated['note'];
+                if ($photoPath) $subTask->out_photo_path = $photoPath;
+            }
         }
 
         $subTask->save();
+
+        // Update Order status
+        $order = $subTask->order;
+        $allSubTasksDone = $order->subTasks()->get()->every(fn($st) => $st->status === 'Done');
+        if ($allSubTasksDone) {
+            $order->status = 'Done';
+        } else {
+            $order->status = 'In Progress';
+        }
+        $order->save();
 
         return back()->with('success', 'Status & bukti foto tiket tugas supir berhasil diperbarui!');
     }

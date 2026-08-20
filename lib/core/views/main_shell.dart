@@ -51,7 +51,7 @@ class _MainShellState extends State<MainShell> {
     BottomNavigationBarItem(
       icon: Icon(Icons.business_center_outlined),
       activeIcon: Icon(Icons.business_center),
-      label: 'PBM Lain',
+      label: 'LOLO',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.person_outlined),

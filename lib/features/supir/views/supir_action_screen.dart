@@ -8,6 +8,7 @@ import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'dart:typed_data';
+import 'dart:async';
 
 class SupirActionScreenArgs {
   final AppOrder order;
@@ -31,9 +32,20 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
   Uint8List? _selectedFileBytes;
   
   String _selectedContainerFilter = 'Semua';
+  Timer? _pollingTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      final supirType = context.read<AuthViewModel>().supirType ?? '';
+      context.read<SupirViewModel>().fetchOrders(supirType);
+    });
+  }
 
   @override
   void dispose() {
+    _pollingTimer?.cancel();
     _noteCtrl.dispose();
     super.dispose();
   }
@@ -96,19 +108,34 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setSheetState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(ctx).viewInsets.bottom,
-                left: 24,
-                right: 24,
-                top: 24,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text('Proses - Container ${container.number}', style: AppTextStyles.heading3),
+            return Consumer<SupirViewModel>(
+              builder: (context, vm, child) {
+                // Try to find the freshest container data from ViewModel
+                final allOrders = vm.getAllOrders();
+                final currentOrder = allOrders.firstWhere((o) => o.id == order.id, orElse: () => order);
+                final freshContainer = currentOrder.containers.firstWhere((c) => c.id == container.id, orElse: () => container);
+                final progress = freshContainer.progress;
+                final String currentStatus = progress?.status ?? 'Pending';
+                
+                // Re-evaluate default action to propose based on fresh data
+                String selectedActionType = 'IN';
+                if (currentStatus == 'In' || currentStatus == 'Out') {
+                  selectedActionType = 'OUT';
+                }
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                    left: 24,
+                    right: 24,
+                    top: 24,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text('Proses - Container ${freshContainer.number}', style: AppTextStyles.heading3),
                     const SizedBox(height: 16),
                     if (selectedActionType == 'IN' && progress?.lockedReasonIn != null)
                       Padding(
@@ -224,6 +251,8 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                   ],
                 ),
               ),
+            );
+              },
             );
           },
         );

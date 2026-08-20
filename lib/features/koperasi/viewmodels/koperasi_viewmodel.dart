@@ -99,7 +99,20 @@ class KoperasiViewModel extends ChangeNotifier {
   void setLokasiFasilitas(String? value) {
     if (_lokasiFasilitas == value) return;
     _lokasiFasilitas = value;
-    _jenisKegiatan = AppConstants.jenisKegiatanMapping[value];
+    
+    // Koperasi: For TPFT, Gudang, and Los Cargo, the user will type it themselves.
+    final locLower = value?.toLowerCase();
+    if (locLower == 'tpft' || locLower == 'gudang' || locLower == 'loss cargo' || locLower == 'los cargo') {
+      _jenisKegiatan = '';
+    } else {
+      _jenisKegiatan = AppConstants.jenisKegiatanMapping[value];
+    }
+    
+    notifyListeners();
+  }
+
+  void setJenisKegiatan(String value) {
+    _jenisKegiatan = value;
     notifyListeners();
   }
 

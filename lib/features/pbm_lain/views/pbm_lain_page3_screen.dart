@@ -7,7 +7,7 @@ import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 
-/// PBM Lain — Page 3: Additional services (LOLO, TKBM, Asuransi).
+/// LOLO — Page 3: Additional services (LOLO, TKBM, Asuransi).
 class PbmLainPage3Screen extends StatefulWidget {
   const PbmLainPage3Screen({super.key});
 
@@ -69,7 +69,7 @@ class _PbmLainPage3ScreenState extends State<PbmLainPage3Screen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Order PBM Lain'),
+        title: const Text('Order LOLO'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
@@ -105,26 +105,6 @@ class _PbmLainPage3ScreenState extends State<PbmLainPage3Screen> {
                 isSelected: vm.isServiceSelected(AppConstants.serviceLolo),
                 onToggle: () => vm.toggleService(AppConstants.serviceLolo),
               ),
-              const Divider(height: 1),
-              ServiceCheckboxTile(
-                serviceKey: AppConstants.serviceTKBM,
-                label: 'TKBM',
-                icon: Icons.people_alt_outlined,
-                isSelected: vm.isServiceSelected(AppConstants.serviceTKBM),
-                onToggle: () => vm.toggleService(AppConstants.serviceTKBM),
-                expandedChild: AppRadioGroup<String>(
-                  label: 'Opsi TKBM',
-                  groupValue: vm.tkbmOption,
-                  options: AppConstants.tkbmOptions,
-                  optionLabel: (v) => v,
-                  onChanged: vm.setTbkmOption,
-                  validator: (v) => AppValidators.requiredDropdown(
-                    v,
-                    fieldName: 'Opsi TKBM',
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceAsuransi,
                 label: 'Asuransi',
@@ -171,7 +151,7 @@ class _SuccessDialog extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Order PBM Lain Anda telah berhasil dikirim dan sedang diproses.',
+            'Order LOLO Anda telah berhasil dikirim dan sedang diproses.',
             style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
