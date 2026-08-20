@@ -86,7 +86,10 @@ class User extends Authenticatable
         }
 
         if ($this->isSupir()) {
-            return 'Supir ' . ($this->supir_type ?: 'Operasional');
+            if (in_array(strtolower((string)$this->supir_type), ['haulage', 'houlage'])) {
+                return 'Supir ' . ($this->supir_type ?: 'Haulage');
+            }
+            return 'Pelaksana Lapangan ' . ($this->supir_type ?: 'Operasional');
         }
 
         return 'Customer';

@@ -32,6 +32,9 @@ class Order extends Model
         'has_asuransi',
         'asuransi_value',
         'status',
+        'is_invoiced',
+        'invoice_number',
+        'invoiced_at',
     ];
 
     protected $casts = [
@@ -39,6 +42,8 @@ class Order extends Model
         'has_asuransi' => 'boolean',
         'asuransi_value' => 'decimal:2',
         'jumlah_tonase' => 'decimal:2',
+        'is_invoiced' => 'boolean',
+        'invoiced_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo

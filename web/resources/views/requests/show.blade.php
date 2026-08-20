@@ -11,14 +11,23 @@
         <a href="{{ route('requests.index') }}" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-2">
             <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar Request
         </a>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
             <span class="px-3 py-1 bg-purple-50 text-purple-700 font-semibold rounded-full text-xs border border-purple-200">
                 Source: {{ $order->source }}
             </span>
-            <a href="{{ route('requests.exportPdf', $order->id) }}" target="_blank" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-md shadow-rose-600/20 transition">
-                <i class="fa-solid fa-file-pdf"></i>
-                <span>Cetak / Ekspor Surat PDF</span>
-            </a>
+            
+            @if(strcasecmp($order->source, 'Koperasi') === 0)
+                <button type="button" disabled class="px-4 py-2 bg-slate-100 text-slate-400 font-semibold rounded-xl text-xs flex items-center gap-2 cursor-not-allowed border border-slate-200" title="Fungsi Ekspor Surat dinonaktifkan khusus pada request Koperasi">
+                    <i class="fa-solid fa-ban text-rose-400"></i>
+                    <span>Cetak Surat PDF (Nonaktif: Koperasi)</span>
+                </button>
+            @else
+                <a href="{{ route('requests.exportPdf', $order->id) }}" target="_blank" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-md shadow-rose-600/20 transition">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Cetak / Ekspor Surat PDF</span>
+                </a>
+            @endif
+
             <button type="button" onclick="openEditServicesModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-md shadow-blue-600/20 transition">
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>Edit Layanan Order & Surat</span>
@@ -26,45 +35,92 @@
         </div>
     </div>
 
-    <!-- Overview Card -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div>
-            <div class="text-xs text-slate-400 font-bold uppercase">Customer / PT</div>
-            <div class="text-lg font-bold text-slate-800 mt-1">{{ $order->nama_pt }}</div>
-            <div class="text-xs text-slate-500 mt-0.5">PBM: {{ $order->nama_pbm }} | Telp: {{ $order->no_telp }}</div>
-        </div>
-
-        <div>
-            <div class="text-xs text-slate-400 font-bold uppercase">Wilayah & Fasilitas</div>
-            <div class="text-base font-bold text-slate-800 mt-1">{{ $order->wilayah }} — {{ $order->lokasi_fasilitas }}</div>
-            <div class="text-xs text-slate-500 mt-0.5">Jenis Kegiatan: {{ $order->jenis_kegiatan }}</div>
-        </div>
-
-        <div>
-            <div class="text-xs text-slate-400 font-bold uppercase">Tanggal Order & Payload</div>
-            <div class="text-base font-bold text-slate-800 mt-1">{{ $order->tanggal_order->format('d F Y') }}</div>
-            <div class="text-xs text-slate-500 mt-0.5">Payload: {{ $order->payload_type }}</div>
-        </div>
-
-        <div>
-            <div class="text-xs text-slate-400 font-bold uppercase">Layanan & TKBM (Order Utama)</div>
-            <div class="text-sm font-bold text-slate-800 mt-1">
-                @if($order->tkbm_option)
-                    <span class="px-2 py-0.5 bg-amber-50 text-amber-700 font-semibold rounded border border-amber-200 text-xs inline-block">
-                        <i class="fa-solid fa-users-gear me-1"></i> TKBM: {{ $order->tkbm_option }}
-                    </span>
-                @else
-                    <span class="text-slate-400 font-normal text-xs">Tanpa TKBM Khusus</span>
-                @endif
+    <!-- Overview Card & Invoice Banner -->
+    <div class="space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+                <div class="text-xs text-slate-400 font-bold uppercase">Customer / PT</div>
+                <div class="text-lg font-bold text-slate-800 mt-1">{{ $order->nama_pt }}</div>
+                <div class="text-xs text-slate-500 mt-0.5">PBM: {{ $order->nama_pbm }} | Telp: {{ $order->no_telp }}</div>
             </div>
-            <div class="text-xs text-slate-500 mt-1.5">
-                @if($order->has_asuransi)
-                    <span class="text-emerald-600 font-semibold flex items-center gap-1 text-xs">
-                        <i class="fa-solid fa-shield-halved"></i> Asuransi Cargo Aktif
-                    </span>
-                @else
-                    <span class="text-slate-400 font-normal text-xs">Tanpa Asuransi</span>
-                @endif
+
+            <div>
+                <div class="text-xs text-slate-400 font-bold uppercase">Wilayah & Fasilitas</div>
+                <div class="text-base font-bold text-slate-800 mt-1">{{ $order->wilayah }} — {{ $order->lokasi_fasilitas }}</div>
+                <div class="text-xs text-slate-500 mt-0.5">Jenis Kegiatan: {{ $order->jenis_kegiatan }}</div>
+            </div>
+
+            <div>
+                <div class="text-xs text-slate-400 font-bold uppercase">Tanggal Order & Payload</div>
+                <div class="text-base font-bold text-slate-800 mt-1">{{ $order->tanggal_order ? $order->tanggal_order->format('d F Y') : '-' }}</div>
+                <div class="text-xs text-slate-500 mt-0.5">Payload: {{ $order->payload_type }}</div>
+            </div>
+
+            <div>
+                <div class="text-xs text-slate-400 font-bold uppercase">Layanan & Asuransi (Order)</div>
+                <div class="text-sm font-bold text-slate-800 mt-1">
+                    @if($order->tkbm_option)
+                        <span class="px-2 py-0.5 bg-amber-50 text-amber-700 font-semibold rounded border border-amber-200 text-xs inline-block">
+                            <i class="fa-solid fa-users-gear me-1"></i> TKBM: {{ $order->tkbm_option }}
+                        </span>
+                    @else
+                        <span class="text-slate-400 font-normal text-xs">Tanpa TKBM Khusus</span>
+                    @endif
+                </div>
+                <div class="text-xs text-slate-500 mt-1.5">
+                    @if($order->has_asuransi)
+                        <span class="text-emerald-600 font-semibold flex items-center gap-1 text-xs">
+                            <i class="fa-solid fa-shield-halved"></i> Asuransi Aktif @if($order->asuransi_value) (Rp {{ number_format($order->asuransi_value, 0, ',', '.') }}) @endif
+                        </span>
+                    @else
+                        <span class="text-slate-400 font-normal text-xs">Tanpa Asuransi</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Keterangan Status Done & Tombol Aksi Invoice -->
+        <div class="bg-gradient-to-r {{ $order->is_invoiced ? 'from-emerald-900 to-teal-950 text-emerald-100 border-emerald-700' : 'from-slate-900 to-slate-800 text-slate-100 border-slate-700' }} rounded-2xl border p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl {{ $order->is_invoiced ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30' : 'bg-rose-500/20 text-rose-300 border-rose-400/30' }} border flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid {{ $order->is_invoiced ? 'fa-file-circle-check' : 'fa-file-circle-xmark' }}"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Status Invoice Order</span>
+                        @if($order->is_invoiced)
+                            <span class="px-2.5 py-0.5 bg-emerald-500/30 text-emerald-200 text-[10px] font-extrabold rounded-full uppercase border border-emerald-400/40">Sudah Terbit</span>
+                        @else
+                            <span class="px-2.5 py-0.5 bg-rose-500/30 text-rose-200 text-[10px] font-extrabold rounded-full uppercase border border-rose-400/40">Belum Keluar</span>
+                        @endif
+                    </div>
+                    <div class="text-sm font-bold text-white mt-0.5">
+                        @if($order->is_invoiced)
+                            Invoice: {{ $order->invoice_number ?: ('INV/' . $order->order_number) }} &bull; Diterbitkan: {{ $order->invoiced_at ? $order->invoiced_at->format('d M Y, H:i') : date('d M Y') }}
+                        @else
+                            Invoice penagihan belum diterbitkan untuk order request ini.
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Toggle Invoice -->
+            <div class="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+                <form action="{{ route('requests.toggleInvoice', $order->id) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    @if($order->is_invoiced)
+                        <button type="submit" class="px-4 py-2 bg-white/10 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition border border-white/20 flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                            <span>Batalkan / Reset Invoice</span>
+                        </button>
+                    @else
+                        <button type="submit" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-500/30 flex items-center gap-1.5">
+                            <i class="fa-solid fa-check-double"></i>
+                            <span>Tandai Invoice Sudah Keluar</span>
+                        </button>
+                    @endif
+                </form>
             </div>
         </div>
     </div>
@@ -162,7 +218,12 @@
                                 @endif
                                 @if(!empty($c->additional_services))
                                     @foreach($c->additional_services as $as)
-                                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-semibold rounded text-xs">
+                                        <span class="px-2 py-0.5 rounded text-xs font-bold border
+                                            {{ $as == 'Haulage' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                            {{ $as == 'LOLO' ? 'bg-sky-100 text-sky-800 border-sky-200' : '' }}
+                                            {{ $as == 'Penumpukan' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
+                                            {{ $as == 'TKBM' ? 'bg-teal-100 text-teal-800 border-teal-200' : '' }}
+                                            {{ !in_array($as, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : '' }}">
                                             +{{ $as }}
                                         </span>
                                     @endforeach
@@ -182,7 +243,7 @@
                                 </div>
                             @else
                                 <div class="text-xs text-slate-400 italic">
-                                    Belum ada aktivitas tiket supir khusus
+                                    Belum ada aktivitas tiket pelaksana lapangan khusus
                                 </div>
                             @endif
                         </div>
@@ -262,11 +323,20 @@
 
                         <div>
                             <span class="text-slate-400 font-medium">Layanan Ditambahkan:</span>
-                            <div class="font-bold text-blue-700">
+                            <div class="flex flex-wrap gap-1 mt-1">
                                 @if(!empty($sc->added_services))
-                                    {{ implode(', ', $sc->added_services) }}
+                                    @foreach($sc->added_services as $as)
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold border
+                                            {{ $as == 'Haulage' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                            {{ $as == 'LOLO' ? 'bg-sky-100 text-sky-800 border-sky-200' : '' }}
+                                            {{ $as == 'Penumpukan' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
+                                            {{ $as == 'TKBM' ? 'bg-teal-100 text-teal-800 border-teal-200' : '' }}
+                                            {{ !in_array($as, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : '' }}">
+                                            +{{ $as }}
+                                        </span>
+                                    @endforeach
                                 @else
-                                    <span class="text-slate-400 font-normal">Tidak ada layanan baru</span>
+                                    <span class="text-slate-400 font-normal text-xs">Tidak ada layanan baru</span>
                                 @endif
                             </div>
                         </div>
@@ -453,6 +523,36 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 5. ASURANSI CARD -->
+                <div class="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-halved text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-slate-800 text-sm">Asuransi</span>
+                                <div class="text-[10px] text-slate-500 mt-0.5">Perlindungan nilai muatan / cargo</div>
+                            </div>
+                        </div>
+                        @if($order->has_asuransi)
+                            <div class="w-6 h-6 bg-emerald-600 text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Asuransi sudah aktif">
+                                <i class="fa-solid fa-check text-xs font-black"></i>
+                            </div>
+                            <input type="hidden" name="existing_services[]" value="Asuransi">
+                        @else
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="added_services[]" value="Asuransi" id="order_asuransi_cb" class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" onchange="document.getElementById('order_asuransi_value_wrap').classList.toggle('hidden', !this.checked)">
+                            </label>
+                        @endif
+                    </div>
+
+                    <div id="order_asuransi_value_wrap" class="{{ $order->has_asuransi ? '' : 'hidden' }} pt-2 border-t border-emerald-200/60">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nilai Pertanggungan (Rp)</label>
+                        <input type="number" name="asuransi_value" value="{{ $order->asuransi_value }}" placeholder="misal: 50000000" min="0" step="1000" class="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-3 pt-3 border-t border-slate-200">
@@ -599,6 +699,36 @@
                             </div>
                             <span class="text-xs font-bold text-slate-800">Man Power + Forklift</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 5. ASURANSI CARD (Container) -->
+                <div class="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-halved text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-slate-800 text-sm">Asuransi</span>
+                                <div class="text-[10px] text-slate-500 mt-0.5">Perlindungan nilai muatan / cargo</div>
+                            </div>
+                        </div>
+                        @if($order->has_asuransi)
+                            <div class="w-6 h-6 bg-emerald-600 text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Asuransi sudah aktif">
+                                <i class="fa-solid fa-check text-xs font-black"></i>
+                            </div>
+                            <input type="hidden" name="existing_services[]" value="Asuransi">
+                        @else
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="added_services[]" value="Asuransi" id="container_asuransi_cb" class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" onchange="document.getElementById('container_asuransi_value_wrap').classList.toggle('hidden', !this.checked)">
+                            </label>
+                        @endif
+                    </div>
+
+                    <div id="container_asuransi_value_wrap" class="{{ $order->has_asuransi ? '' : 'hidden' }} pt-2 border-t border-emerald-200/60">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nilai Pertanggungan (Rp)</label>
+                        <input type="number" name="asuransi_value" value="{{ $order->asuransi_value }}" placeholder="misal: 50000000" min="0" step="1000" class="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                 </div>
             </div>

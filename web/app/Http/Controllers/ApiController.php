@@ -318,12 +318,15 @@ class ApiController extends Controller
             if ($validated['action_type'] === 'IN') {
                 $subTask->status = 'In';
                 $subTask->in_note = $validated['note'];
+                $subTask->in_time = now();
                 if ($photoPath) {
                     $subTask->in_photo_path = Storage::url($photoPath);
                 }
             } else if ($validated['action_type'] === 'OUT') {
                 $subTask->status = 'Done';
                 $subTask->out_note = $validated['note'];
+                $subTask->out_time = now();
+                $subTask->done_time = now();
                 if ($photoPath) {
                     $subTask->out_photo_path = Storage::url($photoPath);
                 }

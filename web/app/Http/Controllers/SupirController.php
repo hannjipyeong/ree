@@ -49,7 +49,7 @@ class SupirController extends Controller
             'supir_type' => $validated['supir_type'],
         ]);
 
-        return redirect()->route('supir.index')->with('success', 'Akun Supir berhasil ditambahkan!');
+        return redirect()->route('supir.index')->with('success', 'Akun Pelaksana Lapangan berhasil ditambahkan!');
     }
 
     public function update(Request $request, User $supir)
@@ -71,12 +71,12 @@ class SupirController extends Controller
         }
         $supir->save();
 
-        return redirect()->route('supir.index')->with('success', 'Akun Supir berhasil diperbarui!');
+        return redirect()->route('supir.index')->with('success', 'Akun Pelaksana Lapangan berhasil diperbarui!');
     }
 
     public function destroy(User $supir)
     {
         $supir->delete();
-        return redirect()->route('supir.index')->with('success', 'Akun Supir berhasil dihapus.');
+        return redirect()->route('supir.index')->with('success', 'Akun Pelaksana Lapangan berhasil dihapus.');
     }
 }

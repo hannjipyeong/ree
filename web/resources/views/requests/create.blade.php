@@ -152,7 +152,7 @@
             <div>
                 <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                     <i class="fa-solid fa-truck-ramp-box text-blue-600"></i>
-                    3. Pilihan Jasa Layanan (Akan Diberikan ke Supir)
+                    3. Pilihan Jasa Layanan (Akan Diberikan ke Pelaksana Lapangan)
                 </h3>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -182,7 +182,7 @@
             <div>
                 <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                     <i class="fa-solid fa-shield-halved text-blue-600"></i>
-                    4. Layanan Tambahan (Extra Services / Non-Supir)
+                    4. Layanan Tambahan (Extra Services / Non-Pelaksana Lapangan)
                 </h3>
 
                 <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">

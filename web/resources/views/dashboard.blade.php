@@ -21,7 +21,7 @@
                         Portal Operasional: Modul {{ $adminSource }}
                         <span class="px-2.5 py-0.5 bg-white/20 rounded-full text-[10px] font-semibold uppercase tracking-wider">Terkunci</span>
                     </h4>
-                    <p class="text-xs text-white/80 mt-0.5">Semua data metrik, tiket supir, dan daftar order di halaman ini dikhususkan untuk source <strong>{{ $adminSource }}</strong>.</p>
+                    <p class="text-xs text-white/80 mt-0.5">Semua data metrik, tiket pelaksana lapangan, dan daftar order di halaman ini dikhususkan untuk source <strong>{{ $adminSource }}</strong>.</p>
                 </div>
             </div>
             <a href="{{ route('requests.create') }}" class="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow shrink-0">
@@ -31,7 +31,7 @@
     @endif
 
     <!-- KPI Metric Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div id="kpi-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         <!-- Total Orders -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
@@ -50,7 +50,7 @@
         <!-- Total SubTasks -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
             <div>
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Tiket Supir</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Tiket Pelaksana Lapangan</p>
                 <h3 class="text-3xl font-extrabold text-slate-800 mt-2">{{ $totalSubTasks }}</h3>
                 <p class="text-xs text-amber-600 font-medium mt-1">
                     <i class="fa-solid fa-clock me-1"></i> {{ $subTaskStats['masuk'] + $subTaskStats['in'] }} Tugas Berjalan
@@ -73,12 +73,12 @@
             </div>
         </div>
 
-        <!-- Total Supir -->
+        <!-- Total Pelaksana Lapangan -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
             <div>
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Akun Supir Active</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Akun Pelaksana Lapangan Active</p>
                 <h3 class="text-3xl font-extrabold text-slate-800 mt-2">{{ $totalSupir }}</h3>
-                <p class="text-xs text-purple-600 font-medium mt-1">Driver Operasional</p>
+                <p class="text-xs text-purple-600 font-medium mt-1">Petugas / Driver Operasional</p>
             </div>
             <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl">
                 <i class="fa-solid fa-truck-front"></i>
@@ -89,7 +89,7 @@
 
     <!-- Status Breakdown Cards (clickable filter) -->
     @php $activeStatus = request('tiket_status'); @endphp
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+    <div id="status-breakdown" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
         {{-- Masuk --}}
         <a href="{{ $activeStatus == 'Masuk' ? route('dashboard') : route('dashboard', ['tiket_status' => 'Masuk']) }}"
@@ -173,8 +173,16 @@
 
     </div>
 
+    <!-- Quick Export Done Data Button -->
+    <div class="flex justify-end">
+        <button type="button" onclick="openGlobalExportDoneModal()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition flex items-center gap-2">
+            <i class="fa-solid fa-file-export"></i>
+            <span>Ekspor Laporan Order Done (PDF / Excel)</span>
+        </button>
+    </div>
+
     <!-- Recent Orders Table -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div id="recent-orders-table" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
                 <h3 class="font-bold text-slate-800 text-lg">
@@ -211,7 +219,7 @@
                         <th class="py-3.5 px-6">Customer / PT</th>
                         <th class="py-3.5 px-6">Source</th>
                         <th class="py-3.5 px-6">Wilayah & Fasilitas</th>
-                        <th class="py-3.5 px-6">Tiket Task Supir</th>
+                        <th class="py-3.5 px-6">Tiket Task Pelaksana Lapangan</th>
                         <th class="py-3.5 px-6">Tanggal</th>
                         <th class="py-3.5 px-6 text-right">Aksi</th>
                     </tr>
@@ -239,15 +247,30 @@
                                 <div class="text-xs text-slate-400">{{ $ord->lokasi_fasilitas }} ({{ $ord->jenis_kegiatan }})</div>
                             </td>
                             <td class="py-4 px-6">
-                                <div class="flex flex-wrap gap-1">
+                                <div class="flex flex-wrap gap-1.5">
                                     @foreach($ord->subTasks as $st)
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase
-                                            {{ $st->status == 'Masuk' ? 'bg-slate-100 text-slate-700' : '' }}
-                                            {{ $st->status == 'In' ? 'bg-blue-100 text-blue-700' : '' }}
-                                            {{ $st->status == 'Out' ? 'bg-amber-100 text-amber-700' : '' }}
-                                            {{ $st->status == 'Done' ? 'bg-emerald-100 text-emerald-700' : '' }}">
-                                            {{ $st->service_type }}: {{ $st->status }}
-                                        </span>
+                                        <div class="inline-flex items-center text-[10px] rounded-lg overflow-hidden border
+                                            {{ $st->service_type == 'Haulage' ? 'border-purple-200 bg-purple-50' : '' }}
+                                            {{ $st->service_type == 'LOLO' ? 'border-sky-200 bg-sky-50' : '' }}
+                                            {{ $st->service_type == 'Penumpukan' ? 'border-amber-200 bg-amber-50' : '' }}
+                                            {{ $st->service_type == 'TKBM' ? 'border-teal-200 bg-teal-50' : '' }}
+                                            {{ !in_array($st->service_type, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'border-slate-200 bg-slate-50' : '' }}">
+                                            <span class="px-2 py-0.5 font-extrabold uppercase
+                                                {{ $st->service_type == 'Haulage' ? 'text-purple-700' : '' }}
+                                                {{ $st->service_type == 'LOLO' ? 'text-sky-700' : '' }}
+                                                {{ $st->service_type == 'Penumpukan' ? 'text-amber-700' : '' }}
+                                                {{ $st->service_type == 'TKBM' ? 'text-teal-700' : '' }}
+                                                {{ !in_array($st->service_type, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'text-slate-700' : '' }}">
+                                                {{ $st->service_type }}
+                                            </span>
+                                            <span class="px-1.5 py-0.5 font-bold uppercase
+                                                {{ $st->status == 'Masuk' ? 'bg-slate-200 text-slate-700' : '' }}
+                                                {{ $st->status == 'In' ? 'bg-blue-600 text-white' : '' }}
+                                                {{ $st->status == 'Out' ? 'bg-amber-500 text-white' : '' }}
+                                                {{ $st->status == 'Done' ? 'bg-emerald-600 text-white' : '' }}">
+                                                {{ $st->status }}
+                                            </span>
+                                        </div>
                                     @endforeach
                                 </div>
                             </td>
@@ -273,4 +296,37 @@
     </div>
 
 </div>
+
+<script>
+    function pollDashboardUpdates() {
+        fetch(window.location.href, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) return;
+            return response.text();
+        })
+        .then(html => {
+            if (!html) return;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const kpi = document.getElementById('kpi-cards');
+            const newKpi = doc.getElementById('kpi-cards');
+            if (kpi && newKpi) kpi.innerHTML = newKpi.innerHTML;
+
+            const stats = document.getElementById('status-breakdown');
+            const newStats = doc.getElementById('status-breakdown');
+            if (stats && newStats) stats.innerHTML = newStats.innerHTML;
+
+            const table = document.getElementById('recent-orders-table');
+            const newTable = doc.getElementById('recent-orders-table');
+            if (table && newTable) table.innerHTML = newTable.innerHTML;
+        })
+        .catch(err => console.error("Error polling dashboard updates:", err));
+    }
+
+    // Poll every 3 seconds
+    setInterval(pollDashboardUpdates, 3000);
+</script>
 @endsection

@@ -47,15 +47,15 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
     super.dispose();
   }
 
-  void _navigateToActionScreen(BuildContext context, AppOrder order) {
-    Navigator.pushNamed(
+  void _navigateToActionScreen(AppOrder order) async {
+    await Navigator.pushNamed(
       context,
       AppRoutes.supirAction,
       arguments: SupirActionScreenArgs(order: order, actionType: 'DETAIL'),
-    ).then((_) {
-      final supirType = context.read<AuthViewModel>().supirType ?? '';
-      context.read<SupirViewModel>().fetchOrders(supirType);
-    });
+    );
+    if (!mounted) return;
+    final supirType = context.read<AuthViewModel>().supirType ?? '';
+    context.read<SupirViewModel>().fetchOrders(supirType);
   }
 
   Widget _buildOrderList() {
@@ -99,7 +99,7 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
-              onTap: () => _navigateToActionScreen(context, order),
+              onTap: () => _navigateToActionScreen(order),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -117,7 +117,45 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text('Layanan: ${order.serviceType} • Tipe: ${order.payloadType}', style: AppTextStyles.body2),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.getServiceBgColor(order.serviceType),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: AppColors.getServiceColor(order.serviceType).withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Text(
+                            order.serviceType,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.getServiceColor(order.serviceType),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.divider),
+                          ),
+                          child: Text(
+                            order.payloadType ?? 'Container',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 12),
                     if (order.containers.isNotEmpty) ...[
                       Text('Containers (${order.containers.length}):', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
@@ -158,7 +196,11 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Dashboard ${authVm.supirType ?? ''}'),
+        title: Text(
+          (authVm.supirType?.toLowerCase() == 'haulage' || authVm.supirType?.toLowerCase() == 'houlage')
+              ? 'Dashboard Supir Haulage'
+              : 'Dashboard Pelaksana Lapangan ${authVm.supirType ?? ''}',
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(

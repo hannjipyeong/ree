@@ -187,7 +187,9 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
               // ── Asuransi ───────────────────────────────────────────────────
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceAsuransi,
-                label: 'Asuransi',
+                label: vm.isServiceSelected(AppConstants.serviceAsuransi)
+                    ? 'Asuransi Liability'
+                    : 'Asuransi',
                 icon: Icons.shield_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.serviceAsuransi),

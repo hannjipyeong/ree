@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Monitoring & CRUD Akun Supir')
-@section('page_heading', 'Monitoring & CRUD Akun Supir (Driver Operasional)')
+@section('title', 'Monitoring & CRUD Akun Pelaksana Lapangan')
+@section('page_heading', 'Monitoring & CRUD Akun Pelaksana Lapangan')
 
 @section('content')
 <div class="space-y-6">
@@ -36,19 +36,19 @@
 
         <button onclick="document.getElementById('modalCreateSupir').classList.remove('hidden')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center gap-2">
             <i class="fa-solid fa-truck-front text-xs"></i>
-            <span>Tambah Akun Supir Baru</span>
+            <span>Tambah Akun Pelaksana Lapangan Baru</span>
         </button>
     </div>
 
-    <!-- Supir Table -->
+    <!-- Pelaksana Lapangan Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-slate-50 text-slate-400 uppercase text-[11px] font-bold tracking-wider border-b border-slate-100">
                     <tr>
-                        <th class="py-3.5 px-6">Nama Driver</th>
+                        <th class="py-3.5 px-6">Nama Petugas / Driver</th>
                         <th class="py-3.5 px-6">Email Login (Mobile App)</th>
-                        <th class="py-3.5 px-6">Spesialisasi / Tipe Supir</th>
+                        <th class="py-3.5 px-6">Spesialisasi / Tipe Pelaksana Lapangan</th>
                         <th class="py-3.5 px-6">No. Telepon / WhatsApp</th>
                         <th class="py-3.5 px-6">Tanggal Terdaftar</th>
                         <th class="py-3.5 px-6 text-right">Aksi</th>
@@ -67,9 +67,9 @@
                             <td class="py-4 px-6">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase
                                     {{ $s->supir_type == 'Haulage' ? 'bg-purple-100 text-purple-700 border border-purple-200' : '' }}
-                                    {{ $s->supir_type == 'LOLO' ? 'bg-blue-100 text-blue-700 border border-blue-200' : '' }}
+                                    {{ $s->supir_type == 'LOLO' ? 'bg-sky-100 text-sky-700 border border-sky-200' : '' }}
                                     {{ $s->supir_type == 'Penumpukan' ? 'bg-amber-100 text-amber-700 border border-amber-200' : '' }}
-                                    {{ $s->supir_type == 'TKBM' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : '' }}">
+                                    {{ $s->supir_type == 'TKBM' ? 'bg-teal-100 text-teal-700 border border-teal-200' : '' }}">
                                     {{ $s->supir_type }}
                                 </span>
                             </td>
@@ -82,7 +82,7 @@
                                     <i class="fa-solid fa-pen-to-square me-1"></i> Edit
                                 </button>
 
-                                <form action="{{ route('supir.destroy', $s->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus akun supir ini?')">
+                                <form action="{{ route('supir.destroy', $s->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus akun pelaksana lapangan ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="px-2.5 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg text-xs font-semibold transition">
@@ -94,7 +94,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="py-12 text-center text-slate-400">
-                                Belum ada akun supir terdaftar.
+                                Belum ada akun pelaksana lapangan terdaftar.
                             </td>
                         </tr>
                     @endforelse
@@ -109,11 +109,11 @@
 
 </div>
 
-<!-- Modal Tambah Supir -->
+<!-- Modal Tambah Pelaksana Lapangan -->
 <div id="modalCreateSupir" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 class="font-bold text-lg text-slate-800">Tambah Akun Supir Baru</h3>
+            <h3 class="font-bold text-lg text-slate-800">Tambah Akun Pelaksana Lapangan Baru</h3>
             <button onclick="document.getElementById('modalCreateSupir').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -122,17 +122,17 @@
         <form action="{{ route('supir.store') }}" method="POST" class="space-y-4">
             @csrf
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Driver *</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap *</label>
                 <input type="text" name="name" required placeholder="Supir Haulage 1" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Email Login Mobile App *</label>
-                <input type="email" name="email" required placeholder="supir_haulage@bkj.com" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <input type="email" name="email" required placeholder="petugas_lapangan@bkj.com" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Spesialisasi / Tipe Supir *</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Spesialisasi / Tipe Pelaksana Lapangan *</label>
                 <select name="supir_type" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <option value="Haulage">Haulage</option>
                     <option value="LOLO">LOLO</option>
@@ -156,18 +156,18 @@
                     Batal
                 </button>
                 <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition">
-                    Simpan Akun Supir
+                    Simpan Akun Pelaksana Lapangan
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal Edit Supir -->
+<!-- Modal Edit Pelaksana Lapangan -->
 <div id="modalEditSupir" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 class="font-bold text-lg text-slate-800">Edit Akun Supir</h3>
+            <h3 class="font-bold text-lg text-slate-800">Edit Akun Pelaksana Lapangan</h3>
             <button onclick="document.getElementById('modalEditSupir').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -178,7 +178,7 @@
             @method('PUT')
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Driver *</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap *</label>
                 <input type="text" id="editSupirName" name="name" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 
@@ -188,7 +188,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Spesialisasi / Tipe Supir *</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Spesialisasi / Tipe Pelaksana Lapangan *</label>
                 <select id="editSupirType" name="supir_type" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <option value="Haulage">Haulage</option>
                     <option value="LOLO">LOLO</option>
@@ -212,7 +212,7 @@
                     Batal
                 </button>
                 <button type="submit" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-amber-600/30 transition">
-                    Update Akun Supir
+                    Update Akun Pelaksana Lapangan
                 </button>
             </div>
         </form>

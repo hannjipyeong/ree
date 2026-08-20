@@ -155,7 +155,7 @@ class DashboardController extends Controller
                 if ($subTask->in_photo_path) {
                     $items[] = [
                         'type'           => 'IN',
-                        'time'           => $subTask->updated_at,
+                        'time'           => $subTask->in_time ?: $subTask->updated_at,
                         'note'           => $subTask->in_note,
                         'photo'          => $subTask->in_photo_path,
                         'service_type'   => $subTask->service_type,
@@ -170,7 +170,7 @@ class DashboardController extends Controller
                 if ($subTask->out_photo_path) {
                     $items[] = [
                         'type'           => 'OUT',
-                        'time'           => $subTask->updated_at,
+                        'time'           => $subTask->out_time ?: $subTask->updated_at,
                         'note'           => $subTask->out_note,
                         'photo'          => $subTask->out_photo_path,
                         'service_type'   => $subTask->service_type,

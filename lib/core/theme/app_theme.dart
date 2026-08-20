@@ -26,6 +26,54 @@ class AppColors {
   static const Color divider = Color(0xFFE0E6EF);
   static const Color disabled = Color(0xFFBDC3C7);
 
+  // Service Tag Colors (Distinct per service type)
+  static const Color serviceHaulage = Color(0xFF7C3AED); // Purple
+  static const Color serviceHaulageBg = Color(0xFFF3E8FF);
+  static const Color serviceLolo = Color(0xFF0284C7); // Sky Blue
+  static const Color serviceLoloBg = Color(0xFFE0F2FE);
+  static const Color servicePenumpukan = Color(0xFFD97706); // Amber / Orange
+  static const Color servicePenumpukanBg = Color(0xFFFEF3C7);
+  static const Color serviceTkbm = Color(0xFF0D9488); // Teal
+  static const Color serviceTkbmBg = Color(0xFFCCFBF1);
+  static const Color serviceAsuransi = Color(0xFFE11D48); // Rose / Pink
+  static const Color serviceAsuransiBg = Color(0xFFFFE4E6);
+
+  static Color getServiceColor(String service) {
+    switch (service.toLowerCase().trim()) {
+      case 'haulage':
+        return serviceHaulage;
+      case 'lolo':
+        return serviceLolo;
+      case 'penumpukan':
+        return servicePenumpukan;
+      case 'tkbm':
+        return serviceTkbm;
+      case 'asuransi':
+      case 'asuransi liability':
+        return serviceAsuransi;
+      default:
+        return primary;
+    }
+  }
+
+  static Color getServiceBgColor(String service) {
+    switch (service.toLowerCase().trim()) {
+      case 'haulage':
+        return serviceHaulageBg;
+      case 'lolo':
+        return serviceLoloBg;
+      case 'penumpukan':
+        return servicePenumpukanBg;
+      case 'tkbm':
+        return serviceTkbmBg;
+      case 'asuransi':
+      case 'asuransi liability':
+        return serviceAsuransiBg;
+      default:
+        return background;
+    }
+  }
+
   // Text
   static const Color textPrimary = Color(0xFF1C2833);
   static const Color textSecondary = Color(0xFF5D6D7E);

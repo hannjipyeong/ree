@@ -91,139 +91,150 @@
                     $currentStatus = $cp ? $cp->status : $st->status;
                 @endphp
                 <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div>
-                            <div class="flex items-center gap-3">
-                                <span class="font-extrabold text-slate-800 text-base">{{ $st->task_number }}</span>
-                                <span class="px-2.5 py-0.5 rounded text-xs font-bold uppercase bg-slate-800 text-white">
-                                    {{ $st->service_type }}
+                    <div id="subtask-display-{{ $st->id }}" class="space-y-4">
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-extrabold text-slate-800 text-base">{{ $st->task_number }}</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-extrabold uppercase border
+                                        {{ $st->service_type == 'Haulage' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                        {{ $st->service_type == 'LOLO' ? 'bg-sky-100 text-sky-800 border-sky-200' : '' }}
+                                        {{ $st->service_type == 'Penumpukan' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
+                                        {{ $st->service_type == 'TKBM' ? 'bg-teal-100 text-teal-800 border-teal-200' : '' }}
+                                        {{ !in_array($st->service_type, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'bg-slate-800 text-white' : '' }}">
+                                        {{ $st->service_type }}
+                                    </span>
+                                </div>
+                                @if($st->service_type == 'TKBM')
+                                    @php
+                                        $tkbmType = $container->tkbm_option ?: ($order->tkbm_option ?? null);
+                                    @endphp
+                                    @if($tkbmType)
+                                        <div class="mt-1.5">
+                                            @if($tkbmType == 'Man Power + Forklift')
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                                                    <i class="fa-solid fa-forklift text-[10px]"></i> Man Power + Fork Lift
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-sky-100 text-sky-700 border border-sky-200">
+                                                    <i class="fa-solid fa-people-carry-box text-[10px]"></i> Man Power
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @endif
+                                <div class="text-xs text-slate-500 mt-1">
+                                    Pelaksana Lapangan / Driver: 
+                                    <strong class="text-slate-700">{{ $st->supir ? $st->supir->name : 'Belum ditugaskan' }}</strong>
+                                </div>
+                            </div>
+
+                            <!-- Status Badge -->
+                            <div>
+                                <span class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase shadow-sm
+                                    {{ $currentStatus == 'Masuk' ? 'bg-slate-200 text-slate-800' : '' }}
+                                    {{ $currentStatus == 'IN' || $currentStatus == 'In' ? 'bg-blue-600 text-white' : '' }}
+                                    {{ $currentStatus == 'OUT' || $currentStatus == 'Out' ? 'bg-amber-500 text-white' : '' }}
+                                    {{ $currentStatus == 'DONE' || $currentStatus == 'Done' ? 'bg-emerald-600 text-white' : '' }}">
+                                    Status Lapangan: {{ $currentStatus }}
                                 </span>
                             </div>
-                            @if($st->service_type == 'TKBM')
-                                @php
-                                    $tkbmType = $container->tkbm_option ?: ($order->tkbm_option ?? null);
-                                @endphp
-                                @if($tkbmType)
-                                    <div class="mt-1.5">
-                                        @if($tkbmType == 'Man Power + Forklift')
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
-                                                <i class="fa-solid fa-forklift text-[10px]"></i> Man Power + Fork Lift
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-sky-100 text-sky-700 border border-sky-200">
-                                                <i class="fa-solid fa-people-carry-box text-[10px]"></i> Man Power
-                                            </span>
-                                        @endif
-                                    </div>
-                                @endif
-                            @endif
-                            <div class="text-xs text-slate-500 mt-1">
-                                Driver / Operator: 
-                                <strong class="text-slate-700">{{ $st->supir ? $st->supir->name : 'Belum ditugaskan' }}</strong>
-                            </div>
                         </div>
 
-                        <!-- Status Badge -->
-                        <div>
-                            <span class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase shadow-sm
-                                {{ $currentStatus == 'Masuk' ? 'bg-slate-200 text-slate-800' : '' }}
-                                {{ $currentStatus == 'IN' || $currentStatus == 'In' ? 'bg-blue-600 text-white' : '' }}
-                                {{ $currentStatus == 'OUT' || $currentStatus == 'Out' ? 'bg-amber-500 text-white' : '' }}
-                                {{ $currentStatus == 'DONE' || $currentStatus == 'Done' ? 'bg-emerald-600 text-white' : '' }}">
-                                Status Lapangan: {{ $currentStatus }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Notes & Photo Proofs per Container -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-200 text-xs">
-                        
-                        <!-- Bukti IN -->
-                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
-                            <div class="font-bold text-blue-600 flex items-center justify-between">
-                                <span><i class="fa-solid fa-right-to-bracket me-1"></i> Progress IN (Masuk Gerbang)</span>
-                                <div class="flex items-center gap-1.5">
+                        <!-- Notes & Photo Proofs per Container (Multi-Photo Gallery) -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-slate-200 text-xs">
+                            
+                            <!-- Bukti IN (Multi-Photo) -->
+                            <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                                <div class="font-bold text-blue-600 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-right-to-bracket me-1"></i> Foto IN</span>
                                     @if($cp && $cp->in_time)
                                         <span class="text-[10px] text-slate-400 font-medium">
                                             <i class="fa-regular fa-clock me-0.5"></i>{{ $cp->in_time->format('d M Y, H:i') }}
                                         </span>
                                     @endif
-                                    @if($cp && $cp->in_photo_path)
-                                        <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-semibold border border-blue-200">Ada Bukti Foto</span>
-                                    @elseif($st->in_photo_path)
-                                        <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-semibold border border-blue-200">Foto Order</span>
-                                    @endif
                                 </div>
-                            </div>
-                            
-                            @php
-                                $inPath = ($cp && $cp->in_photo_path) ? $cp->in_photo_path : $st->in_photo_path;
-                            @endphp
-                            @if($inPath)
                                 @php
-                                    $inUrl = Str::startsWith($inPath, ['http://', 'https://']) ? $inPath : asset($inPath);
+                                    $allInPhotos = $cp ? $cp->all_in_photos : $st->all_in_photos;
                                 @endphp
-                                <div class="pt-2 space-y-1">
-                                    <button type="button" onclick="openPhotoModal('{{ $inUrl }}', 'Foto Bukti IN Kontainer - {{ $container->container_number }}')" class="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg transition flex items-center justify-center gap-2 border border-blue-200">
-                                        <i class="fa-solid fa-image"></i>
-                                        <span>Lihat Foto Bukti IN</span>
-                                    </button>
-                                    @if($cp)
-                                        <div class="text-[10px] text-slate-400 text-center">
-                                            <i class="fa-regular fa-clock me-0.5"></i>{{ $cp->updated_at->format('d M Y, H:i') }}
-                                        </div>
-                                    @endif
-                                </div>
-                            @else
-                                <div class="text-[11px] text-slate-400 italic">Belum ada foto bukti IN</div>
-                            @endif
-                        </div>
+                                @if(!empty($allInPhotos))
+                                    <div class="grid grid-cols-3 gap-1.5 pt-1">
+                                        @foreach($allInPhotos as $inPhoto)
+                                            @php $inPhotoUrl = Str::startsWith($inPhoto, ['http://', 'https://']) ? $inPhoto : asset($inPhoto); @endphp
+                                            <button type="button" onclick="openPhotoModal('{{ $inPhotoUrl }}', 'Foto IN')" class="aspect-square rounded-lg overflow-hidden border border-slate-200 hover:border-blue-400 transition cursor-pointer">
+                                                <img src="{{ $inPhotoUrl }}" alt="Foto IN" class="w-full h-full object-cover">
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-[11px] text-slate-400 italic">Belum ada foto IN</div>
+                                @endif
+                            </div>
 
-                        <!-- Bukti OUT -->
-                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
-                            <div class="font-bold text-amber-600 flex items-center justify-between">
-                                <span><i class="fa-solid fa-right-from-bracket me-1"></i> Progress OUT (Keluar Gerbang)</span>
-                                <div class="flex items-center gap-1.5">
+                            <!-- Bukti OUT (Multi-Photo) -->
+                            <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                                <div class="font-bold text-amber-600 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-right-from-bracket me-1"></i> Foto OUT</span>
                                     @if($cp && $cp->out_time)
                                         <span class="text-[10px] text-slate-400 font-medium">
                                             <i class="fa-regular fa-clock me-0.5"></i>{{ $cp->out_time->format('d M Y, H:i') }}
                                         </span>
                                     @endif
-                                    @if($cp && $cp->out_photo_path)
-                                        <span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded text-[10px] font-semibold border border-amber-200">Ada Bukti Foto</span>
-                                    @elseif($st->out_photo_path)
-                                        <span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded text-[10px] font-semibold border border-amber-200">Foto Order</span>
-                                    @endif
                                 </div>
+                                @php
+                                    $allOutPhotos = $cp ? $cp->all_out_photos : $st->all_out_photos;
+                                @endphp
+                                @if(!empty($allOutPhotos))
+                                    <div class="grid grid-cols-3 gap-1.5 pt-1">
+                                        @foreach($allOutPhotos as $outPhoto)
+                                            @php $outPhotoUrl = Str::startsWith($outPhoto, ['http://', 'https://']) ? $outPhoto : asset($outPhoto); @endphp
+                                            <button type="button" onclick="openPhotoModal('{{ $outPhotoUrl }}', 'Foto OUT')" class="aspect-square rounded-lg overflow-hidden border border-slate-200 hover:border-amber-400 transition cursor-pointer">
+                                                <img src="{{ $outPhotoUrl }}" alt="Foto OUT" class="w-full h-full object-cover">
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-[11px] text-slate-400 italic">Belum ada foto OUT</div>
+                                @endif
                             </div>
 
-                            @php
-                                $outPath = ($cp && $cp->out_photo_path) ? $cp->out_photo_path : $st->out_photo_path;
-                            @endphp
-                            @if($outPath)
-                                @php
-                                    $outUrl = Str::startsWith($outPath, ['http://', 'https://']) ? $outPath : asset($outPath);
-                                @endphp
-                                <div class="pt-2 space-y-1">
-                                    <button type="button" onclick="openPhotoModal('{{ $outUrl }}', 'Foto Bukti OUT Kontainer - {{ $container->container_number }}')" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg transition flex items-center justify-center gap-2 border border-amber-200">
-                                        <i class="fa-solid fa-image"></i>
-                                        <span>Lihat Foto Bukti OUT</span>
-                                    </button>
-                                    @if($cp)
-                                        <div class="text-[10px] text-slate-400 text-center">
-                                            <i class="fa-regular fa-clock me-0.5"></i>{{ $cp->updated_at->format('d M Y, H:i') }}
-                                        </div>
+                            <!-- Bukti DONE (Multi-Photo) -->
+                            <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                                <div class="font-bold text-emerald-600 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-circle-check me-1"></i> Foto DONE</span>
+                                    @if($cp && $cp->done_time)
+                                        <span class="text-[10px] text-slate-400 font-medium">
+                                            <i class="fa-regular fa-clock me-0.5"></i>{{ $cp->done_time->format('d M Y, H:i') }}
+                                        </span>
                                     @endif
                                 </div>
-                            @else
-                                <div class="text-[11px] text-slate-400 italic">Belum ada foto bukti OUT</div>
-                            @endif
-                        </div>
+                                @php
+                                    $allDonePhotos = $cp ? $cp->all_done_photos : $st->all_done_photos;
+                                @endphp
+                                @if(!empty($allDonePhotos))
+                                    <div class="grid grid-cols-3 gap-1.5 pt-1">
+                                        @foreach($allDonePhotos as $donePhoto)
+                                            @php $donePhotoUrl = Str::startsWith($donePhoto, ['http://', 'https://']) ? $donePhoto : asset($donePhoto); @endphp
+                                            <button type="button" onclick="openPhotoModal('{{ $donePhotoUrl }}', 'Foto DONE')" class="aspect-square rounded-lg overflow-hidden border border-slate-200 hover:border-emerald-400 transition cursor-pointer">
+                                                <img src="{{ $donePhotoUrl }}" alt="Foto DONE" class="w-full h-full object-cover">
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-[11px] text-slate-400 italic">Belum ada foto DONE</div>
+                                @endif
+                                @if($cp && $cp->done_note)
+                                    <div class="mt-1 p-2 bg-emerald-50 rounded-lg text-[11px] text-emerald-800 border border-emerald-200">
+                                        <strong>Keterangan:</strong> {{ $cp->done_note }}
+                                    </div>
+                                @endif
+                            </div>
 
+                        </div>
                     </div>
 
-                    <!-- Form Update Status Admin -->
-                    <form action="{{ route('subtasks.updateStatus', $st->id) }}" method="POST" enctype="multipart/form-data" class="pt-3 border-t border-slate-200 space-y-3">
+                    <!-- Form Update Status Admin (AJAX Real-Time) -->
+                    <form id="statusForm-{{ $st->id }}" action="{{ route('subtasks.updateStatus', $st->id) }}" method="POST" enctype="multipart/form-data" class="pt-3 border-t border-slate-200 space-y-3" onsubmit="return submitStatusAjax(event, {{ $st->id }})">
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="container_id" value="{{ $container->id }}">
@@ -236,7 +247,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Tiket</label>
-                                <select name="status" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                                <select name="status" id="statusSelect-{{ $st->id }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none">
                                     <option value="Masuk" {{ $currentStatus == 'Masuk' ? 'selected' : '' }}>Masuk (Pending)</option>
                                     <option value="In" {{ $currentStatus == 'In' || $currentStatus == 'IN' ? 'selected' : '' }}>In (Progres IN)</option>
                                     <option value="Out" {{ $currentStatus == 'Out' || $currentStatus == 'OUT' ? 'selected' : '' }}>Out (Progres OUT)</option>
@@ -250,16 +261,21 @@
                             </div>
 
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Upload Foto Bukti</label>
-                                <input type="file" name="photo" accept="image/*" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Upload Foto Bukti (Multi)</label>
+                                <input type="file" name="photos[]" accept="image/*" multiple class="w-full py-1 px-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700">
+                                <p class="text-[9px] text-slate-400 mt-0.5">Bisa pilih banyak foto sekaligus</p>
                             </div>
 
                             <div class="flex items-end">
-                                <button type="submit" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow transition">
-                                    Simpan Perubahan
+                                <button type="submit" id="submitBtn-{{ $st->id }}" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow transition flex items-center justify-center gap-2">
+                                    <span class="btn-text">Simpan Perubahan</span>
+                                    <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Real-time feedback message -->
+                        <div id="statusMsg-{{ $st->id }}" class="hidden text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-2 transition-all duration-300"></div>
                     </form>
                 </div>
             @empty
@@ -437,6 +453,36 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 5. ASURANSI CARD -->
+                <div class="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-halved text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-slate-800 text-sm">Asuransi</span>
+                                <div class="text-[10px] text-slate-500 mt-0.5">Perlindungan nilai muatan / cargo</div>
+                            </div>
+                        </div>
+                        @if($order->has_asuransi)
+                            <div class="w-6 h-6 bg-emerald-600 text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Asuransi sudah aktif">
+                                <i class="fa-solid fa-check text-xs font-black"></i>
+                            </div>
+                            <input type="hidden" name="existing_services[]" value="Asuransi">
+                        @else
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="added_services[]" value="Asuransi" id="cd_asuransi_cb" class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" onchange="document.getElementById('cd_asuransi_value_wrap').classList.toggle('hidden', !this.checked)">
+                            </label>
+                        @endif
+                    </div>
+
+                    <div id="cd_asuransi_value_wrap" class="{{ $order->has_asuransi ? '' : 'hidden' }} pt-2 border-t border-emerald-200/60">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nilai Pertanggungan (Rp)</label>
+                        <input type="number" name="asuransi_value" value="{{ $order->asuransi_value }}" placeholder="misal: 50000000" min="0" step="1000" class="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-3 pt-3 border-t border-slate-200">
@@ -546,5 +592,115 @@
             if (el) el.innerText = "File Dipilih: " + input.files[0].name;
         }
     }
+
+    // ===== AJAX STATUS UPDATE & REAL-TIME POLLING =====
+    function submitStatusAjax(event, stId) {
+        event.preventDefault();
+
+        const form = document.getElementById('statusForm-' + stId);
+        const submitBtn = document.getElementById('submitBtn-' + stId);
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnSpinner = submitBtn.querySelector('.btn-spinner');
+        const msgDiv = document.getElementById('statusMsg-' + stId);
+
+        // Show spinner, disable button
+        btnText.style.display = 'none';
+        btnSpinner.classList.remove('hidden');
+        submitBtn.disabled = true;
+
+        // Hide and reset message
+        msgDiv.classList.add('hidden');
+        msgDiv.className = 'hidden text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-2 transition-all duration-300';
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(res => {
+            // Show success message
+            msgDiv.textContent = res.message;
+            msgDiv.classList.remove('hidden');
+            msgDiv.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+
+            // Reset inputs
+            form.querySelector('input[name="note"]').value = '';
+            form.querySelector('input[type="file"]').value = '';
+
+            // Update UI immediately
+            pollContainerUpdates();
+
+            // Hide success message after 3 seconds
+            setTimeout(() => {
+                msgDiv.classList.add('opacity-0');
+                setTimeout(() => {
+                    msgDiv.classList.add('hidden');
+                    msgDiv.classList.remove('opacity-0', 'bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+                }, 300);
+            }, 3000);
+        })
+        .catch(err => {
+            console.error(err);
+            msgDiv.textContent = err.message || 'Terjadi kesalahan saat menyimpan perubahan.';
+            msgDiv.classList.remove('hidden');
+            msgDiv.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-200');
+        })
+        .finally(() => {
+            // Hide spinner, enable button
+            btnText.style.display = 'block';
+            btnSpinner.classList.add('hidden');
+            submitBtn.disabled = false;
+        });
+
+        return false;
+    }
+
+    function pollContainerUpdates() {
+        fetch(window.location.href, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) return;
+            return response.text();
+        })
+        .then(html => {
+            if (!html) return;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Update subtask displays
+            document.querySelectorAll('[id^="subtask-display-"]').forEach(displayEl => {
+                const id = displayEl.id;
+                const newDisplayEl = doc.getElementById(id);
+                if (newDisplayEl) {
+                    displayEl.innerHTML = newDisplayEl.innerHTML;
+                }
+            });
+
+            // Update select values if they are not currently focused/active
+            document.querySelectorAll('[id^="statusSelect-"]').forEach(selectEl => {
+                const id = selectEl.id;
+                const newSelectEl = doc.getElementById(id);
+                if (newSelectEl && document.activeElement !== selectEl) {
+                    selectEl.value = newSelectEl.value;
+                }
+            });
+        })
+        .catch(err => console.error("Error polling container updates:", err));
+    }
+
+    // Set polling every 3 seconds
+    setInterval(pollContainerUpdates, 3000);
 </script>
 @endsection

@@ -123,7 +123,9 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
               const Divider(height: 1),
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceAsuransi,
-                label: 'Asuransi',
+                label: vm.isServiceSelected(AppConstants.serviceAsuransi)
+                    ? 'Asuransi Liability'
+                    : 'Asuransi',
                 icon: Icons.shield_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.serviceAsuransi),

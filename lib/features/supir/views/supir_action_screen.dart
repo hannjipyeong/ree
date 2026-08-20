@@ -92,15 +92,6 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
     _selectedFilePath = null;
     _selectedFileBytes = null;
 
-    final progress = container.progress;
-    final String currentStatus = progress?.status ?? 'Pending';
-    
-    // Default action to propose
-    String selectedActionType = 'IN';
-    if (currentStatus == 'In' || currentStatus == 'Out') {
-      selectedActionType = 'OUT';
-    }
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -451,7 +442,27 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                     const Divider(height: 24),
                     _buildInfoRow('ID Order', order.id),
                     _buildInfoRow('Customer', order.customerName),
-                    _buildInfoRow('Layanan', order.serviceType),
+                    _buildCustomRow(
+                      'Layanan',
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.getServiceBgColor(order.serviceType),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: AppColors.getServiceColor(order.serviceType).withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Text(
+                          order.serviceType,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.getServiceColor(order.serviceType),
+                          ),
+                        ),
+                      ),
+                    ),
                     _buildInfoRow('Tipe', order.payloadType ?? 'Container'),
                     _buildInfoRow('Tanggal', '${order.date.day}/${order.date.month}/${order.date.year} ${order.date.hour}:${order.date.minute}'),
                   ],
@@ -478,6 +489,19 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
         children: [
           SizedBox(width: 100, child: Text(label, style: AppTextStyles.caption)),
           Expanded(child: Text(value, style: AppTextStyles.body2.copyWith(fontWeight: FontWeight.w600))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomRow(String label, Widget child) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(width: 100, child: Text(label, style: AppTextStyles.caption)),
+          Expanded(child: Align(alignment: Alignment.centerLeft, child: child)),
         ],
       ),
     );

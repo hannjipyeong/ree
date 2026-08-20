@@ -89,8 +89,15 @@
 
                 <a href="{{ route('supir.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition font-medium text-sm {{ request()->routeIs('supir.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                     <i class="fa-solid fa-truck-front w-5 text-center"></i>
-                    <span>Akun Supir</span>
+                    <span>Akun Pelaksana Lapangan</span>
                 </a>
+
+                <div class="pt-4 pb-1 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">Laporan & Rekap</div>
+
+                <button type="button" onclick="openGlobalExportDoneModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition font-medium text-sm text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 text-left">
+                    <i class="fa-solid fa-file-export w-5 text-center"></i>
+                    <span>Ekspor Order Done</span>
+                </button>
             </nav>
         </div>
 
@@ -230,9 +237,90 @@
         </main>
     </div>
 
+    <!-- Modal Global Export Data Status Done (PDF / Excel) -->
+    <div id="globalExportDoneModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl space-y-0">
+            <div class="p-5 bg-gradient-to-r from-emerald-800 to-teal-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-emerald-300 font-bold text-lg">
+                        <i class="fa-solid fa-file-export"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-base">Ekspor Laporan Order Selesai</h4>
+                        <p class="text-xs text-emerald-200 mt-0.5">Khusus data order dengan Status: <strong>DONE</strong></p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeGlobalExportDoneModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="exportDoneForm" method="GET" target="_blank" class="p-6 space-y-5">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Tanggal Awal</label>
+                            <input type="date" id="export_start_date" name="start_date" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Tanggal Akhir</label>
+                            <input type="date" id="export_end_date" name="end_date" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Filter Modul / Source</label>
+                        <select id="export_source" name="source" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="">Semua Modul (ALL IN, Koperasi, PBM Lain)</option>
+                            <option value="ALL IN">ALL IN</option>
+                            <option value="Koperasi">Koperasi</option>
+                            <option value="PBM Lain">PBM Lain</option>
+                        </select>
+                    </div>
+
+                    <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-info text-emerald-600 mt-0.5"></i>
+                        <div>
+                            Kosongkan filter tanggal untuk mengekspor <strong>seluruh data order Done</strong> tanpa batasan waktu.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
+                    <button type="button" onclick="submitExportDone('pdf')" class="py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-md shadow-rose-600/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-sm"></i>
+                        <span>Ekspor ke PDF</span>
+                    </button>
+                    <button type="button" onclick="submitExportDone('excel')" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-excel text-sm"></i>
+                        <span>Ekspor ke Excel</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </body>
 
 <script>
+    function openGlobalExportDoneModal() {
+        document.getElementById('globalExportDoneModal').classList.remove('hidden');
+    }
+
+    function closeGlobalExportDoneModal() {
+        document.getElementById('globalExportDoneModal').classList.add('hidden');
+    }
+
+    function submitExportDone(type) {
+        const form = document.getElementById('exportDoneForm');
+        if (type === 'pdf') {
+            form.action = "{{ route('requests.exportDonePdf') }}";
+        } else {
+            form.action = "{{ route('requests.exportDoneExcel') }}";
+        }
+        form.submit();
+    }
+
     // ===== NOTIFICATION PANEL LOGIC =====
     const NOTIF_URL = '{{ route("notifications") }}';
 

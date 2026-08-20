@@ -51,7 +51,11 @@ class SupirProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Profil Supir'),
+        title: Text(
+          (vm.supirType?.toLowerCase() == 'haulage' || vm.supirType?.toLowerCase() == 'houlage')
+              ? 'Profil Supir'
+              : 'Profil Pelaksana Lapangan',
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -69,7 +73,12 @@ class SupirProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(vm.fullName, style: AppTextStyles.heading2),
                   const SizedBox(height: 4),
-                  Text('Supir ${vm.supirType ?? ''}', style: AppTextStyles.body2),
+                  Text(
+                    (vm.supirType?.toLowerCase() == 'haulage' || vm.supirType?.toLowerCase() == 'houlage')
+                        ? 'Supir Haulage'
+                        : 'Pelaksana Lapangan ${vm.supirType ?? ''}',
+                    style: AppTextStyles.body2,
+                  ),
                 ],
               ),
             ),
@@ -84,7 +93,7 @@ class SupirProfileScreen extends StatelessWidget {
                 _buildInfoTile('Tipe Layanan', vm.supirType ?? '-'),
                 const SizedBox(height: 16),
                 const Text(
-                  '*Profil supir hanya dapat diubah oleh Admin.',
+                  '*Profil hanya dapat diubah oleh Admin.',
                   style: AppTextStyles.caption,
                 ),
               ],

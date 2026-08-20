@@ -4,7 +4,6 @@ import 'package:bkj_app/core/components/components.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
-import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 
 /// LOLO — Page 3: Additional services (LOLO, TKBM, Asuransi).
@@ -107,7 +106,9 @@ class _PbmLainPage3ScreenState extends State<PbmLainPage3Screen> {
               ),
               ServiceCheckboxTile(
                 serviceKey: AppConstants.serviceAsuransi,
-                label: 'Asuransi',
+                label: vm.isServiceSelected(AppConstants.serviceAsuransi)
+                    ? 'Asuransi Liability'
+                    : 'Asuransi',
                 icon: Icons.shield_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.serviceAsuransi),
