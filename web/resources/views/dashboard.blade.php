@@ -221,6 +221,7 @@
                         <th class="py-3.5 px-6">Wilayah & Fasilitas</th>
                         <th class="py-3.5 px-6">Tiket Task Pelaksana Lapangan</th>
                         <th class="py-3.5 px-6">Tanggal</th>
+                        <th class="py-3.5 px-6">Status Invoice</th>
                         <th class="py-3.5 px-6 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -277,6 +278,31 @@
                             <td class="py-4 px-6 text-xs text-slate-500">
                                 {{ $ord->tanggal_order->format('d M Y') }}
                             </td>
+                            <td class="py-4 px-6 whitespace-nowrap">
+                                <div class="flex flex-col items-start gap-1">
+                                    @if($ord->is_invoiced)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <i class="fa-solid fa-circle-check text-[10px]"></i> Sudah Terbit
+                                        </span>
+                                        @if($ord->invoice_number)
+                                            <span class="text-[10px] font-mono text-slate-500">{{ $ord->invoice_number }}</span>
+                                        @endif
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                            <i class="fa-solid fa-circle-xmark text-[10px]"></i> Belum Keluar
+                                        </span>
+                                    @endif
+
+                                    <!-- Quick toggle invoice button -->
+                                    <form action="{{ route('requests.toggleInvoice', $ord->id) }}" method="POST" class="mt-0.5">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-[10px] text-blue-600 hover:text-blue-800 font-semibold underline" title="Ubah status invoice">
+                                            {{ $ord->is_invoiced ? 'Batalkan Status' : 'Tandai Terbit' }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                             <td class="py-4 px-6 text-right">
                                 <a href="{{ route('requests.show', $ord->id) }}" class="px-3 py-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
                                     <i class="fa-solid fa-eye"></i> Detail
@@ -285,7 +311,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-8 text-center text-slate-400">
+                            <td colspan="8" class="py-8 text-center text-slate-400">
                                 Belum ada order request yang masuk.
                             </td>
                         </tr>

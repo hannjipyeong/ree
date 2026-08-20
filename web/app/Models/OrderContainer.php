@@ -16,11 +16,21 @@ class OrderContainer extends Model
         'container_number',
         'tkbm_option',
         'additional_services',
+        'is_cancelled',
+        'sp3kk_file_path',
     ];
 
     protected $casts = [
         'additional_services' => 'array',
+        'is_cancelled' => 'boolean',
     ];
+
+    protected $appends = ['sp3kk_file_url'];
+
+    public function getSp3kkFileUrlAttribute()
+    {
+        return $this->sp3kk_file_path ? asset('storage/' . $this->sp3kk_file_path) : null;
+    }
 
     public function order()
     {

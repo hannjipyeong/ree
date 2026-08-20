@@ -258,6 +258,28 @@ class RequestController extends Controller
         return back()->with('success', 'Layanan order & dokumen surat pendukung berhasil diperbarui!');
     }
 
+    public function cancelContainer(Request $httpRequest, $requestId, $containerId)
+    {
+        $order = Order::findOrFail($requestId);
+        $container = OrderContainer::where('order_id', $order->id)->findOrFail($containerId);
+
+        if ($container->is_cancelled) {
+            return back()->with('error', 'Kontainer ini sudah dibatalkan sebelumnya.');
+        }
+
+        $container->update(['is_cancelled' => true]);
+
+        // Catat di riwayat perubahan layanan order
+        OrderServiceChange::create([
+            'order_id' => $order->id,
+            'order_container_id' => $container->id,
+            'changed_by' => auth()->id(),
+            'notes' => 'Kontainer dibatalkan oleh Admin.',
+        ]);
+
+        return back()->with('success', 'Kontainer berhasil dibatalkan. Tugas lapangan (supir) untuk kontainer ini telah dinonaktifkan.');
+    }
+
     public function updateContainerServices(Request $httpRequest, $requestId, $containerId)
     {
         $order = Order::findOrFail($requestId);
@@ -270,6 +292,7 @@ class RequestController extends Controller
             'asuransi_value' => 'nullable|numeric',
             'document_name' => 'nullable|string',
             'supporting_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'sp3kk_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'notes' => 'nullable|string',
         ]);
 
@@ -314,6 +337,12 @@ class RequestController extends Controller
         if ($httpRequest->hasFile('supporting_letter')) {
             $path = $httpRequest->file('supporting_letter')->store('uploads/service_letters', 'public');
             $docPath = 'storage/' . $path;
+        }
+
+        if ($httpRequest->hasFile('sp3kk_file')) {
+            $sp3kkPath = $httpRequest->file('sp3kk_file')->store('uploads/sp3kk_files', 'public');
+            $container->sp3kk_file_path = $sp3kkPath;
+            $container->save();
         }
 
         OrderServiceChange::create([

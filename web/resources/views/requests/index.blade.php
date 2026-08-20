@@ -63,7 +63,7 @@
                         <th class="py-3.5 px-6">Lokasi & Kegiatan</th>
                         <th class="py-3.5 px-6">Detail Muatan</th>
                         <th class="py-3.5 px-6">Status Tiket Pelaksana Lapangan</th>
-                        <th class="py-3.5 px-6">Status Invoice</th>
+
                         <th class="py-3.5 px-6 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -143,31 +143,7 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="py-4 px-6 whitespace-nowrap">
-                                <div class="flex flex-col items-start gap-1">
-                                    @if($ord->is_invoiced)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            <i class="fa-solid fa-circle-check text-[10px]"></i> Sudah Terbit
-                                        </span>
-                                        @if($ord->invoice_number)
-                                            <span class="text-[10px] font-mono text-slate-500">{{ $ord->invoice_number }}</span>
-                                        @endif
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                            <i class="fa-solid fa-circle-xmark text-[10px]"></i> Belum Keluar
-                                        </span>
-                                    @endif
 
-                                    <!-- Quick toggle invoice button -->
-                                    <form action="{{ route('requests.toggleInvoice', $ord->id) }}" method="POST" class="mt-0.5">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="text-[10px] text-blue-600 hover:text-blue-800 font-semibold underline" title="Ubah status invoice">
-                                            {{ $ord->is_invoiced ? 'Batalkan Status' : 'Tandai Terbit' }}
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
                             <td class="py-4 px-6 text-right space-x-1 whitespace-nowrap">
                                 @if($isKoperasi)
                                     <span class="px-2.5 py-1.5 bg-slate-100 text-slate-400 rounded-lg text-xs font-semibold inline-flex items-center gap-1 cursor-not-allowed opacity-60" title="Fungsi Ekspor Surat dinonaktifkan khusus pada request Koperasi">
@@ -196,7 +172,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-12 text-center text-slate-400">
+                            <td colspan="7" class="py-12 text-center text-slate-400">
                                 <i class="fa-solid fa-folder-open text-3xl mb-3"></i>
                                 <div>Tidak ada data request ditemukan.</div>
                             </td>

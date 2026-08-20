@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bkj_app/core/components/components.dart';
+import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart' as bkj_app;
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
@@ -62,7 +63,11 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
     if (!mounted) return;
 
     if (success) {
-      vm.resetForm();
+      final authVm = context.read<bkj_app.AuthViewModel>();
+      vm.resetForm(
+        defaultNamaPt: authVm.defaultNamaPt,
+        hasDefaultAsuransi: authVm.hasDefaultAsuransi,
+      );
       _showSuccessDialog();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

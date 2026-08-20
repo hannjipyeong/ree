@@ -53,10 +53,6 @@ class ContainerListBuilder extends StatelessWidget {
             const SizedBox(width: 8),
             _CountBadge(count: containers.length),
             const Spacer(),
-            Text(
-              'Maks. ${AppConstants.maxContainers}',
-              style: AppTextStyles.caption,
-            ),
           ],
         ),
         const SizedBox(height: 12),

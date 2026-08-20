@@ -100,7 +100,9 @@ class ApiController extends Controller
 
         if ($role === 'supir' && $supirType) {
             $tasks = SubTask::with([
-                'order.containers', 
+                'order.containers' => function($q) {
+                    $q->where('is_cancelled', false);
+                }, 
                 'order.customer', 
                 'containerProgress.container',
                 'order.subTasks.containerProgress'
@@ -254,9 +256,15 @@ class ApiController extends Controller
             'container_id' => 'nullable|integer',
         ]);
 
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('uploads/supir_proofs', 'public');
+        $photoPaths = [];
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $file) {
+                $path = $file->store('uploads/supir_proofs', 'public');
+                $photoPaths[] = Storage::url($path);
+            }
+        } elseif ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('uploads/supir_proofs', 'public');
+            $photoPaths[] = Storage::url($path);
         }
 
         if (!empty($validated['container_id'])) {
@@ -273,8 +281,9 @@ class ApiController extends Controller
                 $progress->status = 'In';
                 $progress->in_note = $validated['note'];
                 $progress->in_time = now();
-                if ($photoPath) {
-                    $progress->in_photo_path = Storage::url($photoPath);
+                if (!empty($photoPaths)) {
+                    $progress->in_photo_path = $photoPaths[0];
+                    $progress->in_photos = $photoPaths;
                 }
             } else if ($validated['action_type'] === 'OUT') {
                 $errorMsg = $this->checkHierarchyAllowed($subTask, $validated['container_id'], 'OUT');
@@ -285,8 +294,9 @@ class ApiController extends Controller
                 $progress->status = 'Out';
                 $progress->out_note = $validated['note'];
                 $progress->out_time = now();
-                if ($photoPath) {
-                    $progress->out_photo_path = Storage::url($photoPath);
+                if (!empty($photoPaths)) {
+                    $progress->out_photo_path = $photoPaths[0];
+                    $progress->out_photos = $photoPaths;
                 }
             }
             $progress->save();
@@ -319,16 +329,18 @@ class ApiController extends Controller
                 $subTask->status = 'In';
                 $subTask->in_note = $validated['note'];
                 $subTask->in_time = now();
-                if ($photoPath) {
-                    $subTask->in_photo_path = Storage::url($photoPath);
+                if (!empty($photoPaths)) {
+                    $subTask->in_photo_path = $photoPaths[0];
+                    $subTask->in_photos = $photoPaths;
                 }
             } else if ($validated['action_type'] === 'OUT') {
                 $subTask->status = 'Done';
                 $subTask->out_note = $validated['note'];
                 $subTask->out_time = now();
                 $subTask->done_time = now();
-                if ($photoPath) {
-                    $subTask->out_photo_path = Storage::url($photoPath);
+                if (!empty($photoPaths)) {
+                    $subTask->out_photo_path = $photoPaths[0];
+                    $subTask->out_photos = $photoPaths;
                 }
             }
             $subTask->save();

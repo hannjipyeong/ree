@@ -245,6 +245,7 @@ class ApiService {
                   type: c['container_type'] ?? '',
                   size: c['container_size'] ?? '',
                   number: c['container_number'] ?? '',
+                  sp3kkFileUrl: c['sp3kk_file_url'],
                   progress: progObj,
                 ));
               }
@@ -388,9 +389,7 @@ class ApiService {
     required String actionType,
     required String note,
     int? containerId,
-    String? photoPath,
-    Uint8List? photoBytes,
-    String? photoFileName,
+    List<dynamic>? photos, // Accepting List<UploadedFile> from SupirActionScreen
   }) async {
     try {
       final url = Uri.parse('$baseUrl/sub-tasks/$taskId/action');
@@ -406,10 +405,12 @@ class ApiService {
         request.fields['container_id'] = containerId.toString();
       }
 
-      if (photoBytes != null && photoFileName != null) {
-        request.files.add(http.MultipartFile.fromBytes('photo', photoBytes, filename: photoFileName));
-      } else if (photoPath != null && photoPath.isNotEmpty) {
-        debugPrint('Warning: Missing photo bytes. Cannot upload via path on Web.');
+      if (photos != null && photos.isNotEmpty) {
+        for (var photo in photos) {
+          if (photo.bytes != null && photo.name != null) {
+            request.files.add(http.MultipartFile.fromBytes('photos[]', photo.bytes!, filename: photo.name));
+          }
+        }
       }
 
       final streamedResponse = await request.send();

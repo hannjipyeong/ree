@@ -37,6 +37,7 @@ class AppContainer {
   final String type;
   final String size;
   final String number;
+  final String? sp3kkFileUrl;
   AppContainerProgress? progress;
 
   AppContainer({
@@ -44,6 +45,7 @@ class AppContainer {
     required this.type,
     required this.size,
     required this.number,
+    this.sp3kkFileUrl,
     this.progress,
   });
 }

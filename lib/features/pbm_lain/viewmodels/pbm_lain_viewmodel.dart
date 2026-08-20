@@ -204,10 +204,10 @@ class PbmLainViewModel extends ChangeNotifier {
     }
   }
 
-  void resetForm() {
+  void resetForm({String? defaultNamaPt, bool hasDefaultAsuransi = false}) {
     _tanggalOrder = null;
     _wilayah = null;
-    _namaPt = null;
+    _namaPt = defaultNamaPt;
     _namaPbm = null;
     _noTelp = null;
     _lokasiFasilitas = null;
@@ -222,6 +222,9 @@ class PbmLainViewModel extends ChangeNotifier {
     _cargoFilePath = null;
     _cargoFileBytes = null;
     _selectedServices.clear();
+    if (hasDefaultAsuransi) {
+      _selectedServices.add('Asuransi');
+    }
     _tkbmOption = null;
     _errorMessage = null;
     notifyListeners();

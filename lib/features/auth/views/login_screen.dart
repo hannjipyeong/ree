@@ -5,6 +5,9 @@ import 'package:bkj_app/core/components/app_text_field.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:bkj_app/features/all_in/viewmodels/all_in_viewmodel.dart';
+import 'package:bkj_app/features/koperasi/viewmodels/koperasi_viewmodel.dart';
+import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,8 +34,24 @@ class _LoginScreenState extends State<LoginScreen> {
     await vm.checkLoginStatus();
     if (!mounted) return;
     if (vm.isAuthenticated) {
+      _initFormsWithDefaults(vm);
       Navigator.pushReplacementNamed(context, AppRoutes.shell);
     }
+  }
+
+  void _initFormsWithDefaults(AuthViewModel authVm) {
+    context.read<AllInViewModel>().resetForm(
+      defaultNamaPt: authVm.defaultNamaPt,
+      hasDefaultAsuransi: authVm.hasDefaultAsuransi,
+    );
+    context.read<KoperasiViewModel>().resetForm(
+      defaultNamaPt: authVm.defaultNamaPt,
+      hasDefaultAsuransi: authVm.hasDefaultAsuransi,
+    );
+    context.read<PbmLainViewModel>().resetForm(
+      defaultNamaPt: authVm.defaultNamaPt,
+      hasDefaultAsuransi: authVm.hasDefaultAsuransi,
+    );
   }
 
   @override
@@ -50,6 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     
     if (!mounted) return;
     if (success) {
+      _initFormsWithDefaults(vm);
       Navigator.pushReplacementNamed(context, AppRoutes.shell);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

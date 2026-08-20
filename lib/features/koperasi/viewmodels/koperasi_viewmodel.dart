@@ -100,12 +100,18 @@ class KoperasiViewModel extends ChangeNotifier {
     if (_lokasiFasilitas == value) return;
     _lokasiFasilitas = value;
     
-    // Koperasi: For TPFT, Gudang, and Los Cargo, the user will type it themselves.
+    // Koperasi Logic
     final locLower = value?.toLowerCase();
-    if (locLower == 'tpft' || locLower == 'gudang' || locLower == 'loss cargo' || locLower == 'los cargo') {
+    if (locLower == 'tpft') {
+      _jenisKegiatan = 'Inspeksi';
+    } else if (locLower == 'loss cargo' || locLower == 'los cargo') {
+      _jenisKegiatan = 'Rigger';
+    } else if (locLower == 'gudang') {
+      _jenisKegiatan = 'Man Power';
+    } else if (locLower == 'cfs' || locLower == 'tps') {
       _jenisKegiatan = '';
     } else {
-      _jenisKegiatan = AppConstants.jenisKegiatanMapping[value];
+      _jenisKegiatan = AppConstants.jenisKegiatanMapping[value] ?? '';
     }
     
     notifyListeners();
@@ -214,12 +220,16 @@ class KoperasiViewModel extends ChangeNotifier {
     }
   }
 
-  void resetForm() {
-    _tanggalOrder = null; _wilayah = null; _namaPt = null; _namaPbm = null; _noTelp = null; _lokasiFasilitas = null; _jenisKegiatan = null;
+  void resetForm({String? defaultNamaPt, bool hasDefaultAsuransi = false}) {
+    _tanggalOrder = null; _wilayah = null; _namaPt = defaultNamaPt; _namaPbm = null; _noTelp = null; _lokasiFasilitas = null; _jenisKegiatan = null;
     _payloadType = AppConstants.payloadContainer; _containers.clear(); _containers.add(ContainerEntry());
     _jenisBarang = null; _jumlahTonase = null; _nomorContainerCargo = null;
     _cargoFileName = null; _cargoFilePath = null; _cargoFileBytes = null;
-    _selectedServices.clear(); _haulageFileName = null; _haulageFilePath = null; _haulageFileBytes = null; _tkbmOption = null; _errorMessage = null;
+    _selectedServices.clear(); 
+    if (hasDefaultAsuransi) {
+      _selectedServices.add('Asuransi');
+    }
+    _haulageFileName = null; _haulageFilePath = null; _haulageFileBytes = null; _tkbmOption = null; _errorMessage = null;
     notifyListeners();
   }
 }

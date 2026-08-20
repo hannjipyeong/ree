@@ -100,7 +100,7 @@ class AppConstants {
   static const List<String> containerSizes = ['10 ft', '20 ft', '40 ft', '45 ft'];
 
   // ─── Max Container Entries ──────────────────────────────────────────────────
-  static const int maxContainers = 60;
+  static const int maxContainers = 99999;
 
   // ─── Layanan / Services ─────────────────────────────────────────────────────
   static const String serviceHaulage = 'Haulage';

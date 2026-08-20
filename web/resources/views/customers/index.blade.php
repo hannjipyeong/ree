@@ -129,6 +129,16 @@
                 <input type="password" name="password" required value="password" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 
+            <div class="border-t border-slate-100 pt-4 mt-2">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Default Nama PT (Opsional)</label>
+                <input type="text" name="default_nama_pt" placeholder="PT. Bawaan Untuk Order" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+
+            <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" name="has_default_asuransi" id="asuransiCreate" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-600">
+                <label for="asuransiCreate" class="text-sm font-medium text-slate-700">Otomatis Centang Asuransi saat Order</label>
+            </div>
+
             <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('modalCreateCustomer').classList.add('hidden')" class="px-4 py-2.5 bg-slate-100 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-200 transition">
                     Batal
@@ -175,6 +185,16 @@
                 <input type="password" name="password" placeholder="••••••••" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 
+            <div class="border-t border-slate-100 pt-4 mt-2">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Default Nama PT (Opsional)</label>
+                <input type="text" id="editDefaultNamaPt" name="default_nama_pt" placeholder="PT. Bawaan Untuk Order" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+
+            <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" id="editHasDefaultAsuransi" name="has_default_asuransi" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-600">
+                <label for="editHasDefaultAsuransi" class="text-sm font-medium text-slate-700">Otomatis Centang Asuransi saat Order</label>
+            </div>
+
             <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('modalEditCustomer').classList.add('hidden')" class="px-4 py-2.5 bg-slate-100 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-200 transition">
                     Batal
@@ -193,6 +213,8 @@
         document.getElementById('editName').value = c.name;
         document.getElementById('editEmail').value = c.email;
         document.getElementById('editPhone').value = c.phone || '';
+        document.getElementById('editDefaultNamaPt').value = c.default_nama_pt || '';
+        document.getElementById('editHasDefaultAsuransi').checked = c.has_default_asuransi == 1;
         document.getElementById('modalEditCustomer').classList.remove('hidden');
     }
 </script>

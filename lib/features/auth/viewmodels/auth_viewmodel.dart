@@ -14,6 +14,8 @@ class AuthViewModel extends ChangeNotifier {
   String _fullName = '';
   String _email = '';
   String _phone = '';
+  String? _defaultNamaPt;
+  bool _hasDefaultAsuransi = false;
 
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
@@ -25,6 +27,8 @@ class AuthViewModel extends ChangeNotifier {
   String get fullName => _fullName;
   String get email => _email;
   String get phone => _phone;
+  String? get defaultNamaPt => _defaultNamaPt;
+  bool get hasDefaultAsuransi => _hasDefaultAsuransi;
 
   Future<void> checkLoginStatus() async {
     _isLoading = true;
@@ -37,6 +41,8 @@ class AuthViewModel extends ChangeNotifier {
       _phone = userData['phone'] ?? '';
       _userRole = userData['role'] ?? 'customer';
       _supirType = userData['supir_type'];
+      _defaultNamaPt = userData['default_nama_pt'];
+      _hasDefaultAsuransi = userData['has_default_asuransi'] == true || userData['has_default_asuransi'] == 1;
       _isAuthenticated = true;
     } else {
       _isAuthenticated = false;
@@ -60,6 +66,8 @@ class AuthViewModel extends ChangeNotifier {
         _phone = userData['phone'] ?? '';
         _userRole = userData['role'] ?? 'customer';
         _supirType = userData['supir_type'];
+        _defaultNamaPt = userData['default_nama_pt'];
+        _hasDefaultAsuransi = userData['has_default_asuransi'] == true || userData['has_default_asuransi'] == 1;
 
         _isAuthenticated = true;
         _isLoading = false;

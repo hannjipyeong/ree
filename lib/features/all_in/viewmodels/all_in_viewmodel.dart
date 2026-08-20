@@ -247,11 +247,11 @@ class AllInViewModel extends ChangeNotifier {
     }
   }
 
-  /// Resets the entire form. Call after successful submission.
-  void resetForm() {
+  /// Resets the entire form. Call after successful submission or when starting a new order.
+  void resetForm({String? defaultNamaPt, bool hasDefaultAsuransi = false}) {
     _tanggalOrder = null;
     _wilayah = null;
-    _namaPt = null;
+    _namaPt = defaultNamaPt;
     _noTelp = null;
     _lokasiFasilitas = null;
     _jenisKegiatan = null;
@@ -265,6 +265,9 @@ class AllInViewModel extends ChangeNotifier {
     _cargoFilePath = null;
     _cargoFileBytes = null;
     _selectedServices.clear();
+    if (hasDefaultAsuransi) {
+      _selectedServices.add('Asuransi');
+    }
     _haulageFileName = null;
     _haulageFilePath = null;
     _haulageFileBytes = null;

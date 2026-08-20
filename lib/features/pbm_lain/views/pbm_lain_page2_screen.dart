@@ -185,7 +185,7 @@ class _PayloadTypeSelector extends StatelessWidget {
           child: _PayloadOption(
             label: 'Container',
             icon: Icons.view_module_outlined,
-            description: 'Satuan container\n(maks. 60)',
+            description: 'Satuan container',
             isSelected: selected == AppConstants.payloadContainer,
             onTap: () => onSelected(AppConstants.payloadContainer),
           ),

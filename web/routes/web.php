@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::post('requests/{request}/update-services', [RequestController::class, 'updateServices'])->name('requests.updateServices');
     Route::get('requests/{request}/containers/{container}', [RequestController::class, 'showContainer'])->name('requests.containers.show');
     Route::post('requests/{request}/containers/{container}/update-services', [RequestController::class, 'updateContainerServices'])->name('requests.containers.updateServices');
+    Route::patch('requests/{request}/containers/{container}/cancel', [RequestController::class, 'cancelContainer'])->name('requests.containers.cancel');
     Route::patch('sub-tasks/{subTask}/status', [RequestController::class, 'updateSubTaskStatus'])->name('subtasks.updateStatus');
     Route::get('requests/{request}/export-pdf', [RequestController::class, 'exportPdf'])->name('requests.exportPdf');
 

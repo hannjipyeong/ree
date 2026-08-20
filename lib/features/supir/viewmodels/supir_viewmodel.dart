@@ -38,9 +38,7 @@ class SupirViewModel extends ChangeNotifier {
     required String actionType,
     required String note,
     int? containerId,
-    String? photoPath,
-    Uint8List? photoBytes,
-    String? photoFileName,
+    List<dynamic>? photos,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -52,9 +50,7 @@ class SupirViewModel extends ChangeNotifier {
         actionType: actionType,
         note: note,
         containerId: containerId,
-        photoPath: photoPath,
-        photoBytes: photoBytes,
-        photoFileName: photoFileName,
+        photos: photos,
       );
 
       if (success) {

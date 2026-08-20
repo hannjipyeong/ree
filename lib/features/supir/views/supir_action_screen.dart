@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bkj_app/core/components/app_button.dart';
 import 'package:bkj_app/core/components/app_text_field.dart';
-import 'package:bkj_app/core/components/app_file_upload_tile.dart';
+import 'package:bkj_app/core/components/app_multi_file_upload_tile.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'dart:typed_data';
 import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupirActionScreenArgs {
   final AppOrder order;
@@ -27,9 +28,7 @@ class SupirActionScreen extends StatefulWidget {
 class _SupirActionScreenState extends State<SupirActionScreen> {
   final _noteCtrl = TextEditingController();
   bool _isLoading = false;
-  String? _selectedFileName;
-  String? _selectedFilePath;
-  Uint8List? _selectedFileBytes;
+  List<UploadedFile> _selectedFiles = [];
   
   String _selectedContainerFilter = 'Semua';
   Timer? _pollingTimer;
@@ -59,9 +58,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
       actionType: actionType,
       note: _noteCtrl.text,
       containerId: containerId,
-      photoPath: _selectedFilePath,
-      photoBytes: _selectedFileBytes,
-      photoFileName: _selectedFileName,
+      photos: _selectedFiles,
     );
 
     if (!mounted) return;
@@ -88,9 +85,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
 
   void _showContainerActionSheet(AppOrder order, AppContainer container) {
     _noteCtrl.clear();
-    _selectedFileName = null;
-    _selectedFilePath = null;
-    _selectedFileBytes = null;
+    _selectedFiles.clear();
 
     showModalBottomSheet(
       context: context,
@@ -202,21 +197,17 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    AppFileUploadTile(
+                    AppMultiFileUploadTile(
                       label: 'Upload Foto Bukti $selectedActionType',
-                      fileName: _selectedFileName,
-                      onFileSelected: (name, bytes, path) {
+                      files: _selectedFiles,
+                      onFilesSelected: (newFiles) {
                         setSheetState(() {
-                          _selectedFileName = name;
-                          _selectedFileBytes = bytes;
-                          _selectedFilePath = path;
+                          _selectedFiles.addAll(newFiles);
                         });
                       },
-                      onCleared: () {
+                      onFileRemoved: (file) {
                         setSheetState(() {
-                          _selectedFileName = null;
-                          _selectedFileBytes = null;
-                          _selectedFilePath = null;
+                          _selectedFiles.remove(file);
                         });
                       },
                     ),
@@ -340,7 +331,42 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('Ukuran: ${c.size} • Tipe: ${c.type}', style: AppTextStyles.body2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Ukuran: ${c.size} • Tipe: ${c.type}', style: AppTextStyles.body2),
+                          if (c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
+                            InkWell(
+                              onTap: () async {
+                                final url = Uri.parse(c.sp3kkFileUrl!);
+                                if (await canLaunchUrl(url)) {
+                                  await launchUrl(url);
+                                } else {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Tidak dapat membuka file SP3KK.')),
+                                    );
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: Colors.green.withValues(alpha: 0.5)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.file_present, size: 16, color: Colors.green),
+                                    const SizedBox(width: 4),
+                                    Text('Lihat SP3KK', style: AppTextStyles.caption.copyWith(color: Colors.green, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                       
                       if (p != null && (p.inPhotoPath != null || p.outPhotoPath != null)) ...[
                         const Divider(height: 24),
@@ -374,21 +400,17 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
       children: [
         const Text('Dokumentasi Lapangan (Global)', style: AppTextStyles.heading3),
         const SizedBox(height: 16),
-        AppFileUploadTile(
+        AppMultiFileUploadTile(
           label: 'Upload Foto Bukti',
-          fileName: _selectedFileName,
-          onFileSelected: (name, bytes, path) {
+          files: _selectedFiles,
+          onFilesSelected: (newFiles) {
             setState(() {
-              _selectedFileName = name;
-              _selectedFileBytes = bytes;
-              _selectedFilePath = path;
+              _selectedFiles.addAll(newFiles);
             });
           },
-          onCleared: () {
+          onFileRemoved: (file) {
             setState(() {
-              _selectedFileName = null;
-              _selectedFileBytes = null;
-              _selectedFilePath = null;
+              _selectedFiles.remove(file);
             });
           },
         ),

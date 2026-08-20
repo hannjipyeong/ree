@@ -20,6 +20,7 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
   late final TextEditingController _namaPtCtrl;
   late final TextEditingController _namaPbmCtrl;
   late final TextEditingController _noTelpCtrl;
+  late final TextEditingController _jenisKegiatanCtrl;
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
     _namaPtCtrl = TextEditingController(text: vm.namaPt ?? '');
     _namaPbmCtrl = TextEditingController(text: vm.namaPbm ?? '');
     _noTelpCtrl = TextEditingController(text: vm.noTelp ?? '');
+    _jenisKegiatanCtrl = TextEditingController(text: (vm.jenisKegiatan ?? '').toUpperCase());
   }
 
   @override
@@ -35,6 +37,7 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
     _namaPtCtrl.dispose();
     _namaPbmCtrl.dispose();
     _noTelpCtrl.dispose();
+    _jenisKegiatanCtrl.dispose();
     super.dispose();
   }
 
@@ -43,6 +46,7 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
     vm.setNamaPt(_namaPtCtrl.text);
     vm.setNamaPbm(_namaPbmCtrl.text);
     vm.setNoTelp(_noTelpCtrl.text);
+    vm.setJenisKegiatan(_jenisKegiatanCtrl.text);
 
     if (_formKey.currentState!.validate()) {
       Navigator.pushNamed(context, AppRoutes.koperasiPage2);
@@ -53,9 +57,13 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
   Widget build(BuildContext context) {
     final vm = context.watch<KoperasiViewModel>();
 
-    // Sync PBM Name controller with VM (in case it was set to BACT by Wilayah change)
+    // Sync controllers with VM
     if (_namaPbmCtrl.text != (vm.namaPbm ?? '')) {
       _namaPbmCtrl.text = vm.namaPbm ?? '';
+    }
+    final expectedJenis = (vm.jenisKegiatan ?? '').toUpperCase();
+    if (_jenisKegiatanCtrl.text.toUpperCase() != expectedJenis) {
+      _jenisKegiatanCtrl.text = expectedJenis;
     }
 
     return Scaffold(
@@ -153,11 +161,9 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                   child: AppTextField(
                     label: 'Jenis Kegiatan',
                     hint: 'Masukkan Jenis Kegiatan',
-                    initialValue: vm.jenisKegiatan!.toUpperCase(),
-                    readOnly: !(vm.lokasiFasilitas?.toLowerCase() == 'tpft' || 
-                                vm.lokasiFasilitas?.toLowerCase() == 'gudang' || 
-                                vm.lokasiFasilitas?.toLowerCase() == 'loss cargo' || 
-                                vm.lokasiFasilitas?.toLowerCase() == 'los cargo'),
+                    controller: _jenisKegiatanCtrl,
+                    readOnly: !(vm.lokasiFasilitas?.toLowerCase() == 'cfs' || 
+                                vm.lokasiFasilitas?.toLowerCase() == 'tps'),
                     onChanged: vm.setJenisKegiatan,
                     validator: (v) => AppValidators.required(v, fieldName: 'Jenis Kegiatan'),
                   ),

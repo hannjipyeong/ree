@@ -205,12 +205,33 @@
                         $totalProgress = $c->progresses->count();
                         $effectiveTkbm = $c->tkbm_option ?: $order->tkbm_option;
                     @endphp
-                    <div class="bg-slate-50 hover:bg-blue-50/50 border border-slate-200 hover:border-blue-400 rounded-2xl p-5 transition shadow-sm hover:shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="space-y-2">
+                    <div class="{{ $c->is_cancelled ? 'bg-slate-100/50 opacity-80 border-slate-300' : 'bg-slate-50 hover:bg-blue-50/50 hover:border-blue-400 border-slate-200 shadow-sm hover:shadow' }} border rounded-2xl p-5 transition relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        
+                        @if(!$c->is_cancelled)
+                        <!-- Cancel Button (Top Right) -->
+                        <div class="absolute top-3 right-3">
+                            <form action="{{ route('requests.containers.cancel', [$order->id, $c->id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin MEMBATALKAN kontainer ini? Proses ini akan menghapus kontainer dari daftar tugas supir di lapangan.')">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="w-8 h-8 flex items-center justify-center bg-white border border-rose-200 text-rose-500 hover:bg-rose-500 hover:text-white rounded-full shadow-sm transition" title="Batalkan Kontainer">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </form>
+                        </div>
+                        @endif
+
+                        <div class="space-y-2 pr-8">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="px-2.5 py-1 bg-blue-100 text-blue-800 font-extrabold rounded-lg text-xs uppercase tracking-wide">
-                                    {{ $c->container_size }} - {{ $c->container_type }}
-                                </span>
+                                @if($c->is_cancelled)
+                                    <span class="px-2.5 py-1 bg-slate-200 text-slate-700 font-extrabold rounded-lg text-xs uppercase tracking-wide border border-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-ban text-[10px]"></i> DIBATALKAN
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-1 bg-blue-100 text-blue-800 font-extrabold rounded-lg text-xs uppercase tracking-wide">
+                                        {{ $c->container_size }} - {{ $c->container_type }}
+                                    </span>
+                                @endif
+                                
                                 @if($effectiveTkbm)
                                     <span class="px-2.5 py-1 bg-amber-100 text-amber-800 font-bold rounded-lg text-xs flex items-center gap-1 border border-amber-200">
                                         <i class="fa-solid fa-users-gear text-[10px]"></i> {{ $effectiveTkbm }}
@@ -232,31 +253,44 @@
 
                             <div>
                                 <div class="text-[10px] text-slate-400 font-bold uppercase">Nomor Kontainer</div>
-                                <div class="text-2xl font-black text-slate-800 tracking-tight">
+                                <div class="text-2xl font-black {{ $c->is_cancelled ? 'text-slate-500 line-through decoration-slate-400 decoration-2' : 'text-slate-800' }} tracking-tight">
                                     {{ $c->container_number ?? 'Tanpa Nomor' }}
                                 </div>
                             </div>
 
-                            @if($totalProgress > 0)
-                                <div class="text-xs text-slate-600 font-medium">
-                                    Progress Lapangan: <strong class="text-blue-700">{{ $completedProgressCount }} / {{ $totalProgress }} Selesai</strong>
-                                </div>
+                            @if(!$c->is_cancelled)
+                                @if($totalProgress > 0)
+                                    <div class="text-xs text-slate-600 font-medium">
+                                        Progress Lapangan: <strong class="text-blue-700">{{ $completedProgressCount }} / {{ $totalProgress }} Selesai</strong>
+                                    </div>
+                                @else
+                                    <div class="text-xs text-slate-400 italic">
+                                        Belum ada aktivitas tiket pelaksana lapangan khusus
+                                    </div>
+                                @endif
                             @else
-                                <div class="text-xs text-slate-400 italic">
-                                    Belum ada aktivitas tiket pelaksana lapangan khusus
+                                <div class="text-xs text-rose-500 font-bold italic">
+                                    Kontainer ini tidak akan dikerjakan di lapangan.
                                 </div>
                             @endif
                         </div>
 
-                        <div class="flex items-center gap-3 sm:self-center">
-                            <button type="button" onclick="openContainerEditModal({{ $c->id }}, '{{ $c->container_number }}', '{{ $c->tkbm_option }}')" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Edit Layanan Kontainer Ini</span>
-                            </button>
-                            <a href="{{ route('requests.containers.show', [$order->id, $c->id]) }}" class="px-5 py-2.5 bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl text-xs flex items-center gap-2 transition shadow-md whitespace-nowrap">
-                                <span>Detail & SubTask</span>
-                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                            </a>
+                        <div class="flex items-center gap-3 sm:self-center mt-3 sm:mt-0">
+                            @if(!$c->is_cancelled)
+                                <button type="button" onclick="openContainerEditModal({{ $c->id }}, '{{ $c->container_number }}', '{{ $c->tkbm_option }}', '{{ $c->sp3kk_file_url }}')" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Edit Layanan Kontainer Ini</span>
+                                </button>
+                                <a href="{{ route('requests.containers.show', [$order->id, $c->id]) }}" class="px-5 py-2.5 bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl text-xs flex items-center gap-2 transition shadow-md whitespace-nowrap">
+                                    <span>Detail & SubTask</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </a>
+                            @else
+                                <button type="button" disabled class="px-4 py-2.5 bg-slate-200 text-slate-400 cursor-not-allowed font-bold rounded-xl text-xs flex items-center gap-1.5 border border-slate-300">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <span>Dibatalkan</span>
+                                </button>
+                            @endif
                         </div>
                     </div>
                 @empty
@@ -609,7 +643,7 @@
                     <div class="pt-2 border-t border-slate-300/60">
                         <div class="text-xs font-semibold text-slate-600 mb-1.5">Dokumen Haulage</div>
                         <input type="file" id="container_haulage_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_haulage_label')">
-                        <div onclick="triggerFileInput('container_haulage_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm">
+                        <div onclick="triggerFileInput('container_haulage_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-sm">
                                     <i class="fa-solid fa-file-arrow-up"></i>
@@ -620,6 +654,25 @@
                                 </div>
                             </div>
                             <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                        </div>
+
+                        <input type="file" id="container_sp3kk_file" name="sp3kk_file" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_sp3kk_label')">
+                        <div onclick="triggerFileInput('container_sp3kk_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-emerald-400 transition shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-file-invoice"></i>
+                                </div>
+                                <div>
+                                    <div id="container_sp3kk_label" class="text-xs font-bold text-slate-800">Upload SP3KK (PDF / JPG / PNG)</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Haulage</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a id="container_sp3kk_view" href="#" target="_blank" class="hidden text-[10px] font-bold text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg transition" onclick="event.stopPropagation();">
+                                    <i class="fa-solid fa-eye me-1"></i>Lihat
+                                </a>
+                                <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -761,10 +814,21 @@
         document.getElementById('editServicesModal').classList.add('hidden');
     }
 
-    function openContainerEditModal(containerId, containerNumber, currentTkbm) {
+    function openContainerEditModal(containerId, containerNumber, currentTkbm, sp3kkFileUrl) {
         var actionUrl = "{{ url('requests/' . $order->id . '/containers') }}/" + containerId + "/update-services";
         document.getElementById('containerEditForm').action = actionUrl;
         document.getElementById('containerEditTitle').innerText = "Kontainer: " + (containerNumber || ("ID-" + containerId));
+        
+        var viewBtn = document.getElementById('container_sp3kk_view');
+        if (sp3kkFileUrl && sp3kkFileUrl.trim() !== '') {
+            viewBtn.href = sp3kkFileUrl;
+            viewBtn.classList.remove('hidden');
+            document.getElementById('container_sp3kk_label').innerText = "Ganti SP3KK";
+        } else {
+            viewBtn.classList.add('hidden');
+            document.getElementById('container_sp3kk_label').innerText = "Upload SP3KK (PDF / JPG / PNG)";
+        }
+        
         if (currentTkbm) {
             selectTkbmOption('container', currentTkbm);
         } else {

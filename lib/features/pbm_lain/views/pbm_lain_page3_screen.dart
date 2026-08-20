@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bkj_app/core/components/components.dart';
+import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart' as bkj_app;
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
@@ -161,7 +162,11 @@ class _SuccessDialog extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                context.read<PbmLainViewModel>().resetForm();
+                final authVm = context.read<bkj_app.AuthViewModel>();
+                context.read<PbmLainViewModel>().resetForm(
+                  defaultNamaPt: authVm.defaultNamaPt,
+                  hasDefaultAsuransi: authVm.hasDefaultAsuransi,
+                );
                 Navigator.of(context).pushNamedAndRemoveUntil(
                   AppRoutes.shell,
                   (route) => false,

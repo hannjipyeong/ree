@@ -32,6 +32,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string',
             'password' => 'required|string|min:6',
+            'default_nama_pt' => 'nullable|string|max:255',
         ]);
 
         User::create([
@@ -40,6 +41,8 @@ class UserController extends Controller
             'phone' => $validated['phone'],
             'password' => Hash::make($validated['password']),
             'role' => 'customer',
+            'default_nama_pt' => $validated['default_nama_pt'] ?? null,
+            'has_default_asuransi' => $request->has('has_default_asuransi'),
         ]);
 
         return redirect()->route('customers.index')->with('success', 'Akun Customer berhasil ditambahkan!');
@@ -52,11 +55,15 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $customer->id,
             'phone' => 'required|string',
             'password' => 'nullable|string|min:6',
+            'default_nama_pt' => 'nullable|string|max:255',
         ]);
 
         $customer->name = $validated['name'];
         $customer->email = $validated['email'];
         $customer->phone = $validated['phone'];
+        $customer->default_nama_pt = $validated['default_nama_pt'] ?? null;
+        $customer->has_default_asuransi = $request->has('has_default_asuransi');
+        
         if (!empty($validated['password'])) {
             $customer->password = Hash::make($validated['password']);
         }
