@@ -363,51 +363,67 @@
                             </td>
 
                             {{-- ── Tiket Task Column ─────────────────────────────── --}}
+                            @php
+                                // Determine which sub-task statuses to SHOW based on active filter
+                                // IN   → only show tikets with status In
+                            // OUT  → show tikets with status In + Out
+                            // Done → show tikets with status In + Out + Done (not Masuk)
+                            // no filter / Masuk → show all
+                            $allowedStatuses = match($activeStatus) {
+                                'In'   => ['In'],
+                                'Out'  => ['In', 'Out'],
+                                'Done' => ['In', 'Out', 'Done'],
+                                default => null, // null = show all
+                            };
+                            $visibleTasks = $allowedStatuses
+                                ? $ord->subTasks->filter(fn($st) => in_array($st->status, $allowedStatuses))
+                                : $ord->subTasks;
+                            @endphp
                             <td class="py-4 px-6">
-                                <div class="flex flex-col gap-1.5">
-                                    @foreach($ord->subTasks as $st)
-                                        @php
-                                            $showInvoiceLabel = in_array($activeStatus, ['Out', 'Done', 'In']) || (!$activeStatus);
-                                        @endphp
-                                        <div class="flex items-center gap-1.5 flex-wrap">
-                                            {{-- Service + Status badge --}}
+                                <div class="flex flex-col gap-1">
+                                    {{-- Tiket badges (filtered by active status) --}}
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($visibleTasks as $st)
                                             <div class="inline-flex items-center text-[10px] rounded-lg overflow-hidden border
-                                                {{ $st->service_type == 'Haulage' ? 'border-purple-200 bg-purple-50' : '' }}
-                                                {{ $st->service_type == 'LOLO' ? 'border-sky-200 bg-sky-50' : '' }}
-                                                {{ $st->service_type == 'Penumpukan' ? 'border-amber-200 bg-amber-50' : '' }}
-                                                {{ $st->service_type == 'TKBM' ? 'border-teal-200 bg-teal-50' : '' }}
-                                                {{ !in_array($st->service_type, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'border-slate-200 bg-slate-50' : '' }}">
+                                                {{ $st->service_type == 'Haulage'    ? 'border-purple-200 bg-purple-50' : '' }}
+                                                {{ $st->service_type == 'LOLO'       ? 'border-sky-200 bg-sky-50'       : '' }}
+                                                {{ $st->service_type == 'Penumpukan' ? 'border-amber-200 bg-amber-50'   : '' }}
+                                                {{ $st->service_type == 'TKBM'       ? 'border-teal-200 bg-teal-50'     : '' }}
+                                                {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'border-slate-200 bg-slate-50' : '' }}">
                                                 <span class="px-2 py-0.5 font-extrabold uppercase
-                                                    {{ $st->service_type == 'Haulage' ? 'text-purple-700' : '' }}
-                                                    {{ $st->service_type == 'LOLO' ? 'text-sky-700' : '' }}
-                                                    {{ $st->service_type == 'Penumpukan' ? 'text-amber-700' : '' }}
-                                                    {{ $st->service_type == 'TKBM' ? 'text-teal-700' : '' }}
-                                                    {{ !in_array($st->service_type, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'text-slate-700' : '' }}">
+                                                    {{ $st->service_type == 'Haulage'    ? 'text-purple-700' : '' }}
+                                                    {{ $st->service_type == 'LOLO'       ? 'text-sky-700'    : '' }}
+                                                    {{ $st->service_type == 'Penumpukan' ? 'text-amber-700'  : '' }}
+                                                    {{ $st->service_type == 'TKBM'       ? 'text-teal-700'   : '' }}
+                                                    {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'text-slate-700' : '' }}">
                                                     {{ $st->service_type }}
                                                 </span>
                                                 <span class="px-1.5 py-0.5 font-bold uppercase
                                                     {{ $st->status == 'Masuk' ? 'bg-slate-200 text-slate-700' : '' }}
-                                                    {{ $st->status == 'In' ? 'bg-blue-600 text-white' : '' }}
-                                                    {{ $st->status == 'Out' ? 'bg-amber-500 text-white' : '' }}
-                                                    {{ $st->status == 'Done' ? 'bg-emerald-600 text-white' : '' }}">
+                                                    {{ $st->status == 'In'    ? 'bg-blue-600 text-white'      : '' }}
+                                                    {{ $st->status == 'Out'   ? 'bg-amber-500 text-white'     : '' }}
+                                                    {{ $st->status == 'Done'  ? 'bg-emerald-600 text-white'   : '' }}">
                                                     {{ $st->status }}
                                                 </span>
                                             </div>
+                                        @endforeach
+                                        @if($visibleTasks->isEmpty())
+                                            <span class="text-[10px] text-slate-400 italic">Tidak ada tiket {{ $activeStatus }}</span>
+                                        @endif
+                                    </div>
 
-                                            {{-- Invoice label — shown for Out, Done, In, or no filter --}}
-                                            @if($showInvoiceLabel)
-                                                @if($ord->is_invoiced)
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                        <i class="fa-solid fa-circle-check text-[8px]"></i> Invoice ✓
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-200">
-                                                        <i class="fa-solid fa-circle-xmark text-[8px]"></i> Blm Invoice
-                                                    </span>
-                                                @endif
-                                            @endif
-                                        </div>
-                                    @endforeach
+                                    {{-- Invoice label — ONE pill per order, shown when filter is In/Out/Done or no filter --}}
+                                    @if(in_array($activeStatus, ['In','Out','Done']) || !$activeStatus)
+                                        @if($ord->is_invoiced)
+                                            <span class="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit">
+                                                <i class="fa-solid fa-circle-check text-[8px]"></i> Invoice Terbit
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md text-[9px] font-semibold bg-rose-50 text-rose-600 border border-rose-200 w-fit">
+                                                <i class="fa-solid fa-circle-xmark text-[8px]"></i> Belum Invoice
+                                            </span>
+                                        @endif
+                                    @endif
                                 </div>
                             </td>
 
@@ -416,45 +432,44 @@
                             </td>
 
                             {{-- ── Invoice Status Column ──────────────────────────── --}}
-                            <td class="py-4 px-6 whitespace-nowrap">
-                                <div class="flex flex-col items-start gap-1.5" id="invoice-status-{{ $ord->id }}">
-                                    @if($ord->is_invoiced)
+                            <td class="py-4 px-6 whitespace-nowrap" id="invoice-status-{{ $ord->id }}">
+                                @if($ord->is_invoiced)
+                                    <div class="flex flex-col gap-1">
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                             <i class="fa-solid fa-circle-check text-[10px]"></i> Sudah Terbit
                                         </span>
                                         @if($ord->invoice_number)
-                                            <span class="text-[10px] font-mono text-slate-500">{{ $ord->invoice_number }}</span>
+                                            <span class="text-[10px] font-mono text-slate-400 pl-1">{{ $ord->invoice_number }}</span>
                                         @endif
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                            <i class="fa-solid fa-circle-xmark text-[10px]"></i> Belum Keluar
-                                        </span>
-                                    @endif
-                                </div>
+                                    </div>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                        <i class="fa-solid fa-circle-xmark text-[10px]"></i> Belum Keluar
+                                    </span>
+                                @endif
                             </td>
 
-                            {{-- ── Aksi Column ────────────────────────────────────── --}}
+                            {{-- ── Aksi Column — single invoice button + detail ──── --}}
                             <td class="py-4 px-6 text-right">
-                                <div class="flex items-center justify-end gap-2 flex-wrap">
-                                    {{-- Invoice confirm/toggle button (AJAX) --}}
+                                <div class="flex flex-col items-end gap-1.5">
+                                    {{-- Single invoice toggle button (AJAX) --}}
                                     <button type="button"
                                             id="invoice-btn-{{ $ord->id }}"
                                             onclick="toggleInvoice({{ $ord->id }}, this)"
-                                            title="{{ $ord->is_invoiced ? 'Batalkan Invoice' : 'Konfirmasi Invoice Selesai' }}"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition
                                                 {{ $ord->is_invoiced
-                                                    ? 'bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-600'
+                                                    ? 'bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-700 border border-slate-200'
                                                     : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' }}">
                                         @if($ord->is_invoiced)
-                                            <i class="fa-solid fa-rotate-left"></i> Batalkan
+                                            <i class="fa-solid fa-rotate-left text-[11px]"></i> Batalkan Invoice
                                         @else
-                                            <i class="fa-solid fa-check-double"></i> Konfirmasi Invoice
+                                            <i class="fa-solid fa-check-double text-[11px]"></i> Konfirmasi Invoice
                                         @endif
                                     </button>
                                     {{-- Detail button --}}
                                     <a href="{{ route('requests.show', $ord->id) }}"
-                                       class="px-3 py-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-eye"></i> Detail
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 rounded-lg text-xs font-semibold transition">
+                                        <i class="fa-solid fa-eye text-[11px]"></i> Detail
                                     </a>
                                 </div>
                             </td>
