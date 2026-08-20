@@ -34,15 +34,17 @@ class ApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil',
-            'token' => $token,
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'role' => $user->role,
-                'supir_type' => $user->supir_type,
-            ]
+            'token'   => $token,
+            'data'    => [
+                'id'                   => $user->id,
+                'name'                 => $user->name,
+                'email'                => $user->email,
+                'phone'                => $user->phone,
+                'role'                 => $user->role,
+                'supir_type'           => $user->supir_type,
+                'default_nama_pt'      => $user->default_nama_pt,
+                'has_default_asuransi' => (bool) $user->has_default_asuransi,
+            ],
         ]);
     }
 

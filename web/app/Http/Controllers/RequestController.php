@@ -387,8 +387,22 @@ class RequestController extends Controller
 
         $order->save();
 
-        $msg = $order->is_invoiced ? 'Status invoice berhasil diubah menjadi Sudah Terbit (' . $order->invoice_number . ')!' : 'Status invoice berhasil diubah menjadi Belum Terbit.';
+        $msg = $order->is_invoiced
+            ? 'Status invoice berhasil diubah menjadi Sudah Terbit (' . $order->invoice_number . ')!'
+            : 'Status invoice berhasil diubah menjadi Belum Terbit.';
+
+        // Return JSON for AJAX requests (e.g., dashboard inline button)
+        if ($req->ajax() || $req->wantsJson() || $req->header('Accept') === 'application/json') {
+            return response()->json([
+                'success'        => true,
+                'message'        => $msg,
+                'is_invoiced'    => $order->is_invoiced,
+                'invoice_number' => $order->invoice_number,
+            ]);
+        }
+
         return back()->with('success', $msg);
+
     }
 
     public function updateSubTaskStatus(Request $req, SubTask $subTask)

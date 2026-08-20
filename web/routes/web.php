@@ -16,6 +16,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
+    Route::get('/dashboard/export/excel', [DashboardController::class, 'exportExcel'])->name('dashboard.exportExcel');
+    Route::get('/dashboard/export/pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.exportPdf');
 
     // 1. Monitoring & CRUD Request
     Route::get('requests/export-done/pdf', [RequestController::class, 'exportDonePdf'])->name('requests.exportDonePdf');
