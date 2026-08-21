@@ -22,7 +22,7 @@
             <div class="w-16 h-16 rounded-2xl bg-blue-600 mx-auto flex items-center justify-center text-2xl font-bold mb-4 shadow-lg shadow-blue-500/40">
                 <i class="fa-solid fa-ship"></i>
             </div>
-            <h1 class="text-2xl font-bold">BKJ Ops Monitoring</h1>
+            <h1 class="text-2xl font-bold">BKJ Monitoring</h1>
             <p class="text-xs text-blue-300 mt-1">Masuk ke Portal Monitoring & Administrasi</p>
         </div>
 

@@ -59,11 +59,11 @@
         <div>
             <!-- Logo Header -->
             <div class="h-20 flex items-center px-6 border-b border-slate-700/50 gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid me-0 fa-ship text-lg"></i>
+                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg overflow-hidden shrink-0">
+                    <img src="{{ asset('images/logo_bkj.jpg') }}" alt="BKJ Logo" class="w-full h-full object-contain">
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-wide">BKJ Ops</h1>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">BKJ</h1>
                     <p class="text-xs text-blue-400 font-medium">Monitoring Dashboard</p>
                 </div>
             </div>
