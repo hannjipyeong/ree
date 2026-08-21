@@ -46,7 +46,7 @@ class DashboardController extends Controller
         $search        = $request->input('search');
 
         // ── Recent Orders query ───────────────────────────────────────
-        $recentQuery = Order::with(['customer', 'subTasks.supir', 'containers'])->latest();
+        $recentQuery = Order::with(['customer', 'subTasks.supir', 'containers.progresses.subTask'])->latest();
 
         if ($adminSource) {
             $recentQuery->where('source', $adminSource);

@@ -367,37 +367,39 @@ class RequestController extends Controller
         return redirect()->route('requests.index')->with('success', 'Order request berhasil dihapus.');
     }
 
-    public function toggleInvoice(Request $req, Order $order)
+    public function toggleInvoice(Request $req, \App\Models\SubTaskContainerProgress $progress)
     {
+        // Authorize via order
+        $order = $progress->container->order;
         $this->authorizeOrderAccess($order);
 
         if ($req->has('is_invoiced')) {
-            $order->is_invoiced = $req->boolean('is_invoiced');
+            $progress->is_invoiced = $req->boolean('is_invoiced');
         } else {
-            $order->is_invoiced = !$order->is_invoiced;
+            $progress->is_invoiced = !$progress->is_invoiced;
         }
 
-        if ($order->is_invoiced) {
-            $order->invoice_number = $req->input('invoice_number') ?: ('INV/' . date('Ymd') . '/' . sprintf('%04d', $order->id));
-            $order->invoiced_at = now();
+        if ($progress->is_invoiced) {
+            $progress->invoice_number = $req->input('invoice_number') ?: ('INV/' . date('Ymd') . '/' . sprintf('%04d', $progress->id));
+            $progress->invoiced_at = now();
         } else {
-            $order->invoice_number = null;
-            $order->invoiced_at = null;
+            $progress->invoice_number = null;
+            $progress->invoiced_at = null;
         }
 
-        $order->save();
+        $progress->save();
 
-        $msg = $order->is_invoiced
-            ? 'Status invoice berhasil diubah menjadi Sudah Terbit (' . $order->invoice_number . ')!'
+        $msg = $progress->is_invoiced
+            ? 'Status invoice berhasil diubah menjadi Sudah Terbit (' . $progress->invoice_number . ')!'
             : 'Status invoice berhasil diubah menjadi Belum Terbit.';
 
-        // Return JSON for AJAX requests (e.g., dashboard inline button)
+        // Return JSON for AJAX requests
         if ($req->ajax() || $req->wantsJson() || $req->header('Accept') === 'application/json') {
             return response()->json([
                 'success'        => true,
                 'message'        => $msg,
-                'is_invoiced'    => $order->is_invoiced,
-                'invoice_number' => $order->invoice_number,
+                'is_invoiced'    => $progress->is_invoiced,
+                'invoice_number' => $progress->invoice_number,
             ]);
         }
 

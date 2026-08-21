@@ -337,8 +337,9 @@
                     </div>
 
                     <!-- Dokumen Haulage -->
-                    <div class="pt-2 border-t border-slate-300/60">
-                        <div class="text-xs font-semibold text-slate-600 mb-1.5">Dokumen Haulage</div>
+                    <div class="pt-2 border-t border-slate-300/60 flex flex-col gap-3">
+                        <div class="text-xs font-semibold text-slate-600">Dokumen Haulage</div>
+                        
                         <input type="file" id="container_haulage_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_haulage_label')">
                         <div onclick="triggerFileInput('container_haulage_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm">
                             <div class="flex items-center gap-3">
@@ -351,6 +352,25 @@
                                 </div>
                             </div>
                             <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                        </div>
+
+                        <input type="file" id="container_sp3kk_file" name="sp3kk_file" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_sp3kk_label')">
+                        <div onclick="triggerFileInput('container_sp3kk_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-emerald-400 transition shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-file-invoice"></i>
+                                </div>
+                                <div>
+                                    <div id="container_sp3kk_label" class="text-xs font-bold text-slate-800">Upload SP3KK (PDF / JPG / PNG)</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Haulage</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a id="container_sp3kk_view" href="#" target="_blank" class="hidden text-[10px] font-bold text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg transition" onclick="event.stopPropagation();">
+                                    <i class="fa-solid fa-eye me-1"></i>Lihat
+                                </a>
+                                <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -702,5 +722,17 @@
 
     // Set polling every 3 seconds
     setInterval(pollContainerUpdates, 3000);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        @if($container->sp3kk_file_path)
+            document.getElementById('container_sp3kk_label').innerText = "SP3KK.{{ pathinfo($container->sp3kk_file_path, PATHINFO_EXTENSION) }} (Terupload)";
+            let sp3kkView = document.getElementById('container_sp3kk_view');
+            if (sp3kkView) {
+                sp3kkView.href = "{{ $container->sp3kk_file_url }}";
+                sp3kkView.classList.remove('hidden');
+                sp3kkView.classList.add('inline-flex');
+            }
+        @endif
+    });
 </script>
 @endsection

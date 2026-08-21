@@ -15,6 +15,9 @@ class SubTaskContainerProgress extends Model
         'sub_task_id',
         'order_container_id',
         'status',
+        'is_invoiced',
+        'invoice_number',
+        'invoiced_at',
         'in_note',
         'in_photo_path',
         'in_photos',
@@ -32,6 +35,8 @@ class SubTaskContainerProgress extends Model
     protected function casts(): array
     {
         return [
+            'is_invoiced' => 'boolean',
+            'invoiced_at' => 'datetime',
             'in_photos' => 'array',
             'out_photos' => 'array',
             'done_photos' => 'array',

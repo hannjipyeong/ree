@@ -371,41 +371,62 @@
                             // no filter / Masuk → show all
                             $allowedStatuses = match($activeStatus) {
                                 'In'   => ['In'],
-                                'Out'  => ['In', 'Out'],
-                                'Done' => ['In', 'Out', 'Done'],
+                                'Out'  => ['Masuk', 'In', 'Out'],
+                                'Done' => ['Masuk', 'In', 'Out', 'Done'],
                                 default => null, // null = show all
                             };
-                            $visibleTasks = $allowedStatuses
-                                ? $ord->subTasks->filter(fn($st) => in_array($st->status, $allowedStatuses))
-                                : $ord->subTasks;
+                            $visibleTasks = $ord->subTasks;
+                            if ($allowedStatuses) {
+                                $visibleTasks = $visibleTasks->filter(fn($st) => in_array($st->status, $allowedStatuses));
+                            }
+                            if ($activeLayanan) {
+                                $visibleTasks = $visibleTasks->filter(fn($st) => $st->service_type == $activeLayanan);
+                            }
                             @endphp
                             <td class="py-4 px-6">
                                 <div class="flex flex-col gap-1">
                                     {{-- Tiket badges (filtered by active status) --}}
                                     <div class="flex flex-wrap gap-1">
                                         @foreach($visibleTasks as $st)
-                                            <div class="inline-flex items-center text-[10px] rounded-lg overflow-hidden border
-                                                {{ $st->service_type == 'Haulage'    ? 'border-purple-200 bg-purple-50' : '' }}
-                                                {{ $st->service_type == 'LOLO'       ? 'border-sky-200 bg-sky-50'       : '' }}
-                                                {{ $st->service_type == 'Penumpukan' ? 'border-amber-200 bg-amber-50'   : '' }}
-                                                {{ $st->service_type == 'TKBM'       ? 'border-teal-200 bg-teal-50'     : '' }}
-                                                {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'border-slate-200 bg-slate-50' : '' }}">
-                                                <span class="px-2 py-0.5 font-extrabold uppercase
-                                                    {{ $st->service_type == 'Haulage'    ? 'text-purple-700' : '' }}
-                                                    {{ $st->service_type == 'LOLO'       ? 'text-sky-700'    : '' }}
-                                                    {{ $st->service_type == 'Penumpukan' ? 'text-amber-700'  : '' }}
-                                                    {{ $st->service_type == 'TKBM'       ? 'text-teal-700'   : '' }}
-                                                    {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'text-slate-700' : '' }}">
-                                                    {{ $st->service_type }}
-                                                </span>
-                                                <span class="px-1.5 py-0.5 font-bold uppercase
-                                                    {{ $st->status == 'Masuk' ? 'bg-slate-200 text-slate-700' : '' }}
-                                                    {{ $st->status == 'In'    ? 'bg-blue-600 text-white'      : '' }}
-                                                    {{ $st->status == 'Out'   ? 'bg-amber-500 text-white'     : '' }}
-                                                    {{ $st->status == 'Done'  ? 'bg-emerald-600 text-white'   : '' }}">
-                                                    {{ $st->status }}
-                                                </span>
-                                            </div>
+                                            @php
+                                                $history = [];
+                                                if ($st->status == 'Masuk') {
+                                                    $history = ['Masuk'];
+                                                } elseif ($st->status == 'In') {
+                                                    $history = ['In'];
+                                                } elseif ($st->status == 'Out') {
+                                                    $history = ['In', 'Out'];
+                                                } elseif ($st->status == 'Done') {
+                                                    $history = ['In', 'Out', 'Done'];
+                                                }
+                                                // If filtering by a specific status, limit by allowedStatuses
+                                                $history = array_intersect($history, $allowedStatuses ?? ['Masuk', 'In', 'Out', 'Done']);
+                                            @endphp
+
+                                            @foreach($history as $hStatus)
+                                                <div class="inline-flex items-center text-[10px] rounded-lg overflow-hidden border
+                                                    {{ $st->service_type == 'Haulage'    ? 'border-purple-200 bg-purple-50' : '' }}
+                                                    {{ $st->service_type == 'LOLO'       ? 'border-sky-200 bg-sky-50'       : '' }}
+                                                    {{ $st->service_type == 'Penumpukan' ? 'border-amber-200 bg-amber-50'   : '' }}
+                                                    {{ $st->service_type == 'TKBM'       ? 'border-teal-200 bg-teal-50'     : '' }}
+                                                    {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'border-slate-200 bg-slate-50' : '' }}">
+                                                    <span class="px-2 py-0.5 font-extrabold uppercase
+                                                        {{ $st->service_type == 'Haulage'    ? 'text-purple-700' : '' }}
+                                                        {{ $st->service_type == 'LOLO'       ? 'text-sky-700'    : '' }}
+                                                        {{ $st->service_type == 'Penumpukan' ? 'text-amber-700'  : '' }}
+                                                        {{ $st->service_type == 'TKBM'       ? 'text-teal-700'   : '' }}
+                                                        {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'text-slate-700' : '' }}">
+                                                        {{ $st->service_type }}
+                                                    </span>
+                                                    <span class="px-1.5 py-0.5 font-bold uppercase
+                                                        {{ $hStatus == 'Masuk' ? 'bg-slate-200 text-slate-700' : '' }}
+                                                        {{ $hStatus == 'In'    ? 'bg-blue-600 text-white'      : '' }}
+                                                        {{ $hStatus == 'Out'   ? 'bg-amber-500 text-white'     : '' }}
+                                                        {{ $hStatus == 'Done'  ? 'bg-emerald-600 text-white'   : '' }}">
+                                                        {{ $hStatus }}
+                                                    </span>
+                                                </div>
+                                            @endforeach
                                         @endforeach
                                         @if($visibleTasks->isEmpty())
                                             <span class="text-[10px] text-slate-400 italic">Tidak ada tiket {{ $activeStatus }}</span>
@@ -421,24 +442,71 @@
                             </td>
 
                             {{-- ── Invoice Status Column ──────────────────────────── --}}
-                            <td class="py-4 px-6 whitespace-nowrap" id="invoice-status-{{ $ord->id }}">
-                                <button type="button"
-                                        id="invoice-btn-{{ $ord->id }}"
-                                        onclick="toggleInvoice({{ $ord->id }}, this)"
-                                        class="inline-flex flex-col items-start gap-1 transition focus:outline-none">
-                                    @if($ord->is_invoiced)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-colors" title="Klik untuk membatalkan invoice">
-                                            <i class="fa-solid fa-circle-check text-[10px]"></i> Sudah Terbit
-                                        </span>
-                                        @if($ord->invoice_number)
-                                            <span class="text-[10px] font-mono text-slate-400 pl-1">{{ $ord->invoice_number }}</span>
-                                        @endif
+                            <td class="py-4 px-6 relative invoice-dropdown-container" id="invoice-status-{{ $ord->id }}">
+                                @php
+                                    $totalProgresses = 0;
+                                    $invoicedProgresses = 0;
+                                    foreach($ord->containers as $c) {
+                                        $totalProgresses += $c->progresses->count();
+                                        $invoicedProgresses += $c->progresses->where('is_invoiced', true)->count();
+                                    }
+                                @endphp
+                                
+                                <button type="button" 
+                                        onclick="document.getElementById('invoice-dropdown-{{ $ord->id }}').classList.toggle('hidden')"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shadow-sm focus:outline-none
+                                        {{ $invoicedProgresses == $totalProgresses && $totalProgresses > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : ($invoicedProgresses > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200') }}">
+                                    @if($invoicedProgresses == $totalProgresses && $totalProgresses > 0)
+                                        <i class="fa-solid fa-check-double text-[10px]"></i> Semua Terbit
+                                    @elseif($invoicedProgresses > 0)
+                                        <i class="fa-solid fa-file-invoice text-[10px]"></i> {{ $invoicedProgresses }} / {{ $totalProgresses }} Terbit
                                     @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors" title="Klik untuk mengkonfirmasi invoice">
-                                            <i class="fa-solid fa-circle-xmark text-[10px]"></i> Belum Keluar
-                                        </span>
+                                        <i class="fa-solid fa-file-invoice text-[10px]"></i> Belum Terbit
                                     @endif
+                                    <i class="fa-solid fa-chevron-down text-[9px] ml-1 opacity-50"></i>
                                 </button>
+                                
+                                <!-- Dropdown menu -->
+                                <div id="invoice-dropdown-{{ $ord->id }}" class="invoice-dropdown-menu hidden absolute left-6 top-14 mt-1 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-[99] overflow-hidden">
+                                    <div class="max-h-60 overflow-y-auto p-2 space-y-2">
+                                        @foreach($ord->containers as $c)
+                                            @if($c->progresses->count() > 0)
+                                                <div class="border border-slate-100 rounded-lg p-2 bg-slate-50">
+                                                    <div class="text-[10px] font-bold text-slate-800 mb-1 border-b border-slate-200 pb-1 flex justify-between">
+                                                        <span>{{ $c->container_number ?? 'No-ID' }} <span class="text-slate-400 font-normal">({{ $c->container_size }})</span></span>
+                                                    </div>
+                                                    <div class="space-y-1.5 mt-1.5">
+                                                        @foreach($c->progresses as $prog)
+                                                            <div class="flex items-center justify-between">
+                                                                <span class="text-[10px] font-semibold text-slate-600 uppercase">{{ $prog->subTask->service_type ?? 'Layanan' }}</span>
+                                                                
+                                                                <button type="button"
+                                                                        id="invoice-btn-prog-{{ $prog->id }}"
+                                                                        onclick="toggleInvoiceProgress({{ $prog->id }}, {{ $ord->id }}, this)"
+                                                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold transition-colors focus:outline-none
+                                                                        {{ $prog->is_invoiced ? 'bg-emerald-100 text-emerald-700 hover:bg-rose-100 hover:text-rose-700 border border-emerald-200' : 'bg-slate-200 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700 border border-slate-300' }}">
+                                                                    @if($prog->is_invoiced)
+                                                                        <i class="fa-solid fa-check"></i> Terbit
+                                                                    @else
+                                                                        <i class="fa-solid fa-xmark"></i> Belum
+                                                                    @endif
+                                                                </button>
+                                                            </div>
+                                                            @if($prog->is_invoiced && $prog->invoice_number)
+                                                                <div class="text-[8px] font-mono text-slate-400 mt-0.5 text-right border-b border-slate-100 pb-1" id="invoice-num-prog-{{ $prog->id }}">
+                                                                    {{ $prog->invoice_number }}
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                        @if($totalProgresses == 0)
+                                            <div class="text-[10px] text-slate-400 italic text-center p-2">Belum ada progres layanan diorder ini.</div>
+                                        @endif
+                                    </div>
+                                </div>
                             </td>
 
                             {{-- ── Aksi Column ──── --}}
@@ -472,11 +540,13 @@
 
 <script>
 // ── Invoice Toggle (AJAX, 1-click) ────────────────────────────────────────
-function toggleInvoice(orderId, btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+function toggleInvoiceProgress(progressId, orderId, btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    }
 
-    fetch(`/requests/${orderId}/toggle-invoice`, {
+    fetch(`/requests/progress/${progressId}/toggle-invoice`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -488,20 +558,23 @@ function toggleInvoice(orderId, btn) {
     })
     .then(r => r.json().catch(() => null))
     .then(data => {
-        // Reload the row via page fragment replacement
+        // Reload the row via page fragment replacement to update UI automatically
         updateOrderRow(orderId);
     })
     .catch(() => {
-        // Fallback: submit a standard form on error
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/requests/${orderId}/toggle-invoice`;
-        form.innerHTML = `<input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
-                          <input type="hidden" name="_method" value="PATCH">`;
-        document.body.appendChild(form);
-        form.submit();
+        alert('Terjadi kesalahan jaringan saat mengubah status invoice.');
+        if (btn) btn.disabled = false;
     });
 }
+
+// Helper untuk menutup dropdown saat klik di luar
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.invoice-dropdown-container')) {
+        document.querySelectorAll('.invoice-dropdown-menu').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+    }
+});
 
 // Refresh only the changed row by re-fetching the page and replacing the row innerHTML
 function updateOrderRow(orderId) {

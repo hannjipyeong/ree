@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
     // 1. Monitoring & CRUD Request
     Route::get('requests/export-done/pdf', [RequestController::class, 'exportDonePdf'])->name('requests.exportDonePdf');
     Route::get('requests/export-done/excel', [RequestController::class, 'exportDoneExcel'])->name('requests.exportDoneExcel');
-    Route::patch('requests/{order}/toggle-invoice', [RequestController::class, 'toggleInvoice'])->name('requests.toggleInvoice');
+    Route::patch('requests/progress/{progress}/toggle-invoice', [RequestController::class, 'toggleInvoice'])->name('requests.progress.toggleInvoice');
     Route::resource('requests', RequestController::class);
     Route::post('requests/{request}/update-services', [RequestController::class, 'updateServices'])->name('requests.updateServices');
     Route::get('requests/{request}/containers/{container}', [RequestController::class, 'showContainer'])->name('requests.containers.show');

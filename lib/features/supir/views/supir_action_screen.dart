@@ -335,7 +335,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Ukuran: ${c.size} • Tipe: ${c.type}', style: AppTextStyles.body2),
-                          if (c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
+                          if (widget.subTask.serviceType == 'Haulage' && c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
                             InkWell(
                               onTap: () async {
                                 final url = Uri.parse(c.sp3kkFileUrl!);
