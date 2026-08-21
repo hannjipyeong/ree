@@ -80,10 +80,15 @@ class DashboardController extends Controller
                 $q->where('order_number',      'like', "%{$search}%")
                   ->orWhere('nama_pt',         'like', "%{$search}%")
                   ->orWhere('nama_pbm',        'like', "%{$search}%")
+                  ->orWhere('source',          'like', "%{$search}%")
                   ->orWhere('wilayah',         'like', "%{$search}%")
                   ->orWhere('lokasi_fasilitas','like', "%{$search}%")
                   ->orWhere('jenis_kegiatan',  'like', "%{$search}%")
-                  ->orWhere('no_telp',         'like', "%{$search}%");
+                  ->orWhere('no_telp',         'like', "%{$search}%")
+                  ->orWhere('invoice_number',  'like', "%{$search}%")
+                  ->orWhereHas('subTasks', function ($sq) use ($search) {
+                      $sq->where('service_type', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -268,9 +273,14 @@ class DashboardController extends Controller
                 $q->where('order_number',       'like', "%{$search}%")
                   ->orWhere('nama_pt',          'like', "%{$search}%")
                   ->orWhere('nama_pbm',         'like', "%{$search}%")
+                  ->orWhere('source',           'like', "%{$search}%")
                   ->orWhere('wilayah',          'like', "%{$search}%")
                   ->orWhere('lokasi_fasilitas', 'like', "%{$search}%")
-                  ->orWhere('jenis_kegiatan',   'like', "%{$search}%");
+                  ->orWhere('jenis_kegiatan',   'like', "%{$search}%")
+                  ->orWhere('invoice_number',   'like', "%{$search}%")
+                  ->orWhereHas('subTasks', function ($sq) use ($search) {
+                      $sq->where('service_type', 'like', "%{$search}%");
+                  });
             });
         }
 

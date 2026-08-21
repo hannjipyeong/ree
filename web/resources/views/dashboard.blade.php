@@ -412,18 +412,7 @@
                                         @endif
                                     </div>
 
-                                    {{-- Invoice label — ONE pill per order, shown when filter is In/Out/Done or no filter --}}
-                                    @if(in_array($activeStatus, ['In','Out','Done']) || !$activeStatus)
-                                        @if($ord->is_invoiced)
-                                            <span class="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit">
-                                                <i class="fa-solid fa-circle-check text-[8px]"></i> Invoice Terbit
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md text-[9px] font-semibold bg-rose-50 text-rose-600 border border-rose-200 w-fit">
-                                                <i class="fa-solid fa-circle-xmark text-[8px]"></i> Belum Invoice
-                                            </span>
-                                        @endif
-                                    @endif
+
                                 </div>
                             </td>
 
@@ -433,39 +422,28 @@
 
                             {{-- ── Invoice Status Column ──────────────────────────── --}}
                             <td class="py-4 px-6 whitespace-nowrap" id="invoice-status-{{ $ord->id }}">
-                                @if($ord->is_invoiced)
-                                    <div class="flex flex-col gap-1">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <button type="button"
+                                        id="invoice-btn-{{ $ord->id }}"
+                                        onclick="toggleInvoice({{ $ord->id }}, this)"
+                                        class="inline-flex flex-col items-start gap-1 transition focus:outline-none">
+                                    @if($ord->is_invoiced)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-colors" title="Klik untuk membatalkan invoice">
                                             <i class="fa-solid fa-circle-check text-[10px]"></i> Sudah Terbit
                                         </span>
                                         @if($ord->invoice_number)
                                             <span class="text-[10px] font-mono text-slate-400 pl-1">{{ $ord->invoice_number }}</span>
                                         @endif
-                                    </div>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                        <i class="fa-solid fa-circle-xmark text-[10px]"></i> Belum Keluar
-                                    </span>
-                                @endif
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors" title="Klik untuk mengkonfirmasi invoice">
+                                            <i class="fa-solid fa-circle-xmark text-[10px]"></i> Belum Keluar
+                                        </span>
+                                    @endif
+                                </button>
                             </td>
 
-                            {{-- ── Aksi Column — single invoice button + detail ──── --}}
+                            {{-- ── Aksi Column ──── --}}
                             <td class="py-4 px-6 text-right">
                                 <div class="flex flex-col items-end gap-1.5">
-                                    {{-- Single invoice toggle button (AJAX) --}}
-                                    <button type="button"
-                                            id="invoice-btn-{{ $ord->id }}"
-                                            onclick="toggleInvoice({{ $ord->id }}, this)"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition
-                                                {{ $ord->is_invoiced
-                                                    ? 'bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-700 border border-slate-200'
-                                                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' }}">
-                                        @if($ord->is_invoiced)
-                                            <i class="fa-solid fa-rotate-left text-[11px]"></i> Batalkan Invoice
-                                        @else
-                                            <i class="fa-solid fa-check-double text-[11px]"></i> Konfirmasi Invoice
-                                        @endif
-                                    </button>
                                     {{-- Detail button --}}
                                     <a href="{{ route('requests.show', $ord->id) }}"
                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 rounded-lg text-xs font-semibold transition">
