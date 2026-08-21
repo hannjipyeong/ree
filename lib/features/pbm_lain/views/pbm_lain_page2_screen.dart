@@ -18,7 +18,13 @@ class PbmLainPage2Screen extends StatefulWidget {
 class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _jenisBarangCtrl;
+  late final TextEditingController _jumlahBarangCtrl;
   late final TextEditingController _jumlahTonaseCtrl;
+  late final TextEditingController _nomorBlCtrl;
+  late final TextEditingController _vesselCtrl;
+  late final TextEditingController _voyageCtrl;
+  late final TextEditingController _noSuratJalanCtrl;
+  late final TextEditingController _noBpCtrl;
   late final TextEditingController _nomorContainerCargoCtrl;
 
   @override
@@ -26,14 +32,26 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
     super.initState();
     final vm = context.read<PbmLainViewModel>();
     _jenisBarangCtrl = TextEditingController(text: vm.jenisBarang ?? '');
+    _jumlahBarangCtrl = TextEditingController(text: vm.jumlahBarang ?? '');
     _jumlahTonaseCtrl = TextEditingController(text: vm.jumlahTonase ?? '');
+    _nomorBlCtrl = TextEditingController(text: vm.nomorBl ?? '');
+    _vesselCtrl = TextEditingController(text: vm.vessel ?? '');
+    _voyageCtrl = TextEditingController(text: vm.voyage ?? '');
+    _noSuratJalanCtrl = TextEditingController(text: vm.noSuratJalan ?? '');
+    _noBpCtrl = TextEditingController(text: vm.noBp ?? '');
     _nomorContainerCargoCtrl = TextEditingController(text: vm.nomorContainerCargo ?? '');
   }
 
   @override
   void dispose() {
     _jenisBarangCtrl.dispose();
+    _jumlahBarangCtrl.dispose();
     _jumlahTonaseCtrl.dispose();
+    _nomorBlCtrl.dispose();
+    _vesselCtrl.dispose();
+    _voyageCtrl.dispose();
+    _noSuratJalanCtrl.dispose();
+    _noBpCtrl.dispose();
     _nomorContainerCargoCtrl.dispose();
     super.dispose();
   }
@@ -41,8 +59,18 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
   void _handleNext() {
     final vm = context.read<PbmLainViewModel>();
 
+    if (!vm.hasContainer && !vm.hasCargo) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pilih minimal satu tipe muatan (Container atau Cargo).'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     // Validate Cargo if chosen
-    if (vm.payloadType == AppConstants.payloadCargo) {
+    if (vm.hasCargo) {
       if (vm.cargoFileName == null || vm.cargoFileName!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -54,7 +82,13 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
       }
       
       vm.setJenisBarang(_jenisBarangCtrl.text);
+      vm.setJumlahBarang(_jumlahBarangCtrl.text);
       vm.setJumlahTonase(_jumlahTonaseCtrl.text);
+      vm.setNomorBl(_nomorBlCtrl.text);
+      vm.setVessel(_vesselCtrl.text);
+      vm.setVoyage(_voyageCtrl.text);
+      vm.setNoSuratJalan(_noSuratJalanCtrl.text);
+      vm.setNoBp(_noBpCtrl.text);
       vm.setNomorContainerCargo(_nomorContainerCargoCtrl.text);
     }
 
@@ -94,15 +128,15 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
             title: 'Tipe Muatan',
             icon: Icons.inventory_2_outlined,
             children: [
-              _PayloadTypeSelector(
-                selected: vm.payloadType,
-                onSelected: vm.setPayloadType,
+              _PayloadTypeMultiSelector(
+                selectedTypes: vm.payloadTypes,
+                onToggle: vm.togglePayloadType,
               ),
             ],
           ),
 
           // ── Dynamic Content based on Payload Type ─────────────────────────
-          if (vm.payloadType == AppConstants.payloadContainer)
+          if (vm.hasContainer)
             SectionCard(
               title: 'Detail Container',
               icon: Icons.view_module_outlined,
@@ -115,10 +149,11 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
                   onUpdate: vm.updateContainer,
                 ),
               ],
-            )
-          else
+            ),
+          
+          if (vm.hasCargo)
             SectionCard(
-              title: 'Dokumen Cargo',
+              title: 'Dokumen & Rincian Cargo',
               icon: Icons.description_outlined,
               children: [
                 if (vm.wilayah == AppConstants.wilayahEximen && vm.lokasiFasilitas?.toLowerCase() == 'gudang')
@@ -138,11 +173,53 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
                 ),
                 const SizedBox(height: 16),
                 AppTextField(
+                  label: 'Jumlah Barang',
+                  hint: 'Contoh: 500 Dus / 20 Pallet',
+                  controller: _jumlahBarangCtrl,
+                  validator: (v) => AppValidators.required(v, fieldName: 'Jumlah Barang'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
                   label: 'Jumlah Tonase (Ton)',
                   hint: 'Contoh: 10.5',
                   controller: _jumlahTonaseCtrl,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) => AppValidators.required(v, fieldName: 'Jumlah Tonase'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Nomor BL',
+                  hint: 'Masukkan nomor Bill of Lading',
+                  controller: _nomorBlCtrl,
+                  validator: (v) => AppValidators.required(v, fieldName: 'Nomor BL'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Vessel (Nama Kapal)',
+                  hint: 'Masukkan nama kapal',
+                  controller: _vesselCtrl,
+                  validator: (v) => AppValidators.required(v, fieldName: 'Vessel / Nama Kapal'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Voyage (Kode Keberangkatan)',
+                  hint: 'Contoh: V.024N',
+                  controller: _voyageCtrl,
+                  validator: (v) => AppValidators.required(v, fieldName: 'Voyage'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'No. Surat Jalan',
+                  hint: 'Masukkan no. surat jalan',
+                  controller: _noSuratJalanCtrl,
+                  validator: (v) => AppValidators.required(v, fieldName: 'No. Surat Jalan'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'No. BP (Plat Nomor)',
+                  hint: 'Contoh: BP 1234 XY',
+                  controller: _noBpCtrl,
+                  validator: (v) => AppValidators.required(v, fieldName: 'No. BP'),
                 ),
                 const SizedBox(height: 16),
                 const FormInfoBanner(
@@ -167,14 +244,14 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
   }
 }
 
-/// Toggle selector between Container and Cargo payload types.
-class _PayloadTypeSelector extends StatelessWidget {
-  final String selected;
-  final void Function(String) onSelected;
+/// Multi-select toggle between Container and Cargo payload types.
+class _PayloadTypeMultiSelector extends StatelessWidget {
+  final Set<String> selectedTypes;
+  final void Function(String) onToggle;
 
-  const _PayloadTypeSelector({
-    required this.selected,
-    required this.onSelected,
+  const _PayloadTypeMultiSelector({
+    required this.selectedTypes,
+    required this.onToggle,
   });
 
   @override
@@ -186,8 +263,8 @@ class _PayloadTypeSelector extends StatelessWidget {
             label: 'Container',
             icon: Icons.view_module_outlined,
             description: 'Satuan container',
-            isSelected: selected == AppConstants.payloadContainer,
-            onTap: () => onSelected(AppConstants.payloadContainer),
+            isSelected: selectedTypes.contains(AppConstants.payloadContainer),
+            onTap: () => onToggle(AppConstants.payloadContainer),
           ),
         ),
         const SizedBox(width: 12),
@@ -196,8 +273,8 @@ class _PayloadTypeSelector extends StatelessWidget {
             label: 'Cargo',
             icon: Icons.inventory_outlined,
             description: 'Muatan curah /\nUpload manifest',
-            isSelected: selected == AppConstants.payloadCargo,
-            onTap: () => onSelected(AppConstants.payloadCargo),
+            isSelected: selectedTypes.contains(AppConstants.payloadCargo),
+            onTap: () => onToggle(AppConstants.payloadCargo),
           ),
         ),
       ],
@@ -264,7 +341,7 @@ class _PayloadOption extends StatelessWidget {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(6),
                 color: isSelected ? AppColors.primary : Colors.transparent,
                 border: Border.all(
                   color: isSelected ? AppColors.primary : AppColors.disabled,
@@ -272,7 +349,7 @@ class _PayloadOption extends StatelessWidget {
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 14, color: Colors.white)
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
                   : null,
             ),
           ],

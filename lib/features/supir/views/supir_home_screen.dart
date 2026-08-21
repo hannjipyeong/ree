@@ -199,7 +199,9 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
         title: Text(
           (authVm.supirType?.toLowerCase() == 'haulage' || authVm.supirType?.toLowerCase() == 'houlage')
               ? 'Dashboard Supir Haulage'
-              : 'Dashboard Pelaksana Lapangan ${authVm.supirType ?? ''}',
+              : authVm.supirType?.toUpperCase() == 'TKBM'
+                  ? 'Koordinator TKBM ${authVm.supirWilayah != null && authVm.supirWilayah!.isNotEmpty ? "(${authVm.supirWilayah})" : ""}'.trim()
+                  : 'Dashboard Pelaksana Lapangan ${authVm.supirType ?? ''}',
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),

@@ -41,6 +41,7 @@ class DashboardController extends Controller
         // ── Filter params ─────────────────────────────────────────────
         $activeStatus  = $request->input('tiket_status');
         $activeLayanan = $request->input('layanan');
+        $activePayload = $request->input('payload_type');
         $dateFrom      = $request->input('date_from');
         $dateTo        = $request->input('date_to');
         $search        = $request->input('search');
@@ -50,6 +51,26 @@ class DashboardController extends Controller
 
         if ($adminSource) {
             $recentQuery->where('source', $adminSource);
+        }
+
+        // Payload type filter (Container vs Cargo)
+        if ($activePayload) {
+            if ($activePayload === 'Container') {
+                $recentQuery->where(function ($q) {
+                    $q->where('payload_type', 'like', '%Container%')
+                      ->orWhereHas('containers');
+                });
+            } elseif ($activePayload === 'Cargo') {
+                $recentQuery->where(function ($q) {
+                    $q->where('payload_type', 'like', '%Cargo%')
+                      ->orWhereDoesntHave('containers');
+                });
+            } elseif ($activePayload === 'Both' || $activePayload === 'Container,Cargo') {
+                $recentQuery->where('payload_type', 'like', '%Container%')
+                            ->where('payload_type', 'like', '%Cargo%');
+            } else {
+                $recentQuery->where('payload_type', 'like', "%{$activePayload}%");
+            }
         }
 
         // Precise status filter: only orders that have AT LEAST ONE sub-task
@@ -104,6 +125,7 @@ class DashboardController extends Controller
             'adminSource',
             'activeStatus',
             'activeLayanan',
+            'activePayload',
             'dateFrom',
             'dateTo',
             'search'
@@ -247,9 +269,30 @@ class DashboardController extends Controller
 
         $activeStatus  = $request->input('tiket_status');
         $activeLayanan = $request->input('layanan');
+        $activePayload = $request->input('payload_type');
         $dateFrom      = $request->input('date_from');
         $dateTo        = $request->input('date_to');
         $search        = $request->input('search');
+
+        // Payload type filter
+        if ($activePayload) {
+            if ($activePayload === 'Container') {
+                $query->where(function ($q) {
+                    $q->where('payload_type', 'like', '%Container%')
+                      ->orWhereHas('containers');
+                });
+            } elseif ($activePayload === 'Cargo') {
+                $query->where(function ($q) {
+                    $q->where('payload_type', 'like', '%Cargo%')
+                      ->orWhereDoesntHave('containers');
+                });
+            } elseif ($activePayload === 'Both' || $activePayload === 'Container,Cargo') {
+                $query->where('payload_type', 'like', '%Container%')
+                      ->where('payload_type', 'like', '%Cargo%');
+            } else {
+                $query->where('payload_type', 'like', "%{$activePayload}%");
+            }
+        }
 
         if ($activeStatus) {
             $query->whereHas('subTasks', function ($q) use ($activeStatus, $activeLayanan) {
@@ -294,8 +337,6 @@ class DashboardController extends Controller
     {
         $orders   = $this->buildExportQuery($request)->get();
         $filename = 'Dashboard_Export_' . date('Ymd_His') . '.csv';
-        $activeStatus  = $request->input('tiket_status');
-        $activeLayanan = $request->input('layanan');
 
         $headers = [
             'Content-Type'        => 'text/csv; charset=UTF-8',
@@ -305,56 +346,87 @@ class DashboardController extends Controller
             'Expires'             => '0',
         ];
 
-        $callback = function () use ($orders, $activeStatus, $activeLayanan) {
+        $callback = function () use ($orders) {
             $file = fopen('php://output', 'w');
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // UTF-8 BOM
 
             fputcsv($file, [
-                'No', 'No. Order', 'Nama PT', 'No. Container', 'Ukuran/Tipe',
-                'Layanan', 'Status', 'Tanggal & Jam', 'Catatan', 'Status Invoice'
+                'No', 'No. Order', 'Nama PT', 'No. Container / Ref Cargo', 'Ukuran / Jenis Barang',
+                'Haulage IN', 'Haulage OUT', 'LOLO IN', 'LOLO OUT',
+                'Penumpukan IN', 'Penumpukan OUT', 'TKBM IN', 'TKBM OUT',
+                'Catatan', 'Status Invoice', 'Status PNBP'
             ]);
 
             $rowNo = 1;
             foreach ($orders as $ord) {
-                foreach ($ord->containers as $c) {
-                    foreach ($c->progresses as $prog) {
-                        $st = $prog->subTask;
-                        if (!$st) continue;
+                if ($ord->containers->isNotEmpty()) {
+                    foreach ($ord->containers as $c) {
+                        $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
+                        $pLolo = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
+                        $pPenumpukan = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Penumpukan') === 0);
+                        $pTkbm = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'TKBM') === 0);
 
-                        if ($activeStatus && $st->status != $activeStatus) continue;
-                        if ($activeLayanan && $st->service_type != $activeLayanan) continue;
+                        $notes = $c->progresses->pluck('in_note')->merge($c->progresses->pluck('out_note'))->merge($c->progresses->pluck('done_note'))->filter()->unique()->implode('; ');
 
-                        $waktu = '-';
-                        $catatan = '-';
-                        if ($st->status == 'In') {
-                            $waktu = $prog->in_time ? \Carbon\Carbon::parse($prog->in_time)->format('d/m/Y H:i') : '-';
-                            $catatan = $prog->in_note ?: '-';
-                        } elseif ($st->status == 'Out') {
-                            $waktu = $prog->out_time ? \Carbon\Carbon::parse($prog->out_time)->format('d/m/Y H:i') : '-';
-                            $catatan = $prog->out_note ?: '-';
-                        } elseif ($st->status == 'Done') {
-                            $waktu = $prog->done_time ? \Carbon\Carbon::parse($prog->done_time)->format('d/m/Y H:i') : '-';
-                            $catatan = $prog->done_note ?: '-';
-                        }
+                        $isInvoiced = $c->progresses->contains('is_invoiced', true);
+                        $invStatus = $isInvoiced ? 'Sudah Terbit' : 'Belum';
+                        $invNumber = $c->progresses->where('is_invoiced', true)->pluck('invoice_number')->filter()->unique()->implode(', ');
+                        if ($invNumber) $invStatus .= " ({$invNumber})";
 
-                        $invoiceStatus = $prog->is_invoiced ? 'Sudah Terbit' : 'Belum';
-                        if ($prog->is_invoiced && $prog->invoice_number) {
-                            $invoiceStatus .= " ({$prog->invoice_number})";
-                        }
+                        $pnbpStatus = $c->is_pnbp ? 'Selesai' : 'Belum';
+                        if ($c->pnbp_number) $pnbpStatus .= " ({$c->pnbp_number})";
 
                         fputcsv($file, [
                             $rowNo++,
                             $ord->order_number,
                             $ord->nama_pt,
-                            $c->container_number ?: 'No-ID',
-                            $c->container_size . ' / ' . $c->container_type,
-                            $st->service_type,
-                            $st->status,
-                            $waktu,
-                            $catatan,
-                            $invoiceStatus
+                            $c->container_number ?: 'Tanpa No',
+                            $c->container_size . ' (' . $c->container_type . ')',
+                            $pHaulage && $pHaulage->in_time ? \Carbon\Carbon::parse($pHaulage->in_time)->format('d/m/Y H:i') : '-',
+                            $pHaulage && $pHaulage->out_time ? \Carbon\Carbon::parse($pHaulage->out_time)->format('d/m/Y H:i') : '-',
+                            $pLolo && $pLolo->in_time ? \Carbon\Carbon::parse($pLolo->in_time)->format('d/m/Y H:i') : '-',
+                            $pLolo && $pLolo->out_time ? \Carbon\Carbon::parse($pLolo->out_time)->format('d/m/Y H:i') : '-',
+                            $pPenumpukan && $pPenumpukan->in_time ? \Carbon\Carbon::parse($pPenumpukan->in_time)->format('d/m/Y H:i') : '-',
+                            $pPenumpukan && $pPenumpukan->out_time ? \Carbon\Carbon::parse($pPenumpukan->out_time)->format('d/m/Y H:i') : '-',
+                            $pTkbm && $pTkbm->in_time ? \Carbon\Carbon::parse($pTkbm->in_time)->format('d/m/Y H:i') : '-',
+                            $pTkbm && $pTkbm->out_time ? \Carbon\Carbon::parse($pTkbm->out_time)->format('d/m/Y H:i') : '-',
+                            $notes ?: '-',
+                            $invStatus,
+                            $pnbpStatus
                         ]);
                     }
+                } else {
+                    $stHaulage = $ord->subTasks->firstWhere('service_type', 'Haulage');
+                    $stLolo = $ord->subTasks->firstWhere('service_type', 'LOLO');
+                    $stPenumpukan = $ord->subTasks->firstWhere('service_type', 'Penumpukan');
+                    $stTkbm = $ord->subTasks->firstWhere('service_type', 'TKBM');
+
+                    $notesCargo = $ord->subTasks->pluck('in_note')->merge($ord->subTasks->pluck('out_note'))->merge($ord->subTasks->pluck('done_note'))->filter()->unique()->implode('; ');
+
+                    $invStatus = $ord->is_invoiced ? 'Sudah Terbit' : 'Belum';
+                    if ($ord->invoice_number) $invStatus .= " ({$ord->invoice_number})";
+
+                    $pnbpStatus = $ord->is_pnbp ? 'Selesai' : 'Belum';
+                    if ($ord->pnbp_number) $pnbpStatus .= " ({$ord->pnbp_number})";
+
+                    fputcsv($file, [
+                        $rowNo++,
+                        $ord->order_number,
+                        $ord->nama_pt,
+                        $ord->nomor_container_cargo ?: ($ord->nomor_bl ?: 'Cargo'),
+                        ($ord->jenis_barang ?: 'General Cargo') . ($ord->jumlah_tonase ? ' (' . $ord->jumlah_tonase . ' T)' : ''),
+                        $stHaulage && $stHaulage->in_time ? \Carbon\Carbon::parse($stHaulage->in_time)->format('d/m/Y H:i') : '-',
+                        $stHaulage && $stHaulage->out_time ? \Carbon\Carbon::parse($stHaulage->out_time)->format('d/m/Y H:i') : '-',
+                        $stLolo && $stLolo->in_time ? \Carbon\Carbon::parse($stLolo->in_time)->format('d/m/Y H:i') : '-',
+                        $stLolo && $stLolo->out_time ? \Carbon\Carbon::parse($stLolo->out_time)->format('d/m/Y H:i') : '-',
+                        $stPenumpukan && $stPenumpukan->in_time ? \Carbon\Carbon::parse($stPenumpukan->in_time)->format('d/m/Y H:i') : '-',
+                        $stPenumpukan && $stPenumpukan->out_time ? \Carbon\Carbon::parse($stPenumpukan->out_time)->format('d/m/Y H:i') : '-',
+                        $stTkbm && $stTkbm->in_time ? \Carbon\Carbon::parse($stTkbm->in_time)->format('d/m/Y H:i') : '-',
+                        $stTkbm && $stTkbm->out_time ? \Carbon\Carbon::parse($stTkbm->out_time)->format('d/m/Y H:i') : '-',
+                        $notesCargo ?: ($ord->pnbp_note ?: '-'),
+                        $invStatus,
+                        $pnbpStatus
+                    ]);
                 }
             }
 
@@ -372,6 +444,7 @@ class DashboardController extends Controller
         $orders        = $this->buildExportQuery($request)->get();
         $activeStatus  = $request->input('tiket_status', 'Semua Status');
         $activeLayanan = $request->input('layanan', 'Semua Layanan');
+        $activePayload = $request->input('payload_type', 'Semua Tipe');
         $dateFrom      = $request->input('date_from');
         $dateTo        = $request->input('date_to');
         $search        = $request->input('search');
@@ -389,7 +462,7 @@ class DashboardController extends Controller
         $tanggalCetak = now()->translatedFormat('d F Y, H:i') . ' WIB';
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('dashboard_export_pdf', compact(
-            'orders', 'activeStatus', 'activeLayanan', 'periodeText',
+            'orders', 'activeStatus', 'activeLayanan', 'activePayload', 'periodeText',
             'tanggalCetak', 'adminUser', 'search'
         ))->setPaper('a4', 'landscape');
 

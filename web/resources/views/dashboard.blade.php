@@ -208,6 +208,18 @@
                     </select>
                 </div>
 
+                {{-- Tipe Muatan Filter (Container vs Cargo) --}}
+                <div class="min-w-[150px]">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Tipe Muatan</label>
+                    <select name="payload_type" id="dash-payload-type"
+                            class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-slate-50">
+                        <option value="">Semua Tipe</option>
+                        <option value="Container" {{ ($activePayload ?? '') == 'Container' ? 'selected' : '' }}>Kontainer</option>
+                        <option value="Cargo" {{ ($activePayload ?? '') == 'Cargo' ? 'selected' : '' }}>Cargo (Muatan Bebas)</option>
+                        <option value="Both" {{ ($activePayload ?? '') == 'Both' || ($activePayload ?? '') == 'Container,Cargo' ? 'selected' : '' }}>Kontainer & Cargo</option>
+                    </select>
+                </div>
+
                 {{-- Date From --}}
                 <div class="min-w-[140px]">
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Dari Tanggal</label>
@@ -239,7 +251,7 @@
             </div>
 
             {{-- Active Filter Chips --}}
-            @if($activeStatus || $activeLayanan || $dateFrom || $dateTo || $search)
+            @if($activeStatus || $activeLayanan || ($activePayload ?? null) || $dateFrom || $dateTo || $search)
                 <div class="flex flex-wrap gap-2 pt-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider self-center">Filter Aktif:</span>
                     @if($activeStatus)
@@ -254,6 +266,11 @@
                     @if($activeLayanan)
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-violet-100 text-violet-700">
                             <i class="fa-solid fa-layer-group text-[8px]"></i> Layanan: {{ $activeLayanan }}
+                        </span>
+                    @endif
+                    @if(!empty($activePayload))
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-700">
+                            <i class="fa-solid fa-boxes-stacked text-[8px]"></i> Tipe: {{ $activePayload == 'Container' ? 'Kontainer' : ($activePayload == 'Cargo' ? 'Cargo' : 'Kontainer & Cargo') }}
                         </span>
                     @endif
                     @if($dateFrom || $dateTo)
@@ -282,6 +299,7 @@
             $exportParams = array_filter([
                 'tiket_status' => $activeStatus,
                 'layanan'      => $activeLayanan,
+                'payload_type' => $activePayload ?? null,
                 'date_from'    => $dateFrom,
                 'date_to'      => $dateTo,
                 'search'       => $search,
@@ -332,6 +350,7 @@
                         <th class="py-3.5 px-6">No. Order</th>
                         <th class="py-3.5 px-6">Customer / PT</th>
                         <th class="py-3.5 px-6">Source</th>
+                        <th class="py-3.5 px-6">Tipe / Muatan</th>
                         <th class="py-3.5 px-6">Wilayah &amp; Fasilitas</th>
                         <th class="py-3.5 px-6">Tiket Task Pelaksana Lapangan</th>
                         <th class="py-3.5 px-6">Tanggal</th>
@@ -357,6 +376,39 @@
                                     {{ $ord->source }}
                                 </span>
                             </td>
+                            
+                            {{-- ── Tipe Cargo / Container Column ───────────────── --}}
+                            <td class="py-4 px-6">
+                                @php
+                                    $hasContainers = $ord->containers->isNotEmpty();
+                                    $isCargo = str_contains(strtolower($ord->payload_type), 'cargo') || $ord->containers->isEmpty();
+                                @endphp
+                                <div class="flex flex-col gap-1.5">
+                                    @if($hasContainers)
+                                        <div>
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                                <i class="fa-solid fa-box text-[10px]"></i> Kontainer ({{ $ord->containers->count() }})
+                                            </span>
+                                            <div class="text-[11px] text-slate-500 font-medium truncate max-w-[140px] mt-0.5" title="{{ $ord->containers->pluck('container_number')->filter()->implode(', ') }}">
+                                                {{ $ord->containers->first()->container_size }} {{ $ord->containers->first()->container_type }}
+                                                @if($ord->containers->count() > 1) <span class="text-slate-400">+{{ $ord->containers->count() - 1 }}</span> @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if($isCargo)
+                                        <div>
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                <i class="fa-solid fa-boxes-packing text-[10px]"></i> Cargo
+                                            </span>
+                                            <div class="text-[11px] text-slate-500 font-medium truncate max-w-[140px] mt-0.5" title="{{ $ord->jenis_barang }}">
+                                                {{ $ord->jenis_barang ?: 'General Cargo' }}
+                                                @if($ord->jumlah_tonase) <span class="text-amber-600 font-bold">({{ str_replace('.', ',', (float)$ord->jumlah_tonase) }} T)</span> @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </td>
+
                             <td class="py-4 px-6">
                                 <div class="text-slate-800 font-medium">{{ $ord->wilayah }}</div>
                                 <div class="text-xs text-slate-400">{{ $ord->lokasi_fasilitas }} ({{ $ord->jenis_kegiatan }})</div>

@@ -435,7 +435,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as SupirActionScreenArgs;
     final order = args.order;
-    final isContainerPayload = order.payloadType == 'Container' && order.containers.isNotEmpty;
+    final isContainerPayload = (order.payloadType?.contains('Container') ?? false) && order.containers.isNotEmpty;
     final String actionType = isContainerPayload ? 'DETAIL' : (order.status == 'Masuk' ? 'IN' : 'OUT');
 
     return Scaffold(

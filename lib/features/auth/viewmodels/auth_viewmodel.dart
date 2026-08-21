@@ -9,6 +9,7 @@ class AuthViewModel extends ChangeNotifier {
 
   String _userRole = 'customer'; // 'customer' or 'supir'
   String? _supirType; // e.g., 'Haulage', 'LOLO', 'Penumpukan', 'TKBM'
+  String? _supirWilayah; // e.g., 'Selatan', 'Utara', 'Eximen'
 
   // User Profile Data
   String _fullName = '';
@@ -23,6 +24,7 @@ class AuthViewModel extends ChangeNotifier {
 
   String get userRole => _userRole;
   String? get supirType => _supirType;
+  String? get supirWilayah => _supirWilayah;
 
   String get fullName => _fullName;
   String get email => _email;
@@ -41,6 +43,7 @@ class AuthViewModel extends ChangeNotifier {
       _phone = userData['phone'] ?? '';
       _userRole = userData['role'] ?? 'customer';
       _supirType = userData['supir_type'];
+      _supirWilayah = userData['supir_wilayah'];
       _defaultNamaPt = userData['default_nama_pt'];
       _hasDefaultAsuransi = userData['has_default_asuransi'] == true || userData['has_default_asuransi'] == 1;
       _isAuthenticated = true;
@@ -66,6 +69,7 @@ class AuthViewModel extends ChangeNotifier {
         _phone = userData['phone'] ?? '';
         _userRole = userData['role'] ?? 'customer';
         _supirType = userData['supir_type'];
+        _supirWilayah = userData['supir_wilayah'];
         _defaultNamaPt = userData['default_nama_pt'];
         _hasDefaultAsuransi = userData['has_default_asuransi'] == true || userData['has_default_asuransi'] == 1;
 
@@ -112,6 +116,7 @@ class AuthViewModel extends ChangeNotifier {
         _phone = userData['phone'] ?? phone;
         _userRole = userData['role'] ?? 'customer'; // Default for new registration
         _supirType = userData['supir_type'];
+        _supirWilayah = userData['supir_wilayah'];
         _isAuthenticated = true;
         _isLoading = false;
         notifyListeners();
@@ -135,6 +140,7 @@ class AuthViewModel extends ChangeNotifier {
     _isAuthenticated = false;
     _userRole = 'customer';
     _supirType = null;
+    _supirWilayah = null;
     _fullName = '';
     _email = '';
     _phone = '';

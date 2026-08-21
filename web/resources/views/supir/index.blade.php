@@ -72,6 +72,11 @@
                                     {{ $s->supir_type == 'TKBM' ? 'bg-teal-100 text-teal-700 border border-teal-200' : '' }}">
                                     {{ $s->supir_type }}
                                 </span>
+                                @if($s->supir_wilayah)
+                                    <span class="ms-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                        {{ $s->supir_wilayah }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-4 px-6 text-slate-600 font-medium">{{ $s->phone ?? '-' }}</td>
                             <td class="py-4 px-6 text-xs text-slate-500">
@@ -123,12 +128,12 @@
             @csrf
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap *</label>
-                <input type="text" name="name" required placeholder="Supir Haulage 1" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <input type="text" name="name" required placeholder="Koordinator TKBM Selatan" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Email Login Mobile App *</label>
-                <input type="email" name="email" required placeholder="petugas_lapangan@bkj.com" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <input type="email" name="email" required placeholder="koordinator_tkbm_selatan@bkj.com" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 
             <div>
@@ -138,6 +143,16 @@
                     <option value="LOLO">LOLO</option>
                     <option value="Penumpukan">Penumpukan</option>
                     <option value="TKBM">TKBM</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Wilayah Operasional (Khusus TKBM)</label>
+                <select name="supir_wilayah" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <option value="">-- Semua / Non-TKBM --</option>
+                    <option value="Selatan">Selatan</option>
+                    <option value="Utara">Utara</option>
+                    <option value="Eximen">Eximen</option>
                 </select>
             </div>
 
@@ -198,6 +213,16 @@
             </div>
 
             <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Wilayah Operasional (Khusus TKBM)</label>
+                <select id="editSupirWilayah" name="supir_wilayah" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <option value="">-- Semua / Non-TKBM --</option>
+                    <option value="Selatan">Selatan</option>
+                    <option value="Utara">Utara</option>
+                    <option value="Eximen">Eximen</option>
+                </select>
+            </div>
+
+            <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">No. Telepon / WhatsApp *</label>
                 <input type="text" id="editSupirPhone" name="phone" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
@@ -225,6 +250,7 @@
         document.getElementById('editSupirName').value = s.name;
         document.getElementById('editSupirEmail').value = s.email;
         document.getElementById('editSupirType').value = s.supir_type;
+        document.getElementById('editSupirWilayah').value = s.supir_wilayah || '';
         document.getElementById('editSupirPhone').value = s.phone || '';
         document.getElementById('modalEditSupir').classList.remove('hidden');
     }

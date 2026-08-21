@@ -2,39 +2,92 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <title>Laporan Dashboard - BKJ</title>
     <style>
+        @page {
+            size: a4 landscape;
+            margin: 12px 15px 15px 15px;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 10px; color: #1e293b; background: #fff; }
-        .header { border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 14px; }
-        .header h1 { font-size: 16px; font-weight: bold; color: #1e3a8a; }
-        .header .meta { font-size: 9px; color: #64748b; margin-top: 4px; }
-        .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-        .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: bold; border: 1px solid #cbd5e1; background: #f1f5f9; color: #475569; }
+        body { font-family: 'DejaVu Sans', Helvetica, Arial, sans-serif; font-size: 7.5px; color: #0f172a; background: #fff; line-height: 1.2; }
+        
+        .header { border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; margin-bottom: 8px; }
+        .header h1 { font-size: 13px; font-weight: bold; color: #1e3a8a; text-transform: uppercase; }
+        .header .meta { font-size: 8px; color: #64748b; margin-top: 2px; }
+        
+        .filter-chips { margin-bottom: 8px; }
+        .chip { display: inline-block; padding: 1.5px 6px; border-radius: 999px; font-size: 7.5px; font-weight: bold; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; margin-right: 4px; margin-bottom: 2px; }
         .chip.status { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
         .chip.layanan { background: #d1fae5; border-color: #6ee7b7; color: #065f46; }
         .chip.date { background: #fef9c3; border-color: #fde047; color: #713f12; }
-        table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-        thead { background: #1e3a8a; color: white; }
-        thead th { padding: 7px 8px; font-size: 9px; font-weight: bold; text-align: left; letter-spacing: 0.04em; text-transform: uppercase; }
-        tbody tr { border-bottom: 1px solid #e2e8f0; }
-        tbody tr:nth-child(even) { background: #f8fafc; }
-        tbody td { padding: 6px 8px; vertical-align: top; font-size: 9px; }
-        .badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 8px; font-weight: bold; }
-        .badge-in { background: #dbeafe; color: #1d4ed8; }
-        .badge-out { background: #fef3c7; color: #b45309; }
-        .badge-done { background: #d1fae5; color: #065f46; }
-        .badge-masuk { background: #f1f5f9; color: #475569; }
-        .badge-invoiced { background: #d1fae5; color: #065f46; }
-        .badge-not-invoiced { background: #fee2e2; color: #b91c1c; }
-        .footer { margin-top: 20px; font-size: 8px; color: #94a3b8; text-align: right; border-top: 1px solid #e2e8f0; padding-top: 8px; }
-        .no-data { text-align: center; padding: 20px; color: #94a3b8; font-style: italic; }
+        
+        .section-title {
+            font-size: 9.5px;
+            font-weight: bold;
+            color: #1e3a8a;
+            background: #f1f5f9;
+            border-left: 3px solid #1e3a8a;
+            padding: 3px 6px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+        table.data-table th, table.data-table td {
+            border: 0.5px solid #94a3b8;
+            padding: 3.5px 3px;
+            font-size: 7px;
+            vertical-align: middle;
+        }
+        table.data-table thead tr:first-child th {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: center;
+        }
+        table.data-table thead tr:nth-child(2) th {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: center;
+        }
+        table.data-table thead tr:nth-child(3) th {
+            background-color: #3b82f6;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: center;
+            font-size: 6.5px;
+        }
+        table.data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-size: 6.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-done { background: #dcfce7; color: #166534; border: 0.5px solid #86efac; }
+        .badge-pending { background: #fee2e2; color: #991b1b; border: 0.5px solid #fca5a5; }
+        .badge-info { background: #dbeafe; color: #1e40af; border: 0.5px solid #93c5fd; }
+        
+        .footer { margin-top: 10px; font-size: 7px; color: #94a3b8; text-align: right; border-top: 0.5px solid #e2e8f0; padding-top: 4px; }
+        .no-data { text-align: center; padding: 10px; color: #94a3b8; font-style: italic; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Laporan Dashboard — Berkah Karya Jasatama</h1>
+        <h1>Laporan Operasional & Progress Layanan — PT. Berkah Karya Jasatama</h1>
         <div class="meta">
-            Dicetak oleh: {{ $adminUser }} &nbsp;|&nbsp; {{ $tanggalCetak }} &nbsp;|&nbsp; Periode: {{ $periodeText }}
+            Dicetak oleh: <strong>{{ $adminUser }}</strong> &nbsp;|&nbsp; Waktu Cetak: <strong>{{ $tanggalCetak }}</strong> &nbsp;|&nbsp; Periode: <strong>{{ $periodeText }}</strong>
         </div>
     </div>
 
@@ -45,94 +98,242 @@
         @if(!empty($search))
             <span class="chip">Pencarian: "{{ $search }}"</span>
         @endif
-        <span class="chip">Total: {{ $orders->count() }} order</span>
+        <span class="chip">Total Order: {{ $orders->count() }}</span>
     </div>
 
-    <table>
+    @php
+        $containerOrders = $orders->filter(fn($o) => $o->containers->isNotEmpty());
+        $cargoOrders = $orders->filter(fn($o) => str_contains(strtolower($o->payload_type), 'cargo') || $o->containers->isEmpty());
+    @endphp
+
+    <!-- 1. REKAPITULASI LAYANAN KONTAINER -->
+    <div class="section-title">
+        1. Rekapitulasi Layanan Kontainer (Haulage, LOLO, Penumpukan, TKBM)
+    </div>
+
+    <table class="data-table">
         <thead>
             <tr>
-                <th style="width:3%">No</th>
-                <th style="width:12%">No. Order</th>
-                <th style="width:15%">Nama PT</th>
-                <th style="width:12%">No. Container</th>
-                <th style="width:10%">Ukuran/Tipe</th>
-                <th style="width:10%">Layanan</th>
-                <th style="width:8%">Status</th>
-                <th style="width:10%">Waktu</th>
-                <th style="width:10%">Catatan</th>
-                <th style="width:10%">Invoice</th>
+                <th rowspan="3" style="width: 2%;">No</th>
+                <th rowspan="3" style="width: 8%;">No Order</th>
+                <th rowspan="3" style="width: 11%;">Nama PT</th>
+                <th rowspan="3" style="width: 9%;">No Container</th>
+                <th rowspan="3" style="width: 7%;">Ukuran / Tipe</th>
+                <th colspan="8" style="text-align: center;">Layanan & Progress Waktu Lapangan</th>
+                <th rowspan="3" style="width: 8%;">Catatan</th>
+                <th rowspan="3" style="width: 7%;">Status Invoice</th>
+                <th rowspan="3" style="width: 7%;">Status PNBP</th>
+            </tr>
+            <tr>
+                <th colspan="2" style="width: 10%;">Haulage</th>
+                <th colspan="2" style="width: 10%;">LOLO</th>
+                <th colspan="2" style="width: 10%;">Penumpukan</th>
+                <th colspan="2" style="width: 10%;">TKBM</th>
+            </tr>
+            <tr>
+                <th style="width: 5%;">IN</th>
+                <th style="width: 5%;">OUT</th>
+                <th style="width: 5%;">IN</th>
+                <th style="width: 5%;">OUT</th>
+                <th style="width: 5%;">IN</th>
+                <th style="width: 5%;">OUT</th>
+                <th style="width: 5%;">IN</th>
+                <th style="width: 5%;">OUT</th>
             </tr>
         </thead>
         <tbody>
-            @php $rowNo = 1; @endphp
-            @forelse($orders as $ord)
+            @php $cRow = 1; @endphp
+            @forelse($containerOrders as $ord)
                 @foreach($ord->containers as $c)
-                    @foreach($c->progresses as $prog)
-                        @php
-                            $st = $prog->subTask;
-                            if (!$st) continue;
-                            if ($activeStatus && $activeStatus != 'Semua Status' && $st->status != $activeStatus) continue;
-                            if ($activeLayanan && $activeLayanan != 'Semua Layanan' && $st->service_type != $activeLayanan) continue;
+                    @php
+                        // Fetch progresses per service for this container
+                        $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
+                        $pLolo = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
+                        $pPenumpukan = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Penumpukan') === 0);
+                        $pTkbm = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'TKBM') === 0);
 
-                            $waktu = '-';
-                            $catatan = '-';
-                            if ($st->status == 'In') {
-                                $waktu = $prog->in_time ? \Carbon\Carbon::parse($prog->in_time)->format('d/m/Y H:i') : '-';
-                                $catatan = $prog->in_note ?: '-';
-                            } elseif ($st->status == 'Out') {
-                                $waktu = $prog->out_time ? \Carbon\Carbon::parse($prog->out_time)->format('d/m/Y H:i') : '-';
-                                $catatan = $prog->out_note ?: '-';
-                            } elseif ($st->status == 'Done') {
-                                $waktu = $prog->done_time ? \Carbon\Carbon::parse($prog->done_time)->format('d/m/Y H:i') : '-';
-                                $catatan = $prog->done_note ?: '-';
-                            }
-                        @endphp
-                        <tr>
-                            <td>{{ $rowNo++ }}</td>
-                            <td><strong>{{ $ord->order_number }}</strong></td>
-                            <td>{{ $ord->nama_pt }}</td>
-                            <td>{{ $c->container_number ?: 'No-ID' }}</td>
-                            <td>{{ $c->container_size }} / {{ $c->container_type }}</td>
-                            <td>{{ $st->service_type }}</td>
-                            <td>
-                                <span class="badge
-                                    {{ $st->status == 'In' ? 'badge-in' : '' }}
-                                    {{ $st->status == 'Out' ? 'badge-out' : '' }}
-                                    {{ $st->status == 'Done' ? 'badge-done' : '' }}
-                                    {{ $st->status == 'Masuk' ? 'badge-masuk' : '' }}">
-                                    {{ $st->status }}
-                                </span>
-                            </td>
-                            <td>{{ $waktu }}</td>
-                            <td>{{ Str::limit($catatan, 30) }}</td>
-                            <td>
-                                @if($prog->is_invoiced)
-                                    <span class="badge badge-invoiced">✓ Terbit</span>
-                                    @if($prog->invoice_number)
-                                        <br><small style="color:#64748b">{{ $prog->invoice_number }}</small>
-                                    @endif
-                                @else
-                                    <span class="badge badge-not-invoiced">✗ Belum</span>
+                        $haulageIn = $pHaulage && $pHaulage->in_time ? \Carbon\Carbon::parse($pHaulage->in_time)->format('d/m/y H:i') : ($pHaulage && $pHaulage->in_photo_path ? '✓' : '-');
+                        $haulageOut = $pHaulage && $pHaulage->out_time ? \Carbon\Carbon::parse($pHaulage->out_time)->format('d/m/y H:i') : ($pHaulage && $pHaulage->out_photo_path ? '✓' : '-');
+
+                        $loloIn = $pLolo && $pLolo->in_time ? \Carbon\Carbon::parse($pLolo->in_time)->format('d/m/y H:i') : ($pLolo && $pLolo->in_photo_path ? '✓' : '-');
+                        $loloOut = $pLolo && $pLolo->out_time ? \Carbon\Carbon::parse($pLolo->out_time)->format('d/m/y H:i') : ($pLolo && $pLolo->out_photo_path ? '✓' : '-');
+
+                        $penumpukanIn = $pPenumpukan && $pPenumpukan->in_time ? \Carbon\Carbon::parse($pPenumpukan->in_time)->format('d/m/y H:i') : ($pPenumpukan && $pPenumpukan->in_photo_path ? '✓' : '-');
+                        $penumpukanOut = $pPenumpukan && $pPenumpukan->out_time ? \Carbon\Carbon::parse($pPenumpukan->out_time)->format('d/m/y H:i') : ($pPenumpukan && $pPenumpukan->out_photo_path ? '✓' : '-');
+
+                        $tkbmIn = $pTkbm && $pTkbm->in_time ? \Carbon\Carbon::parse($pTkbm->in_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->in_photo_path ? '✓' : '-');
+                        $tkbmOut = $pTkbm && $pTkbm->out_time ? \Carbon\Carbon::parse($pTkbm->out_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->out_photo_path ? '✓' : '-');
+
+                        // Notes combined
+                        $notes = $c->progresses->pluck('in_note')->merge($c->progresses->pluck('out_note'))->merge($c->progresses->pluck('done_note'))->filter()->unique()->implode('; ');
+
+                        // Invoice Status
+                        $isInvoiced = $c->progresses->contains('is_invoiced', true);
+                        $invNumbers = $c->progresses->where('is_invoiced', true)->pluck('invoice_number')->filter()->unique()->implode(', ');
+
+                        // PNBP Status
+                        $isPnbp = (bool) $c->is_pnbp;
+                        $pnbpNum = $c->pnbp_number;
+                    @endphp
+                    <tr>
+                        <td style="text-align: center;">{{ $cRow++ }}</td>
+                        <td><strong>{{ $ord->order_number }}</strong></td>
+                        <td>{{ $ord->nama_pt }}</td>
+                        <td><strong>{{ $c->container_number ?: 'Tanpa No' }}</strong></td>
+                        <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
+                        
+                        <!-- Haulage IN/OUT -->
+                        <td style="text-align: center;">{{ $haulageIn }}</td>
+                        <td style="text-align: center;">{{ $haulageOut }}</td>
+                        
+                        <!-- LOLO IN/OUT -->
+                        <td style="text-align: center;">{{ $loloIn }}</td>
+                        <td style="text-align: center;">{{ $loloOut }}</td>
+
+                        <!-- Penumpukan IN/OUT -->
+                        <td style="text-align: center;">{{ $penumpukanIn }}</td>
+                        <td style="text-align: center;">{{ $penumpukanOut }}</td>
+
+                        <!-- TKBM IN/OUT -->
+                        <td style="text-align: center;">{{ $tkbmIn }}</td>
+                        <td style="text-align: center;">{{ $tkbmOut }}</td>
+
+                        <!-- Catatan -->
+                        <td>{{ $notes ? \Illuminate\Support\Str::limit($notes, 35) : '-' }}</td>
+
+                        <!-- Status Invoice -->
+                        <td style="text-align: center;">
+                            @if($isInvoiced)
+                                <span class="badge badge-done">✓ Terbit</span>
+                                @if($invNumbers)
+                                    <div style="font-size: 6px; color: #1e40af; margin-top: 1px;">{{ $invNumbers }}</div>
                                 @endif
-                            </td>
-                        </tr>
-                    @endforeach
+                            @else
+                                <span class="badge badge-pending">✗ Belum</span>
+                            @endif
+                        </td>
+
+                        <!-- Status PNBP -->
+                        <td style="text-align: center;">
+                            @if($isPnbp)
+                                <span class="badge badge-done">✓ Selesai</span>
+                                @if($pnbpNum)
+                                    <div style="font-size: 6px; color: #15803d; margin-top: 1px;">{{ $pnbpNum }}</div>
+                                @endif
+                            @else
+                                <span class="badge badge-pending">✗ Belum</span>
+                            @endif
+                        </td>
+                    </tr>
                 @endforeach
             @empty
                 <tr>
-                    <td colspan="10" class="no-data">Tidak ada data untuk filter yang dipilih.</td>
+                    <td colspan="16" class="no-data">Tidak ada data order kontainer pada laporan ini.</td>
                 </tr>
             @endforelse
-            @if($rowNo == 1 && $orders->isNotEmpty())
+        </tbody>
+    </table>
+
+    <!-- 2. REKAPITULASI LAYANAN CARGO -->
+    <div class="section-title" style="margin-top: 14px;">
+        2. Rekapitulasi Layanan Cargo (Muatan Bebas / General Cargo)
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th rowspan="3" style="width: 2%;">No</th>
+                <th rowspan="3" style="width: 7%;">No Order</th>
+                <th rowspan="3" style="width: 9%;">Nama PT</th>
+                <th rowspan="3" style="width: 7%;">Jenis Barang</th>
+                <th rowspan="3" style="width: 5%;">Jml Barang</th>
+                <th rowspan="3" style="width: 5%;">Tonase</th>
+                <th rowspan="3" style="width: 6%;">No BL</th>
+                <th rowspan="3" style="width: 7%;">Vessel</th>
+                <th rowspan="3" style="width: 5%;">Voyage</th>
+                <th rowspan="3" style="width: 6%;">No Surat Jalan</th>
+                <th rowspan="3" style="width: 5%;">No BP</th>
+                <th colspan="4" style="text-align: center;">Progress Waktu Lapangan</th>
+                <th rowspan="3" style="width: 8%;">Catatan</th>
+                <th rowspan="3" style="width: 6%;">Invoice</th>
+                <th rowspan="3" style="width: 6%;">PNBP</th>
+            </tr>
+            <tr>
+                <th colspan="2" style="width: 7%;">Waktu IN</th>
+                <th colspan="2" style="width: 7%;">Waktu OUT / Selesai</th>
+            </tr>
+            <tr>
+                <th colspan="2">Tgl & Jam IN</th>
+                <th colspan="2">Tgl & Jam OUT</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php $gRow = 1; @endphp
+            @forelse($cargoOrders as $ord)
+                @php
+                    $inTimes = $ord->subTasks->pluck('in_time')->filter();
+                    $outTimes = $ord->subTasks->pluck('out_time')->filter();
+                    $doneTimes = $ord->subTasks->pluck('done_time')->filter();
+
+                    $earliestIn = $inTimes->isNotEmpty() ? \Carbon\Carbon::parse($inTimes->min())->format('d/m/y H:i') : '-';
+                    $latestOut = $outTimes->isNotEmpty() ? \Carbon\Carbon::parse($outTimes->max())->format('d/m/y H:i') : ($doneTimes->isNotEmpty() ? \Carbon\Carbon::parse($doneTimes->max())->format('d/m/y H:i') : '-');
+
+                    $notesCargo = $ord->subTasks->pluck('in_note')->merge($ord->subTasks->pluck('out_note'))->merge($ord->subTasks->pluck('done_note'))->filter()->unique()->implode('; ');
+                @endphp
                 <tr>
-                    <td colspan="10" class="no-data">Tidak ada kontainer yang sesuai dengan filter spesifik (Layanan/Status).</td>
+                    <td style="text-align: center;">{{ $gRow++ }}</td>
+                    <td><strong>{{ $ord->order_number }}</strong></td>
+                    <td>{{ $ord->nama_pt }}</td>
+                    <td>{{ $ord->jenis_barang ?: 'General Cargo' }}</td>
+                    <td>{{ $ord->jumlah_barang ?: '-' }}</td>
+                    <td>{{ $ord->jumlah_tonase ? str_replace('.', ',', (float)$ord->jumlah_tonase) . ' T' : '-' }}</td>
+                    <td>{{ $ord->nomor_bl ?: '-' }}</td>
+                    <td>{{ $ord->vessel ?: '-' }}</td>
+                    <td>{{ $ord->voyage ?: '-' }}</td>
+                    <td>{{ $ord->no_surat_jalan ?: '-' }}</td>
+                    <td>{{ $ord->no_bp ?: '-' }}</td>
+                    
+                    <!-- Waktu IN & OUT Cargo -->
+                    <td colspan="2" style="text-align: center;">{{ $earliestIn }}</td>
+                    <td colspan="2" style="text-align: center;">{{ $latestOut }}</td>
+
+                    <!-- Catatan -->
+                    <td>{{ $notesCargo ? \Illuminate\Support\Str::limit($notesCargo, 30) : ($ord->pnbp_note ? \Illuminate\Support\Str::limit($ord->pnbp_note, 30) : '-') }}</td>
+
+                    <!-- Invoice -->
+                    <td style="text-align: center;">
+                        @if($ord->is_invoiced)
+                            <span class="badge badge-done">✓ Terbit</span>
+                            @if($ord->invoice_number)
+                                <div style="font-size: 6px; color: #1e40af; margin-top: 1px;">{{ $ord->invoice_number }}</div>
+                            @endif
+                        @else
+                            <span class="badge badge-pending">✗ Belum</span>
+                        @endif
+                    </td>
+
+                    <!-- PNBP -->
+                    <td style="text-align: center;">
+                        @if($ord->is_pnbp)
+                            <span class="badge badge-done">✓ Selesai</span>
+                            @if($ord->pnbp_number)
+                                <div style="font-size: 6px; color: #15803d; margin-top: 1px;">{{ $ord->pnbp_number }}</div>
+                            @endif
+                        @else
+                            <span class="badge badge-pending">✗ Belum</span>
+                        @endif
+                    </td>
                 </tr>
-            @endif
+            @empty
+                <tr>
+                    <td colspan="16" class="no-data">Tidak ada data order muatan cargo pada laporan ini.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        Dashboard Export PDF — {{ $tanggalCetak }} — Sistem Manajemen Operasional BKJ
+        Laporan Rekapitulasi Operasional Dashboard &bull; Dicetak Otomatis oleh Sistem BKJ pada {{ $tanggalCetak }}
     </div>
 </body>
 </html>

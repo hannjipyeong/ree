@@ -18,11 +18,17 @@ class OrderContainer extends Model
         'additional_services',
         'is_cancelled',
         'sp3kk_file_path',
+        'is_pnbp',
+        'pnbp_number',
+        'pnbp_note',
+        'pnbp_completed_at',
     ];
 
     protected $casts = [
         'additional_services' => 'array',
         'is_cancelled' => 'boolean',
+        'is_pnbp' => 'boolean',
+        'pnbp_completed_at' => 'datetime',
     ];
 
     protected $appends = ['sp3kk_file_url'];

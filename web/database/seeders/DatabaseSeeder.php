@@ -132,13 +132,34 @@ class DatabaseSeeder extends Seeder
             'supir_type' => 'Penumpukan',
         ]);
 
-        $supirTbkm1 = User::create([
-            'name' => 'Koordinator TKBM Utama',
-            'email' => 'koordinator_tkbm@bkj.com',
+        $supirTbkmSelatan = User::create([
+            'name' => 'Koordinator TKBM Selatan',
+            'email' => 'koordinator_tkbm_selatan@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001104',
             'role' => 'supir',
             'supir_type' => 'TKBM',
+            'supir_wilayah' => 'Selatan',
+        ]);
+
+        $supirTbkmUtara = User::create([
+            'name' => 'Koordinator TKBM Utara',
+            'email' => 'koordinator_tkbm_utara@bkj.com',
+            'password' => Hash::make('password'),
+            'phone' => '081299001107',
+            'role' => 'supir',
+            'supir_type' => 'TKBM',
+            'supir_wilayah' => 'Utara',
+        ]);
+
+        $supirTbkmEximen = User::create([
+            'name' => 'Koordinator TKBM Eximen',
+            'email' => 'koordinator_tkbm_eximen@bkj.com',
+            'password' => Hash::make('password'),
+            'phone' => '081299001108',
+            'role' => 'supir',
+            'supir_type' => 'TKBM',
+            'supir_wilayah' => 'Eximen',
         ]);
 
         // 4. Sample Orders & Sub-Tasks
@@ -228,7 +249,7 @@ class DatabaseSeeder extends Seeder
             'task_number' => 'REQ-1002-TBK',
             'order_id' => $order2->id,
             'service_type' => 'TKBM',
-            'supir_id' => $supirTbkm1->id,
+            'supir_id' => $supirTbkmEximen->id,
             'status' => 'Masuk',
         ]);
 
@@ -339,7 +360,7 @@ class DatabaseSeeder extends Seeder
             'task_number' => 'REQ-1005-TBK',
             'order_id' => $order5->id,
             'service_type' => 'TKBM',
-            'supir_id' => $supirTbkm1->id,
+            'supir_id' => $supirTbkmEximen->id,
             'status' => 'Done',
             'in_note' => 'Bongkar muat Man Power selesai tepat waktu',
         ]);
@@ -353,7 +374,7 @@ class DatabaseSeeder extends Seeder
             'nama_pt' => 'PT. Jaya Mandiri Logistik',
             'nama_pbm' => 'PT. Bintang Kepri Jaya',
             'no_telp' => '081198765432',
-            'wilayah' => 'Batu Ampar',
+            'wilayah' => 'Selatan',
             'lokasi_fasilitas' => 'gudang',
             'jenis_kegiatan' => 'penumpukan',
             'payload_type' => 'Cargo',
@@ -381,7 +402,7 @@ class DatabaseSeeder extends Seeder
             'task_number' => 'REQ-1006-TBK',
             'order_id' => $order6->id,
             'service_type' => 'TKBM',
-            'supir_id' => $supirTbkm1->id,
+            'supir_id' => $supirTbkmSelatan->id,
             'status' => 'Masuk',
         ]);
 
@@ -394,9 +415,9 @@ class DatabaseSeeder extends Seeder
             'nama_pt' => 'PT. Berkah Samudera Abadi',
             'nama_pbm' => 'PBM Bahari Mandiri',
             'no_telp' => '081288776655',
-            'wilayah' => 'Batu Ampar',
-            'lokasi_fasilitas' => 'CFS',
-            'jenis_kegiatan' => 'stripping / staffing',
+            'wilayah' => 'Utara',
+            'lokasi_fasilitas' => 'TPFT',
+            'jenis_kegiatan' => 'Inspeksi',
             'payload_type' => 'Cargo',
             'jenis_barang' => 'Tekstil & Garment Ekspor',
             'jumlah_tonase' => 14.2,
@@ -412,7 +433,7 @@ class DatabaseSeeder extends Seeder
             'task_number' => 'REQ-1007-TBK',
             'order_id' => $order7->id,
             'service_type' => 'TKBM',
-            'supir_id' => $supirTbkm1->id,
+            'supir_id' => $supirTbkmUtara->id,
             'status' => 'Masuk',
         ]);
         // Loop through all SubTasks and create container progress if the order has containers

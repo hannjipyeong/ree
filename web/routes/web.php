@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::get('requests/export-done/pdf', [RequestController::class, 'exportDonePdf'])->name('requests.exportDonePdf');
     Route::get('requests/export-done/excel', [RequestController::class, 'exportDoneExcel'])->name('requests.exportDoneExcel');
     Route::patch('requests/progress/{progress}/toggle-invoice', [RequestController::class, 'toggleInvoice'])->name('requests.progress.toggleInvoice');
+    Route::patch('containers/{container}/toggle-pnbp', [RequestController::class, 'togglePnbp'])->name('containers.togglePnbp');
+    Route::patch('requests/{request}/toggle-pnbp', [RequestController::class, 'toggleOrderPnbp'])->name('requests.togglePnbp');
     Route::resource('requests', RequestController::class);
     Route::post('requests/{request}/update-services', [RequestController::class, 'updateServices'])->name('requests.updateServices');
     Route::get('requests/{request}/containers/{container}', [RequestController::class, 'showContainer'])->name('requests.containers.show');

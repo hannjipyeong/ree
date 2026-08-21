@@ -38,6 +38,7 @@ class SupirController extends Controller
             'phone' => 'required|string',
             'password' => 'required|string|min:6',
             'supir_type' => 'required|in:Haulage,LOLO,Penumpukan,TKBM',
+            'supir_wilayah' => 'nullable|string',
         ]);
 
         User::create([
@@ -47,6 +48,7 @@ class SupirController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => 'supir',
             'supir_type' => $validated['supir_type'],
+            'supir_wilayah' => $validated['supir_wilayah'] ?? null,
         ]);
 
         return redirect()->route('supir.index')->with('success', 'Akun Pelaksana Lapangan berhasil ditambahkan!');
@@ -60,12 +62,14 @@ class SupirController extends Controller
             'phone' => 'required|string',
             'password' => 'nullable|string|min:6',
             'supir_type' => 'required|in:Haulage,LOLO,Penumpukan,TKBM',
+            'supir_wilayah' => 'nullable|string',
         ]);
 
         $supir->name = $validated['name'];
         $supir->email = $validated['email'];
         $supir->phone = $validated['phone'];
         $supir->supir_type = $validated['supir_type'];
+        $supir->supir_wilayah = $validated['supir_wilayah'] ?? null;
         if (!empty($validated['password'])) {
             $supir->password = Hash::make($validated['password']);
         }

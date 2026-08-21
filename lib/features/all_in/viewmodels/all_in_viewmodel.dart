@@ -16,12 +16,18 @@ class AllInViewModel extends ChangeNotifier {
   String? _jenisKegiatan;
 
   // ─── Page 2 State ────────────────────────────────────────────────────────────
-  String _payloadType = AppConstants.payloadContainer;
+  final Set<String> _payloadTypes = {AppConstants.payloadContainer};
   final List<ContainerEntry> _containers = [ContainerEntry()];
   
   // Cargo fields
   String? _jenisBarang;
+  String? _jumlahBarang;
   String? _jumlahTonase;
+  String? _nomorBl;
+  String? _vessel;
+  String? _voyage;
+  String? _noSuratJalan;
+  String? _noBp;
   String? _nomorContainerCargo;
 
   String? _cargoFileName;
@@ -64,12 +70,22 @@ class AllInViewModel extends ChangeNotifier {
   }
 
   // ─── Page 2 Getters ──────────────────────────────────────────────────────────
-  String get payloadType => _payloadType;
+  Set<String> get payloadTypes => Set.unmodifiable(_payloadTypes);
+  String get payloadType => _payloadTypes.isEmpty ? AppConstants.payloadContainer : _payloadTypes.join(',');
+  bool isPayloadSelected(String type) => _payloadTypes.contains(type);
+  bool get hasContainer => _payloadTypes.contains(AppConstants.payloadContainer);
+  bool get hasCargo => _payloadTypes.contains(AppConstants.payloadCargo);
   List<ContainerEntry> get containers => List.unmodifiable(_containers);
   bool get canAddContainer => _containers.length < AppConstants.maxContainers;
   
   String? get jenisBarang => _jenisBarang;
+  String? get jumlahBarang => _jumlahBarang;
   String? get jumlahTonase => _jumlahTonase;
+  String? get nomorBl => _nomorBl;
+  String? get vessel => _vessel;
+  String? get voyage => _voyage;
+  String? get noSuratJalan => _noSuratJalan;
+  String? get noBp => _noBp;
   String? get nomorContainerCargo => _nomorContainerCargo;
 
   String? get cargoFileName => _cargoFileName;
@@ -122,9 +138,18 @@ class AllInViewModel extends ChangeNotifier {
   }
 
   // ─── Page 2 Setters ──────────────────────────────────────────────────────────
+  void togglePayloadType(String type) {
+    if (_payloadTypes.contains(type)) {
+      _payloadTypes.remove(type);
+    } else {
+      _payloadTypes.add(type);
+    }
+    notifyListeners();
+  }
+
   void setPayloadType(String type) {
-    if (_payloadType == type) return;
-    _payloadType = type;
+    _payloadTypes.clear();
+    _payloadTypes.add(type);
     notifyListeners();
   }
 
@@ -147,7 +172,13 @@ class AllInViewModel extends ChangeNotifier {
   }
 
   void setJenisBarang(String value) { _jenisBarang = value; notifyListeners(); }
+  void setJumlahBarang(String value) { _jumlahBarang = value; notifyListeners(); }
   void setJumlahTonase(String value) { _jumlahTonase = value; notifyListeners(); }
+  void setNomorBl(String value) { _nomorBl = value; notifyListeners(); }
+  void setVessel(String value) { _vessel = value; notifyListeners(); }
+  void setVoyage(String value) { _voyage = value; notifyListeners(); }
+  void setNoSuratJalan(String value) { _noSuratJalan = value; notifyListeners(); }
+  void setNoBp(String value) { _noBp = value; notifyListeners(); }
   void setNomorContainerCargo(String value) { _nomorContainerCargo = value; notifyListeners(); }
 
   void setCargoFile({required String name, required String path, Uint8List? bytes}) {
@@ -203,7 +234,7 @@ class AllInViewModel extends ChangeNotifier {
       final servicesToSubmit = _selectedServices.isEmpty ? {'Haulage'} : _selectedServices;
       
       // Convert containers to a list of maps for the API
-      final containerList = _payloadType == AppConstants.payloadContainer 
+      final containerList = hasContainer 
           ? _containers.map((c) => c.toJson()).toList() 
           : null;
 
@@ -215,16 +246,22 @@ class AllInViewModel extends ChangeNotifier {
         wilayah: _wilayah ?? 'Selatan',
         lokasiFasilitas: _lokasiFasilitas ?? 'TPFT',
         jenisKegiatan: _jenisKegiatan ?? 'cek fisik',
-        payloadType: _payloadType,
+        payloadType: payloadType,
         services: servicesToSubmit,
         containers: containerList,
-        jenisBarang: _jenisBarang,
-        jumlahTonase: _jumlahTonase,
-        nomorContainerCargo: _nomorContainerCargo,
-        cargoFilePath: _cargoFilePath,
+        jenisBarang: hasCargo ? _jenisBarang : null,
+        jumlahBarang: hasCargo ? _jumlahBarang : null,
+        jumlahTonase: hasCargo ? _jumlahTonase : null,
+        nomorBl: hasCargo ? _nomorBl : null,
+        vessel: hasCargo ? _vessel : null,
+        voyage: hasCargo ? _voyage : null,
+        noSuratJalan: hasCargo ? _noSuratJalan : null,
+        noBp: hasCargo ? _noBp : null,
+        nomorContainerCargo: hasCargo ? _nomorContainerCargo : null,
+        cargoFilePath: hasCargo ? _cargoFilePath : null,
         haulageFilePath: _haulageFilePath,
-        cargoFileBytes: _cargoFileBytes,
-        cargoFileName: _cargoFileName,
+        cargoFileBytes: hasCargo ? _cargoFileBytes : null,
+        cargoFileName: hasCargo ? _cargoFileName : null,
         haulageFileBytes: _haulageFileBytes,
         haulageFileName: _haulageFileName,
       );
@@ -255,11 +292,18 @@ class AllInViewModel extends ChangeNotifier {
     _noTelp = null;
     _lokasiFasilitas = null;
     _jenisKegiatan = null;
-    _payloadType = AppConstants.payloadContainer;
+    _payloadTypes.clear();
+    _payloadTypes.add(AppConstants.payloadContainer);
     _containers.clear();
     _containers.add(ContainerEntry());
     _jenisBarang = null;
+    _jumlahBarang = null;
     _jumlahTonase = null;
+    _nomorBl = null;
+    _vessel = null;
+    _voyage = null;
+    _noSuratJalan = null;
+    _noBp = null;
     _nomorContainerCargo = null;
     _cargoFileName = null;
     _cargoFilePath = null;

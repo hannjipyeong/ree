@@ -20,6 +20,7 @@ class User extends Authenticatable
         'role',
         'admin_source',
         'supir_type',
+        'supir_wilayah',
         'default_nama_pt',
         'has_default_asuransi',
     ];

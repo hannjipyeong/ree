@@ -37,17 +37,33 @@
                             <i class="fa-solid fa-users-gear text-[10px]"></i> TKBM: {{ $container->tkbm_option ?: $order->tkbm_option }}
                         </span>
                     @endif
+                    @if($container->is_pnbp)
+                        <button type="button" onclick="openPnbpModal()" class="px-3 py-1 bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-200 font-extrabold rounded-lg text-xs border border-emerald-400/50 flex items-center gap-1.5 transition shadow-sm" title="Klik untuk kelola PNBP">
+                            <i class="fa-solid fa-file-invoice-dollar text-[11px]"></i> PNBP: Selesai ({{ $container->pnbp_number ?: 'Terbit' }})
+                        </button>
+                    @else
+                        <button type="button" onclick="openPnbpModal()" class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-xs border border-rose-400/40 flex items-center gap-1.5 transition shadow-sm" title="Klik untuk konfirmasi PNBP">
+                            <i class="fa-solid fa-clock text-[10px]"></i> PNBP: Belum Selesai
+                        </button>
+                    @endif
                 </div>
                 <h2 class="text-3xl font-black tracking-tight text-white mt-2">
                     {{ $container->container_number ?? 'Tanpa Nomor Kontainer' }}
                 </h2>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- PNBP Action Button -->
+                <button type="button" onclick="openPnbpModal()" class="px-4 py-2 {{ $container->is_pnbp ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30' : 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30' }} text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg transition">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>{{ $container->is_pnbp ? 'PNBP: Selesai (Edit)' : 'Check / Konfirmasi PNBP' }}</span>
+                </button>
+
                 <button type="button" onclick="openContainerEditModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-500/30 transition">
                     <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Edit Layanan Kontainer Ini</span>
+                    <span>Edit Layanan Kontainer</span>
                 </button>
+
                 <a href="{{ route('requests.show', $order->id) }}" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur border border-white/20 transition flex items-center gap-2">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span>Kembali</span>
@@ -71,6 +87,46 @@
             <div>
                 <span class="text-slate-400 block text-[10px] font-bold uppercase">Opsi TKBM Khusus</span>
                 <span class="font-bold text-amber-400 text-sm">{{ $container->tkbm_option ?: ($order->tkbm_option ?? 'Standard') }}</span>
+            </div>
+
+            <!-- PNBP Details Block in Header Card -->
+            <div class="col-span-2 md:col-span-4 mt-2 p-3.5 bg-white/5 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl {{ $container->is_pnbp ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/30' : 'bg-slate-700/60 text-slate-400 border border-slate-600/30' }} flex items-center justify-center font-bold text-sm">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white flex items-center gap-2">
+                            <span>Status PNBP Kontainer:</span>
+                            @if($container->is_pnbp)
+                                <span class="text-emerald-400 font-extrabold flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-check text-[11px]"></i> Sudah Selesai / Terbit
+                                </span>
+                                @if($container->pnbp_number)
+                                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-400/30">{{ $container->pnbp_number }}</span>
+                                @endif
+                            @else
+                                <span class="text-rose-400 font-extrabold flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-xmark text-[11px]"></i> Belum Selesai
+                                </span>
+                            @endif
+                        </div>
+                        <div class="text-[11px] text-slate-300 mt-0.5">
+                            @if($container->pnbp_note)
+                                <span class="text-slate-400 font-medium">Notes Submission:</span> <span class="text-white italic">"{{ $container->pnbp_note }}"</span>
+                            @else
+                                <span class="text-slate-500 italic">Belum ada catatan submission PNBP</span>
+                            @endif
+                            @if($container->pnbp_completed_at)
+                                <span class="text-slate-400 ml-2 text-[10px]">(Diverifikasi: {{ $container->pnbp_completed_at->format('d/m/Y H:i') }})</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="openPnbpModal()" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold border border-white/20 transition flex items-center gap-1.5 self-end sm:self-auto shadow-sm">
+                    <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                    <span>Kelola PNBP & Notes</span>
+                </button>
             </div>
         </div>
     </div>
@@ -558,7 +614,141 @@
     </div>
 </div>
 
+<!-- Modal PNBP Check / Uncheck & Notes Submission -->
+<div id="pnbpModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl space-y-0">
+        <!-- Modal Header -->
+        <div class="p-5 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-400 font-bold">
+                    <i class="fa-solid fa-receipt text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-extrabold text-base">Status & Catatan PNBP Kontainer</h4>
+                    <p class="text-xs text-slate-300">{{ $container->container_number ?? 'Tanpa Nomor' }} ({{ $container->container_size }})</p>
+                </div>
+            </div>
+            <button type="button" onclick="closePnbpModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Modal Form -->
+        <form id="pnbpForm" action="{{ route('containers.togglePnbp', $container->id) }}" method="POST" class="p-6 space-y-5">
+            @csrf
+            @method('PATCH')
+
+            <!-- Hidden input for boolean is_pnbp -->
+            <input type="hidden" name="is_pnbp" id="pnbp_is_completed" value="{{ $container->is_pnbp ? '1' : '0' }}">
+
+            <!-- Status PNBP Toggle Selector (Checked vs Unchecked) -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Pilih Status PNBP *</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Option 1: Selesai / Checked -->
+                    <div id="pnbp_opt_done" onclick="selectPnbpStatus(true)" class="p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col items-center justify-center text-center gap-2 {{ $container->is_pnbp ? 'border-emerald-600 bg-emerald-50 text-emerald-800 font-bold shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300' }}">
+                        <div class="w-10 h-10 rounded-full {{ $container->is_pnbp ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400' }} flex items-center justify-center font-black text-lg transition">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-black">PNBP Selesai</div>
+                            <div class="text-[10px] text-slate-400 font-normal mt-0.5">Sudah Terbit / Lunas</div>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: Belum Selesai / Unchecked -->
+                    <div id="pnbp_opt_pending" onclick="selectPnbpStatus(false)" class="p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col items-center justify-center text-center gap-2 {{ !$container->is_pnbp ? 'border-rose-600 bg-rose-50 text-rose-800 font-bold shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300' }}">
+                        <div class="w-10 h-10 rounded-full {{ !$container->is_pnbp ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-400' }} flex items-center justify-center font-black text-lg transition">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-black">Belum Selesai</div>
+                            <div class="text-[10px] text-slate-400 font-normal mt-0.5">Pending / Belum Terbit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nomor PNBP Input -->
+            <div id="pnbp_number_wrap" class="{{ $container->is_pnbp ? '' : 'opacity-60' }} transition">
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    Nomor PNBP / Billing <span class="text-slate-400 font-normal normal-case">(Otomatis dibuat jika kosong)</span>
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs">
+                        <i class="fa-solid fa-hashtag"></i>
+                    </span>
+                    <input type="text" name="pnbp_number" id="pnbp_number_input" value="{{ $container->pnbp_number }}" placeholder="misal: PNBP/{{ date('Ymd') }}/{{ sprintf('%04d', $container->id) }}" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white font-mono">
+                </div>
+            </div>
+
+            <!-- Notes Submission PNBP Input -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    Catatan / Notes Submission PNBP <span class="text-slate-400 font-normal normal-case">(Opsional)</span>
+                </label>
+                <textarea name="pnbp_note" id="pnbp_note_input" rows="3" placeholder="Masukkan catatan atau instruksi submission PNBP kontainer..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white">{{ $container->pnbp_note }}</textarea>
+            </div>
+
+            <!-- Info Bar -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-start gap-2.5">
+                <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
+                <div class="text-[11px] leading-relaxed">
+                    Perubahan status PNBP kontainer dan catatan submission ini akan tersimpan real-time dan tercatat pada riwayat operasional kontainer.
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                <button type="button" onclick="closePnbpModal()" class="px-4 py-2.5 bg-slate-100 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-200 transition">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Simpan Status PNBP</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+    function openPnbpModal() {
+        document.getElementById('pnbpModal').classList.remove('hidden');
+    }
+
+    function closePnbpModal() {
+        document.getElementById('pnbpModal').classList.add('hidden');
+    }
+
+    function selectPnbpStatus(isDone) {
+        document.getElementById('pnbp_is_completed').value = isDone ? '1' : '0';
+        const optDone = document.getElementById('pnbp_opt_done');
+        const optPending = document.getElementById('pnbp_opt_pending');
+        const numWrap = document.getElementById('pnbp_number_wrap');
+
+        const doneIcon = optDone.querySelector('div');
+        const pendingIcon = optPending.querySelector('div');
+
+        if (isDone) {
+            optDone.className = 'p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col items-center justify-center text-center gap-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-bold shadow-sm';
+            doneIcon.className = 'w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-lg transition';
+
+            optPending.className = 'p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col items-center justify-center text-center gap-2 border-slate-200 bg-white text-slate-600 hover:border-slate-300';
+            pendingIcon.className = 'w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-black text-lg transition';
+
+            numWrap.classList.remove('opacity-60');
+        } else {
+            optDone.className = 'p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col items-center justify-center text-center gap-2 border-slate-200 bg-white text-slate-600 hover:border-slate-300';
+            doneIcon.className = 'w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-black text-lg transition';
+
+            optPending.className = 'p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col items-center justify-center text-center gap-2 border-rose-600 bg-rose-50 text-rose-800 font-bold shadow-sm';
+            pendingIcon.className = 'w-10 h-10 rounded-full bg-rose-600 text-white flex items-center justify-center font-black text-lg transition';
+
+            numWrap.classList.add('opacity-60');
+        }
+    }
+
     function openContainerEditModal() {
         document.getElementById('containerEditModal').classList.remove('hidden');
     }

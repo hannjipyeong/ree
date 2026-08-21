@@ -42,6 +42,7 @@ class ApiController extends Controller
                 'phone'                => $user->phone,
                 'role'                 => $user->role,
                 'supir_type'           => $user->supir_type,
+                'supir_wilayah'        => $user->supir_wilayah,
                 'default_nama_pt'      => $user->default_nama_pt,
                 'has_default_asuransi' => (bool) $user->has_default_asuransi,
             ],
@@ -79,6 +80,7 @@ class ApiController extends Controller
                 'phone' => $user->phone,
                 'role' => $user->role,
                 'supir_type' => null,
+                'supir_wilayah' => null,
             ]
         ]);
     }
@@ -101,7 +103,8 @@ class ApiController extends Controller
         $supirType = $request->query('supir_type');
 
         if ($role === 'supir' && $supirType) {
-            $tasks = SubTask::with([
+            $user = $request->user();
+            $query = SubTask::with([
                 'order.containers' => function($q) {
                     $q->where('is_cancelled', false);
                 }, 
@@ -109,9 +112,15 @@ class ApiController extends Controller
                 'containerProgress.container',
                 'order.subTasks.containerProgress'
             ])
-                ->where('service_type', $supirType)
-                ->latest()
-                ->get();
+                ->where('service_type', $supirType);
+
+            if ($user && $user->role === 'supir' && $user->supir_type === 'TKBM' && $user->supir_wilayah) {
+                $query->whereHas('order', function($q) use ($user) {
+                    $q->where('wilayah', $user->supir_wilayah);
+                });
+            }
+
+            $tasks = $query->latest()->get();
 
             return response()->json([
                 'success' => true,
@@ -154,7 +163,13 @@ class ApiController extends Controller
             'containers' => 'nullable', // Array or JSON string
             'tkbm_option' => 'nullable|string',
             'jenis_barang' => 'nullable|string',
+            'jumlah_barang' => 'nullable|string',
             'jumlah_tonase' => 'nullable|numeric',
+            'nomor_bl' => 'nullable|string',
+            'vessel' => 'nullable|string',
+            'voyage' => 'nullable|string',
+            'no_surat_jalan' => 'nullable|string',
+            'no_bp' => 'nullable|string',
             'nomor_container_cargo' => 'nullable|string',
         ]);
 
@@ -192,7 +207,13 @@ class ApiController extends Controller
             'haulage_file_path' => $haulagePath ? Storage::url($haulagePath) : null,
             'tkbm_option' => $request->tkbm_option,
             'jenis_barang' => $request->jenis_barang,
+            'jumlah_barang' => $request->jumlah_barang,
             'jumlah_tonase' => $request->jumlah_tonase,
+            'nomor_bl' => $request->nomor_bl,
+            'vessel' => $request->vessel,
+            'voyage' => $request->voyage,
+            'no_surat_jalan' => $request->no_surat_jalan,
+            'no_bp' => $request->no_bp,
             'nomor_container_cargo' => $request->nomor_container_cargo,
             'has_asuransi' => $hasAsuransi,
             'asuransi_value' => $asuransiValue,
@@ -219,7 +240,23 @@ class ApiController extends Controller
                 $taskCode = strtoupper(substr($service, 0, 3));
                 $taskNumber = 'REQ-' . time() . '-' . rand(10, 99) . '-' . $taskCode;
 
-                $matchingSupir = User::where('role', 'supir')->where('supir_type', $service)->first();
+                if ($service === 'TKBM') {
+                    $matchingSupir = User::where('role', 'supir')
+                        ->where('supir_type', 'TKBM')
+                        ->where('supir_wilayah', $validated['wilayah'])
+                        ->first();
+                    if (!$matchingSupir) {
+                        $matchingSupir = User::where('role', 'supir')
+                            ->where('supir_type', 'TKBM')
+                            ->where(function($q) use ($validated) {
+                                $q->where('name', 'like', '%' . $validated['wilayah'] . '%')
+                                  ->orWhere('email', 'like', '%' . strtolower($validated['wilayah']) . '%');
+                            })
+                            ->first();
+                    }
+                } else {
+                    $matchingSupir = User::where('role', 'supir')->where('supir_type', $service)->first();
+                }
 
                 $newSubTask = SubTask::create([
                     'task_number' => $taskNumber,

@@ -259,7 +259,13 @@ class ApiService {
                 status: task['status'] ?? 'Masuk',
                 payloadType: order['payload_type'] ?? 'Container',
                 jenisBarang: order['jenis_barang'],
+                jumlahBarang: order['jumlah_barang'],
                 jumlahTonase: order['jumlah_tonase']?.toString(),
+                nomorBl: order['nomor_bl'],
+                vessel: order['vessel'],
+                voyage: order['voyage'],
+                noSuratJalan: order['no_surat_jalan'],
+                noBp: order['no_bp'],
                 nomorContainerCargo: order['nomor_container_cargo'],
                 containers: parsedContainers,
                 inNote: task['in_note'],
@@ -279,7 +285,13 @@ class ApiService {
                   status: order['status'] ?? 'Submitted',
                   payloadType: order['payload_type'] ?? 'Container',
                   jenisBarang: order['jenis_barang'],
+                  jumlahBarang: order['jumlah_barang'],
                   jumlahTonase: order['jumlah_tonase']?.toString(),
+                  nomorBl: order['nomor_bl'],
+                  vessel: order['vessel'],
+                  voyage: order['voyage'],
+                  noSuratJalan: order['no_surat_jalan'],
+                  noBp: order['no_bp'],
                   nomorContainerCargo: order['nomor_container_cargo'],
                 ));
               } catch (e) {
@@ -315,7 +327,13 @@ class ApiService {
     required Set<String> services,
     List<Map<String, dynamic>>? containers,
     String? jenisBarang,
+    String? jumlahBarang,
     String? jumlahTonase,
+    String? nomorBl,
+    String? vessel,
+    String? voyage,
+    String? noSuratJalan,
+    String? noBp,
     String? nomorContainerCargo,
     String? cargoFilePath,
     String? haulageFilePath,
@@ -342,7 +360,13 @@ class ApiService {
       request.fields['payload_type'] = payloadType;
       
       if (jenisBarang != null) request.fields['jenis_barang'] = jenisBarang;
+      if (jumlahBarang != null) request.fields['jumlah_barang'] = jumlahBarang;
       if (jumlahTonase != null) request.fields['jumlah_tonase'] = jumlahTonase;
+      if (nomorBl != null) request.fields['nomor_bl'] = nomorBl;
+      if (vessel != null) request.fields['vessel'] = vessel;
+      if (voyage != null) request.fields['voyage'] = voyage;
+      if (noSuratJalan != null) request.fields['no_surat_jalan'] = noSuratJalan;
+      if (noBp != null) request.fields['no_bp'] = noBp;
       if (nomorContainerCargo != null) request.fields['nomor_container_cargo'] = nomorContainerCargo;
       
       // JSON strings for arrays

@@ -66,7 +66,13 @@ class AppOrder {
   
   // Cargo fields
   final String? jenisBarang;
+  final String? jumlahBarang;
   final String? jumlahTonase;
+  final String? nomorBl;
+  final String? vessel;
+  final String? voyage;
+  final String? noSuratJalan;
+  final String? noBp;
   final String? nomorContainerCargo;
 
   AppOrder({
@@ -81,7 +87,13 @@ class AppOrder {
     this.inNote,
     this.outNote,
     this.jenisBarang,
+    this.jumlahBarang,
     this.jumlahTonase,
+    this.nomorBl,
+    this.vessel,
+    this.voyage,
+    this.noSuratJalan,
+    this.noBp,
     this.nomorContainerCargo,
   });
 }

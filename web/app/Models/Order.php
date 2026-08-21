@@ -24,7 +24,13 @@ class Order extends Model
         'jenis_kegiatan',
         'payload_type',
         'jenis_barang',
+        'jumlah_barang',
         'jumlah_tonase',
+        'nomor_bl',
+        'vessel',
+        'voyage',
+        'no_surat_jalan',
+        'no_bp',
         'nomor_container_cargo',
         'cargo_file_path',
         'haulage_file_path',
@@ -35,6 +41,10 @@ class Order extends Model
         'is_invoiced',
         'invoice_number',
         'invoiced_at',
+        'is_pnbp',
+        'pnbp_number',
+        'pnbp_note',
+        'pnbp_completed_at',
     ];
 
     protected $casts = [
@@ -44,6 +54,8 @@ class Order extends Model
         'jumlah_tonase' => 'decimal:2',
         'is_invoiced' => 'boolean',
         'invoiced_at' => 'datetime',
+        'is_pnbp' => 'boolean',
+        'pnbp_completed_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo

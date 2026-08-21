@@ -152,7 +152,23 @@ class RequestController extends Controller
             $taskNumber = 'REQ-' . time() . '-' . rand(10, 99) . '-' . $taskCode;
 
             // Auto assign supir if matching supir exists
-            $matchingSupir = User::where('role', 'supir')->where('supir_type', $service)->first();
+            if ($service === 'TKBM') {
+                $matchingSupir = User::where('role', 'supir')
+                    ->where('supir_type', 'TKBM')
+                    ->where('supir_wilayah', $order->wilayah)
+                    ->first();
+                if (!$matchingSupir) {
+                    $matchingSupir = User::where('role', 'supir')
+                        ->where('supir_type', 'TKBM')
+                        ->where(function($q) use ($order) {
+                            $q->where('name', 'like', '%' . $order->wilayah . '%')
+                              ->orWhere('email', 'like', '%' . strtolower($order->wilayah) . '%');
+                        })
+                        ->first();
+                }
+            } else {
+                $matchingSupir = User::where('role', 'supir')->where('supir_type', $service)->first();
+            }
 
             SubTask::create([
                 'task_number' => $taskNumber,
@@ -220,7 +236,23 @@ class RequestController extends Controller
                     $taskCode = strtoupper(substr($service, 0, 3));
                     $taskNumber = 'REQ-' . time() . '-' . rand(10, 99) . '-' . $taskCode;
 
-                    $matchingSupir = User::where('role', 'supir')->where('supir_type', $service)->first();
+                    if ($service === 'TKBM') {
+                        $matchingSupir = User::where('role', 'supir')
+                            ->where('supir_type', 'TKBM')
+                            ->where('supir_wilayah', $order->wilayah)
+                            ->first();
+                        if (!$matchingSupir) {
+                            $matchingSupir = User::where('role', 'supir')
+                                ->where('supir_type', 'TKBM')
+                                ->where(function($q) use ($order) {
+                                    $q->where('name', 'like', '%' . $order->wilayah . '%')
+                                      ->orWhere('email', 'like', '%' . strtolower($order->wilayah) . '%');
+                                })
+                                ->first();
+                        }
+                    } else {
+                        $matchingSupir = User::where('role', 'supir')->where('supir_type', $service)->first();
+                    }
 
                     SubTask::create([
                         'task_number' => $taskNumber,
@@ -404,7 +436,101 @@ class RequestController extends Controller
         }
 
         return back()->with('success', $msg);
+    }
 
+    public function togglePnbp(Request $req, OrderContainer $container)
+    {
+        $order = $container->order;
+        $this->authorizeOrderAccess($order);
+
+        $validated = $req->validate([
+            'is_pnbp'     => 'nullable',
+            'pnbp_number' => 'nullable|string|max:255',
+            'pnbp_note'   => 'nullable|string',
+        ]);
+
+        if ($req->has('is_pnbp')) {
+            $container->is_pnbp = filter_var($req->input('is_pnbp'), FILTER_VALIDATE_BOOLEAN);
+        } else {
+            $container->is_pnbp = !$container->is_pnbp;
+        }
+
+        if ($container->is_pnbp) {
+            $container->pnbp_number = $req->input('pnbp_number') ?: ($container->pnbp_number ?: ('PNBP/' . date('Ymd') . '/' . sprintf('%04d', $container->id)));
+            $container->pnbp_note = $req->input('pnbp_note') ?: $container->pnbp_note;
+            $container->pnbp_completed_at = $container->pnbp_completed_at ?: now();
+        } else {
+            $container->pnbp_number = null;
+            $container->pnbp_note = $req->input('pnbp_note') ?: null;
+            $container->pnbp_completed_at = null;
+        }
+
+        $container->save();
+
+        $msg = $container->is_pnbp
+            ? 'Status PNBP kontainer berhasil disetujui / terbit (' . $container->pnbp_number . ')!'
+            : 'Status PNBP kontainer berhasil dibatalkan / belum selesai.';
+
+        // Return JSON for AJAX requests
+        if ($req->ajax() || $req->wantsJson() || $req->header('Accept') === 'application/json') {
+            return response()->json([
+                'success'           => true,
+                'message'           => $msg,
+                'is_pnbp'           => $container->is_pnbp,
+                'pnbp_number'       => $container->pnbp_number,
+                'pnbp_note'         => $container->pnbp_note,
+                'pnbp_completed_at' => $container->pnbp_completed_at ? $container->pnbp_completed_at->format('d/m/Y H:i') : null,
+            ]);
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    public function toggleOrderPnbp(Request $req, Order $request)
+    {
+        $this->authorizeOrderAccess($request);
+
+        $validated = $req->validate([
+            'is_pnbp'     => 'nullable',
+            'pnbp_number' => 'nullable|string|max:255',
+            'pnbp_note'   => 'nullable|string',
+        ]);
+
+        if ($req->has('is_pnbp')) {
+            $request->is_pnbp = filter_var($req->input('is_pnbp'), FILTER_VALIDATE_BOOLEAN);
+        } else {
+            $request->is_pnbp = !$request->is_pnbp;
+        }
+
+        if ($request->is_pnbp) {
+            $request->pnbp_number = $req->input('pnbp_number') ?: ($request->pnbp_number ?: ('PNBP/' . date('Ymd') . '/' . sprintf('%04d', $request->id)));
+            $request->pnbp_note = $req->input('pnbp_note') ?: $request->pnbp_note;
+            $request->pnbp_completed_at = $request->pnbp_completed_at ?: now();
+        } else {
+            $request->pnbp_number = null;
+            $request->pnbp_note = $req->input('pnbp_note') ?: null;
+            $request->pnbp_completed_at = null;
+        }
+
+        $request->save();
+
+        $msg = $request->is_pnbp
+            ? 'Status PNBP muatan Cargo berhasil disetujui / terbit (' . $request->pnbp_number . ')!'
+            : 'Status PNBP muatan Cargo berhasil dibatalkan / belum selesai.';
+
+        // Return JSON for AJAX requests
+        if ($req->ajax() || $req->wantsJson() || $req->header('Accept') === 'application/json') {
+            return response()->json([
+                'success'           => true,
+                'message'           => $msg,
+                'is_pnbp'           => $request->is_pnbp,
+                'pnbp_number'       => $request->pnbp_number,
+                'pnbp_note'         => $request->pnbp_note,
+                'pnbp_completed_at' => $request->pnbp_completed_at ? $request->pnbp_completed_at->format('d/m/Y H:i') : null,
+            ]);
+        }
+
+        return back()->with('success', $msg);
     }
 
     public function updateSubTaskStatus(Request $req, SubTask $subTask)
@@ -592,7 +718,6 @@ class RequestController extends Controller
 
         $now = Carbon::now();
         $seqNumber = sprintf('%03d', $order->id);
-        $source = strtoupper($order->source ?: 'ALL IN');
         $romanMonths = [
             1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
             7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
@@ -600,8 +725,8 @@ class RequestController extends Controller
         $romanMonth = $romanMonths[$now->month] ?? 'I';
         $year = $now->year;
 
-        // Nomor surat: nomor/sourcenya/bulan(romawi)/tahun
-        $nomorSurat = "{$seqNumber}/{$source}/{$romanMonth}/{$year}";
+        // Nomor surat: nomor/PBM-PKJ/bulan(romawi)/tahun (contoh: 001/PBM-PKJ/VIII/2026)
+        $nomorSurat = "{$seqNumber}/PBM-PKJ/{$romanMonth}/{$year}";
 
         // Lampiran: "-"
         $lampiran = '-';
@@ -788,64 +913,83 @@ class RequestController extends Controller
 
             // CSV Header Row
             fputcsv($file, [
-                'No',
-                'No. Order',
-                'Tanggal Order',
-                'Modul / Source',
-                'Nama PT / Customer',
-                'Nama PBM',
-                'No. Telepon / PIC',
-                'Wilayah Operasional',
-                'Lokasi Fasilitas',
-                'Jenis Kegiatan',
-                'Payload Type',
-                'Detail Kontainer / Cargo',
-                'Layanan & Tiket SubTask',
-                'Status Lapangan',
-                'Status Invoice',
-                'Nomor Invoice',
-                'Tanggal Invoice Diterbitkan',
+                'No', 'No. Order', 'Nama PT', 'No. Container / Ref Cargo', 'Ukuran / Jenis Barang',
+                'Haulage IN', 'Haulage OUT', 'LOLO IN', 'LOLO OUT',
+                'Penumpukan IN', 'Penumpukan OUT', 'TKBM IN', 'TKBM OUT',
+                'Catatan', 'Status Invoice', 'Status PNBP'
             ]);
 
-            foreach ($orders as $idx => $ord) {
-                // Muatan string
-                if (strtolower($ord->payload_type) === 'cargo') {
-                    $muatan = 'Cargo: ' . ($ord->jenis_barang ?: 'General') . ($ord->jumlah_tonase ? ' (' . $ord->jumlah_tonase . ' Ton)' : '');
+            $rowNo = 1;
+            foreach ($orders as $ord) {
+                if ($ord->containers->isNotEmpty()) {
+                    foreach ($ord->containers as $c) {
+                        $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
+                        $pLolo = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
+                        $pPenumpukan = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Penumpukan') === 0);
+                        $pTkbm = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'TKBM') === 0);
+
+                        $notes = $c->progresses->pluck('in_note')->merge($c->progresses->pluck('out_note'))->merge($c->progresses->pluck('done_note'))->filter()->unique()->implode('; ');
+
+                        $isInvoiced = $c->progresses->contains('is_invoiced', true);
+                        $invStatus = $isInvoiced ? 'Sudah Terbit' : 'Belum';
+                        $invNumber = $c->progresses->where('is_invoiced', true)->pluck('invoice_number')->filter()->unique()->implode(', ');
+                        if ($invNumber) $invStatus .= " ({$invNumber})";
+
+                        $pnbpStatus = $c->is_pnbp ? 'Selesai' : 'Belum';
+                        if ($c->pnbp_number) $pnbpStatus .= " ({$c->pnbp_number})";
+
+                        fputcsv($file, [
+                            $rowNo++,
+                            $ord->order_number,
+                            $ord->nama_pt,
+                            $c->container_number ?: 'Tanpa No',
+                            $c->container_size . ' (' . $c->container_type . ')',
+                            $pHaulage && $pHaulage->in_time ? \Carbon\Carbon::parse($pHaulage->in_time)->format('d/m/Y H:i') : '-',
+                            $pHaulage && $pHaulage->out_time ? \Carbon\Carbon::parse($pHaulage->out_time)->format('d/m/Y H:i') : '-',
+                            $pLolo && $pLolo->in_time ? \Carbon\Carbon::parse($pLolo->in_time)->format('d/m/Y H:i') : '-',
+                            $pLolo && $pLolo->out_time ? \Carbon\Carbon::parse($pLolo->out_time)->format('d/m/Y H:i') : '-',
+                            $pPenumpukan && $pPenumpukan->in_time ? \Carbon\Carbon::parse($pPenumpukan->in_time)->format('d/m/Y H:i') : '-',
+                            $pPenumpukan && $pPenumpukan->out_time ? \Carbon\Carbon::parse($pPenumpukan->out_time)->format('d/m/Y H:i') : '-',
+                            $pTkbm && $pTkbm->in_time ? \Carbon\Carbon::parse($pTkbm->in_time)->format('d/m/Y H:i') : '-',
+                            $pTkbm && $pTkbm->out_time ? \Carbon\Carbon::parse($pTkbm->out_time)->format('d/m/Y H:i') : '-',
+                            $notes ?: '-',
+                            $invStatus,
+                            $pnbpStatus
+                        ]);
+                    }
                 } else {
-                    $containerNums = $ord->containers->pluck('container_number')->filter()->implode(', ');
-                    $muatan = 'Container (' . $ord->containers->count() . '): ' . ($containerNums ?: 'Tanpa nomor');
-                }
+                    $stHaulage = $ord->subTasks->firstWhere('service_type', 'Haulage');
+                    $stLolo = $ord->subTasks->firstWhere('service_type', 'LOLO');
+                    $stPenumpukan = $ord->subTasks->firstWhere('service_type', 'Penumpukan');
+                    $stTkbm = $ord->subTasks->firstWhere('service_type', 'TKBM');
 
-                // Layanan string
-                $subTaskList = [];
-                foreach ($ord->subTasks as $st) {
-                    $supirName = $st->supir ? ' [' . $st->supir->name . ']' : '';
-                    $subTaskList[] = "{$st->service_type}: {$st->status}{$supirName}";
-                }
-                if ($ord->has_asuransi) {
-                    $subTaskList[] = 'Asuransi Cargo' . ($ord->asuransi_value ? ' (Rp ' . number_format($ord->asuransi_value, 0, ',', '.') . ')' : '');
-                }
-                $layananStr = implode('; ', $subTaskList);
+                    $notesCargo = $ord->subTasks->pluck('in_note')->merge($ord->subTasks->pluck('out_note'))->merge($ord->subTasks->pluck('done_note'))->filter()->unique()->implode('; ');
 
-                fputcsv($file, [
-                    $idx + 1,
-                    $ord->order_number,
-                    $ord->tanggal_order ? $ord->tanggal_order->format('Y-m-d') : '',
-                    $ord->source,
-                    $ord->nama_pt,
-                    $ord->nama_pbm,
-                    $ord->no_telp,
-                    $ord->wilayah,
-                    $ord->lokasi_fasilitas,
-                    $ord->jenis_kegiatan,
-                    $ord->payload_type,
-                    $muatan,
-                    $layananStr,
-                    $ord->status,
-                    $ord->is_invoiced ? 'Sudah Terbit' : 'Belum Keluar',
-                    $ord->invoice_number ?: '-',
-                    $ord->invoiced_at ? $ord->invoiced_at->format('Y-m-d H:i') : '-',
-                ]);
+                    $invStatus = $ord->is_invoiced ? 'Sudah Terbit' : 'Belum';
+                    if ($ord->invoice_number) $invStatus .= " ({$ord->invoice_number})";
+
+                    $pnbpStatus = $ord->is_pnbp ? 'Selesai' : 'Belum';
+                    if ($ord->pnbp_number) $pnbpStatus .= " ({$ord->pnbp_number})";
+
+                    fputcsv($file, [
+                        $rowNo++,
+                        $ord->order_number,
+                        $ord->nama_pt,
+                        $ord->nomor_container_cargo ?: ($ord->nomor_bl ?: 'Cargo'),
+                        ($ord->jenis_barang ?: 'General Cargo') . ($ord->jumlah_tonase ? ' (' . $ord->jumlah_tonase . ' T)' : ''),
+                        $stHaulage && $stHaulage->in_time ? \Carbon\Carbon::parse($stHaulage->in_time)->format('d/m/Y H:i') : '-',
+                        $stHaulage && $stHaulage->out_time ? \Carbon\Carbon::parse($stHaulage->out_time)->format('d/m/Y H:i') : '-',
+                        $stLolo && $stLolo->in_time ? \Carbon\Carbon::parse($stLolo->in_time)->format('d/m/Y H:i') : '-',
+                        $stLolo && $stLolo->out_time ? \Carbon\Carbon::parse($stLolo->out_time)->format('d/m/Y H:i') : '-',
+                        $stPenumpukan && $stPenumpukan->in_time ? \Carbon\Carbon::parse($stPenumpukan->in_time)->format('d/m/Y H:i') : '-',
+                        $stPenumpukan && $stPenumpukan->out_time ? \Carbon\Carbon::parse($stPenumpukan->out_time)->format('d/m/Y H:i') : '-',
+                        $stTkbm && $stTkbm->in_time ? \Carbon\Carbon::parse($stTkbm->in_time)->format('d/m/Y H:i') : '-',
+                        $stTkbm && $stTkbm->out_time ? \Carbon\Carbon::parse($stTkbm->out_time)->format('d/m/Y H:i') : '-',
+                        $notesCargo ?: ($ord->pnbp_note ?: '-'),
+                        $invStatus,
+                        $pnbpStatus
+                    ]);
+                }
             }
 
             fclose($file);
