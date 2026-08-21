@@ -79,50 +79,7 @@
             </div>
         </div>
 
-        <!-- Card Keterangan Status Done & Tombol Aksi Invoice -->
-        <div class="bg-gradient-to-r {{ $order->is_invoiced ? 'from-emerald-900 to-teal-950 text-emerald-100 border-emerald-700' : 'from-slate-900 to-slate-800 text-slate-100 border-slate-700' }} rounded-2xl border p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl {{ $order->is_invoiced ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30' : 'bg-rose-500/20 text-rose-300 border-rose-400/30' }} border flex items-center justify-center text-xl shrink-0">
-                    <i class="fa-solid {{ $order->is_invoiced ? 'fa-file-circle-check' : 'fa-file-circle-xmark' }}"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Status Invoice Order</span>
-                        @if($order->is_invoiced)
-                            <span class="px-2.5 py-0.5 bg-emerald-500/30 text-emerald-200 text-[10px] font-extrabold rounded-full uppercase border border-emerald-400/40">Sudah Terbit</span>
-                        @else
-                            <span class="px-2.5 py-0.5 bg-rose-500/30 text-rose-200 text-[10px] font-extrabold rounded-full uppercase border border-rose-400/40">Belum Keluar</span>
-                        @endif
-                    </div>
-                    <div class="text-sm font-bold text-white mt-0.5">
-                        @if($order->is_invoiced)
-                            Invoice: {{ $order->invoice_number ?: ('INV/' . $order->order_number) }} &bull; Diterbitkan: {{ $order->invoiced_at ? $order->invoiced_at->format('d M Y, H:i') : date('d M Y') }}
-                        @else
-                            Invoice penagihan belum diterbitkan untuk order request ini.
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tombol Aksi Toggle Invoice -->
-            <div class="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
-                <form action="{{ route('requests.toggleInvoice', $order->id) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-                    @if($order->is_invoiced)
-                        <button type="submit" class="px-4 py-2 bg-white/10 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition border border-white/20 flex items-center gap-1.5 shadow">
-                            <i class="fa-solid fa-arrow-rotate-left"></i>
-                            <span>Batalkan / Reset Invoice</span>
-                        </button>
-                    @else
-                        <button type="submit" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-500/30 flex items-center gap-1.5">
-                            <i class="fa-solid fa-check-double"></i>
-                            <span>Tandai Invoice Sudah Keluar</span>
-                        </button>
-                    @endif
-                </form>
-            </div>
-        </div>
+        <!-- Removed Invoice Toggle Card as it is now managed per container in Dashboard -->
     </div>
 
     @if(strtolower($order->payload_type) === 'cargo')

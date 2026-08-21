@@ -266,7 +266,17 @@
                                 <p class="text-[9px] text-slate-400 mt-0.5">Bisa pilih banyak foto sekaligus</p>
                             </div>
 
-                            <div class="flex items-end">
+                            @if($st->service_type === 'Haulage')
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">SP3KK (Khusus Haulage)</label>
+                                    <input type="file" name="sp3kk_file" accept=".pdf,.jpg,.jpeg,.png" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-50 file:text-emerald-700">
+                                    @if($container->sp3kk_file_path)
+                                        <a href="{{ $container->sp3kk_file_url }}" target="_blank" class="text-[9px] text-emerald-600 font-bold mt-1 inline-block hover:underline"><i class="fa-solid fa-eye"></i> Lihat SP3KK Terupload</a>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <div class="flex items-end {{ $st->service_type === 'Haulage' ? 'md:col-span-4' : '' }}">
                                 <button type="submit" id="submitBtn-{{ $st->id }}" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow transition flex items-center justify-center gap-2">
                                     <span class="btn-text">Simpan Perubahan</span>
                                     <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>

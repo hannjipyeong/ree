@@ -52,56 +52,82 @@
         <thead>
             <tr>
                 <th style="width:3%">No</th>
-                <th style="width:10%">No. Order</th>
-                <th style="width:8%">Tanggal</th>
-                <th style="width:7%">Source</th>
-                <th style="width:14%">Nama PT</th>
-                <th style="width:10%">Nama PBM</th>
-                <th style="width:9%">Wilayah</th>
-                <th style="width:12%">Lokasi Fasilitas</th>
-                <th style="width:17%">Tiket & Status</th>
+                <th style="width:12%">No. Order</th>
+                <th style="width:15%">Nama PT</th>
+                <th style="width:12%">No. Container</th>
+                <th style="width:10%">Ukuran/Tipe</th>
+                <th style="width:10%">Layanan</th>
+                <th style="width:8%">Status</th>
+                <th style="width:10%">Waktu</th>
+                <th style="width:10%">Catatan</th>
                 <th style="width:10%">Invoice</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($orders as $i => $ord)
-                <tr>
-                    <td>{{ $i + 1 }}</td>
-                    <td><strong>{{ $ord->order_number }}</strong></td>
-                    <td>{{ optional($ord->tanggal_order)->format('d/m/Y') }}</td>
-                    <td>{{ $ord->source }}</td>
-                    <td>{{ $ord->nama_pt }}</td>
-                    <td>{{ $ord->nama_pbm }}</td>
-                    <td>{{ $ord->wilayah }}</td>
-                    <td>{{ $ord->lokasi_fasilitas }} ({{ $ord->jenis_kegiatan }})</td>
-                    <td>
-                        @foreach($ord->subTasks as $st)
-                            <span class="badge
-                                {{ $st->status == 'In' ? 'badge-in' : '' }}
-                                {{ $st->status == 'Out' ? 'badge-out' : '' }}
-                                {{ $st->status == 'Done' ? 'badge-done' : '' }}
-                                {{ $st->status == 'Masuk' ? 'badge-masuk' : '' }}">
-                                {{ $st->service_type }}: {{ $st->status }}
-                            </span>
-                            @if(!$loop->last) <br> @endif
-                        @endforeach
-                    </td>
-                    <td>
-                        @if($ord->is_invoiced)
-                            <span class="badge badge-invoiced">✓ Sudah Terbit</span>
-                            @if($ord->invoice_number)
-                                <br><small style="color:#64748b">{{ $ord->invoice_number }}</small>
-                            @endif
-                        @else
-                            <span class="badge badge-not-invoiced">✗ Belum Keluar</span>
-                        @endif
-                    </td>
-                </tr>
+            @php $rowNo = 1; @endphp
+            @forelse($orders as $ord)
+                @foreach($ord->containers as $c)
+                    @foreach($c->progresses as $prog)
+                        @php
+                            $st = $prog->subTask;
+                            if (!$st) continue;
+                            if ($activeStatus && $activeStatus != 'Semua Status' && $st->status != $activeStatus) continue;
+                            if ($activeLayanan && $activeLayanan != 'Semua Layanan' && $st->service_type != $activeLayanan) continue;
+
+                            $waktu = '-';
+                            $catatan = '-';
+                            if ($st->status == 'In') {
+                                $waktu = $prog->in_time ? \Carbon\Carbon::parse($prog->in_time)->format('d/m/Y H:i') : '-';
+                                $catatan = $prog->in_note ?: '-';
+                            } elseif ($st->status == 'Out') {
+                                $waktu = $prog->out_time ? \Carbon\Carbon::parse($prog->out_time)->format('d/m/Y H:i') : '-';
+                                $catatan = $prog->out_note ?: '-';
+                            } elseif ($st->status == 'Done') {
+                                $waktu = $prog->done_time ? \Carbon\Carbon::parse($prog->done_time)->format('d/m/Y H:i') : '-';
+                                $catatan = $prog->done_note ?: '-';
+                            }
+                        @endphp
+                        <tr>
+                            <td>{{ $rowNo++ }}</td>
+                            <td><strong>{{ $ord->order_number }}</strong></td>
+                            <td>{{ $ord->nama_pt }}</td>
+                            <td>{{ $c->container_number ?: 'No-ID' }}</td>
+                            <td>{{ $c->container_size }} / {{ $c->container_type }}</td>
+                            <td>{{ $st->service_type }}</td>
+                            <td>
+                                <span class="badge
+                                    {{ $st->status == 'In' ? 'badge-in' : '' }}
+                                    {{ $st->status == 'Out' ? 'badge-out' : '' }}
+                                    {{ $st->status == 'Done' ? 'badge-done' : '' }}
+                                    {{ $st->status == 'Masuk' ? 'badge-masuk' : '' }}">
+                                    {{ $st->status }}
+                                </span>
+                            </td>
+                            <td>{{ $waktu }}</td>
+                            <td>{{ Str::limit($catatan, 30) }}</td>
+                            <td>
+                                @if($prog->is_invoiced)
+                                    <span class="badge badge-invoiced">✓ Terbit</span>
+                                    @if($prog->invoice_number)
+                                        <br><small style="color:#64748b">{{ $prog->invoice_number }}</small>
+                                    @endif
+                                @else
+                                    <span class="badge badge-not-invoiced">✗ Belum</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @endforeach
             @empty
                 <tr>
                     <td colspan="10" class="no-data">Tidak ada data untuk filter yang dipilih.</td>
                 </tr>
             @endforelse
+            @if($rowNo == 1 && $orders->isNotEmpty())
+                <tr>
+                    <td colspan="10" class="no-data">Tidak ada kontainer yang sesuai dengan filter spesifik (Layanan/Status).</td>
+                </tr>
+            @endif
         </tbody>
     </table>
 

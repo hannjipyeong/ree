@@ -417,6 +417,7 @@ class RequestController extends Controller
             'photos' => 'nullable|array',
             'photos.*' => 'nullable|image|max:10240',
             'container_id' => 'nullable|exists:order_containers,id',
+            'sp3kk_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         if (isset($validated['supir_id'])) {
@@ -440,6 +441,13 @@ class RequestController extends Controller
         $primaryPhotoPath = !empty($uploadedPaths) ? $uploadedPaths[0] : null;
 
         if (!empty($validated['container_id'])) {
+            $container = \App\Models\OrderContainer::find($validated['container_id']);
+            if ($container && $req->hasFile('sp3kk_file')) {
+                $path = $req->file('sp3kk_file')->store('uploads/sp3kk', 'public');
+                $container->sp3kk_file_path = 'storage/' . $path;
+                $container->save();
+            }
+
             // Update the container progress specifically
             $progress = \App\Models\SubTaskContainerProgress::where('sub_task_id', $subTask->id)
                 ->where('order_container_id', $validated['container_id'])

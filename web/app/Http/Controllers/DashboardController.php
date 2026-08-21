@@ -239,7 +239,7 @@ class DashboardController extends Controller
         $user        = auth()->user();
         $adminSource = $user ? $user->admin_source : null;
 
-        $query = Order::with(['customer', 'containers', 'subTasks.supir'])->latest('tanggal_order');
+        $query = Order::with(['customer', 'subTasks.supir', 'containers.progresses.subTask'])->latest('tanggal_order');
 
         if ($adminSource) {
             $query->where('source', $adminSource);
@@ -294,6 +294,8 @@ class DashboardController extends Controller
     {
         $orders   = $this->buildExportQuery($request)->get();
         $filename = 'Dashboard_Export_' . date('Ymd_His') . '.csv';
+        $activeStatus  = $request->input('tiket_status');
+        $activeLayanan = $request->input('layanan');
 
         $headers = [
             'Content-Type'        => 'text/csv; charset=UTF-8',
@@ -303,32 +305,57 @@ class DashboardController extends Controller
             'Expires'             => '0',
         ];
 
-        $callback = function () use ($orders) {
+        $callback = function () use ($orders, $activeStatus, $activeLayanan) {
             $file = fopen('php://output', 'w');
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // UTF-8 BOM
 
             fputcsv($file, [
-                'No', 'No. Order', 'Tanggal Order', 'Modul/Source', 'Nama PT',
-                'Nama PBM', 'Wilayah', 'Lokasi Fasilitas', 'Jenis Kegiatan',
-                'Tiket & Status', 'Status Invoice', 'No. Invoice',
+                'No', 'No. Order', 'Nama PT', 'No. Container', 'Ukuran/Tipe',
+                'Layanan', 'Status', 'Tanggal & Jam', 'Catatan', 'Status Invoice'
             ]);
 
-            foreach ($orders as $i => $ord) {
-                $tiketList = $ord->subTasks->map(fn ($st) => "{$st->service_type}:{$st->status}")->implode(', ');
-                fputcsv($file, [
-                    $i + 1,
-                    $ord->order_number,
-                    optional($ord->tanggal_order)->format('d/m/Y'),
-                    $ord->source,
-                    $ord->nama_pt,
-                    $ord->nama_pbm,
-                    $ord->wilayah,
-                    $ord->lokasi_fasilitas,
-                    $ord->jenis_kegiatan,
-                    $tiketList,
-                    $ord->is_invoiced ? 'Sudah Terbit' : 'Belum Keluar',
-                    $ord->invoice_number ?? '-',
-                ]);
+            $rowNo = 1;
+            foreach ($orders as $ord) {
+                foreach ($ord->containers as $c) {
+                    foreach ($c->progresses as $prog) {
+                        $st = $prog->subTask;
+                        if (!$st) continue;
+
+                        if ($activeStatus && $st->status != $activeStatus) continue;
+                        if ($activeLayanan && $st->service_type != $activeLayanan) continue;
+
+                        $waktu = '-';
+                        $catatan = '-';
+                        if ($st->status == 'In') {
+                            $waktu = $prog->in_time ? \Carbon\Carbon::parse($prog->in_time)->format('d/m/Y H:i') : '-';
+                            $catatan = $prog->in_note ?: '-';
+                        } elseif ($st->status == 'Out') {
+                            $waktu = $prog->out_time ? \Carbon\Carbon::parse($prog->out_time)->format('d/m/Y H:i') : '-';
+                            $catatan = $prog->out_note ?: '-';
+                        } elseif ($st->status == 'Done') {
+                            $waktu = $prog->done_time ? \Carbon\Carbon::parse($prog->done_time)->format('d/m/Y H:i') : '-';
+                            $catatan = $prog->done_note ?: '-';
+                        }
+
+                        $invoiceStatus = $prog->is_invoiced ? 'Sudah Terbit' : 'Belum';
+                        if ($prog->is_invoiced && $prog->invoice_number) {
+                            $invoiceStatus .= " ({$prog->invoice_number})";
+                        }
+
+                        fputcsv($file, [
+                            $rowNo++,
+                            $ord->order_number,
+                            $ord->nama_pt,
+                            $c->container_number ?: 'No-ID',
+                            $c->container_size . ' / ' . $c->container_type,
+                            $st->service_type,
+                            $st->status,
+                            $waktu,
+                            $catatan,
+                            $invoiceStatus
+                        ]);
+                    }
+                }
             }
 
             fclose($file);
