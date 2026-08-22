@@ -157,13 +157,10 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
               icon: Icons.description_outlined,
               children: [
                 if (vm.wilayah == AppConstants.wilayahEximen && vm.lokasiFasilitas?.toLowerCase() == 'gudang')
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: AppTextField(
-                      label: 'Nomor Container (Opsional)',
-                      hint: 'Masukkan nomor container',
-                      controller: _nomorContainerCargoCtrl,
-                    ),
+                  AppTextField(
+                    label: 'Nomor Container (Opsional)',
+                    hint: 'Masukkan nomor container',
+                    controller: _nomorContainerCargoCtrl,
                   ),
                 AppTextField(
                   label: 'Jenis Barang',
@@ -171,14 +168,12 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
                   controller: _jenisBarangCtrl,
                   validator: (v) => AppValidators.required(v, fieldName: 'Jenis Barang'),
                 ),
-                const SizedBox(height: 16),
                 AppTextField(
                   label: 'Jumlah Barang',
                   hint: 'Contoh: 500 Dus / 20 Pallet',
                   controller: _jumlahBarangCtrl,
                   validator: (v) => AppValidators.required(v, fieldName: 'Jumlah Barang'),
                 ),
-                const SizedBox(height: 16),
                 AppTextField(
                   label: 'Jumlah Tonase (Ton)',
                   hint: 'Contoh: 10.5',
@@ -186,42 +181,36 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) => AppValidators.required(v, fieldName: 'Jumlah Tonase'),
                 ),
-                const SizedBox(height: 16),
                 AppTextField(
                   label: 'Nomor BL',
                   hint: 'Masukkan nomor Bill of Lading',
                   controller: _nomorBlCtrl,
                   validator: (v) => AppValidators.required(v, fieldName: 'Nomor BL'),
                 ),
-                const SizedBox(height: 16),
                 AppTextField(
                   label: 'Vessel (Nama Kapal)',
                   hint: 'Masukkan nama kapal',
                   controller: _vesselCtrl,
                   validator: (v) => AppValidators.required(v, fieldName: 'Vessel / Nama Kapal'),
                 ),
-                const SizedBox(height: 16),
                 AppTextField(
                   label: 'Voyage (Kode Keberangkatan)',
                   hint: 'Contoh: V.024N',
                   controller: _voyageCtrl,
                   validator: (v) => AppValidators.required(v, fieldName: 'Voyage'),
                 ),
-                const SizedBox(height: 16),
                 AppTextField(
                   label: 'No. Surat Jalan',
                   hint: 'Masukkan no. surat jalan',
                   controller: _noSuratJalanCtrl,
                   validator: (v) => AppValidators.required(v, fieldName: 'No. Surat Jalan'),
                 ),
-                const SizedBox(height: 16),
                 AppTextField(
                   label: 'No. BP (Plat Nomor)',
                   hint: 'Contoh: BP 1234 XY',
                   controller: _noBpCtrl,
                   validator: (v) => AppValidators.required(v, fieldName: 'No. BP'),
                 ),
-                const SizedBox(height: 16),
                 const FormInfoBanner(
                   message: 'Upload manifest atau dokumen cargo dalam format PDF, JPG, atau PNG.',
                   icon: Icons.info_outline,
@@ -256,8 +245,10 @@ class _PayloadTypeMultiSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
         Expanded(
           child: _PayloadOption(
             label: 'Container',
@@ -278,7 +269,7 @@ class _PayloadTypeMultiSelector extends StatelessWidget {
           ),
         ),
       ],
-    );
+    ));
   }
 }
 
