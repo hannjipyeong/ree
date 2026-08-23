@@ -143,7 +143,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: (currentStatus == 'In' || currentStatus == 'Out' || progress?.lockedReasonIn != null)
+                            onTap: (currentStatus == 'In' || currentStatus == 'Out' || currentStatus == 'Done' || progress?.lockedReasonIn != null)
                                 ? null
                                 : () => setSheetState(() => selectedActionType = 'IN'),
                             child: Container(
@@ -151,7 +151,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                               decoration: BoxDecoration(
                                 color: selectedActionType == 'IN' 
                                     ? AppColors.primary 
-                                    : ((currentStatus == 'In' || currentStatus == 'Out' || progress?.lockedReasonIn != null) ? Colors.grey[300] : Colors.grey[200]),
+                                    : ((currentStatus == 'In' || currentStatus == 'Out' || currentStatus == 'Done' || progress?.lockedReasonIn != null) ? Colors.grey[300] : Colors.grey[200]),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               alignment: Alignment.center,
@@ -160,7 +160,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                                 style: TextStyle(
                                   color: selectedActionType == 'IN' 
                                       ? Colors.white 
-                                      : ((currentStatus == 'In' || currentStatus == 'Out' || progress?.lockedReasonIn != null) ? Colors.grey[400] : Colors.black54),
+                                      : ((currentStatus == 'In' || currentStatus == 'Out' || currentStatus == 'Done' || progress?.lockedReasonIn != null) ? Colors.grey[400] : Colors.black54),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -170,7 +170,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: GestureDetector(
-                            onTap: (currentStatus == 'Out' || progress?.lockedReasonOut != null)
+                            onTap: (currentStatus == 'Out' || currentStatus == 'Done' || progress?.lockedReasonOut != null)
                                 ? null
                                 : () => setSheetState(() => selectedActionType = 'OUT'),
                             child: Container(
@@ -178,7 +178,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                               decoration: BoxDecoration(
                                 color: selectedActionType == 'OUT' 
                                     ? AppColors.primary 
-                                    : ((currentStatus == 'Out' || progress?.lockedReasonOut != null) ? Colors.grey[300] : Colors.grey[200]),
+                                    : ((currentStatus == 'Out' || currentStatus == 'Done' || progress?.lockedReasonOut != null) ? Colors.grey[300] : Colors.grey[200]),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               alignment: Alignment.center,
@@ -187,7 +187,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                                 style: TextStyle(
                                   color: selectedActionType == 'OUT' 
                                       ? Colors.white 
-                                      : ((currentStatus == 'Out' || progress?.lockedReasonOut != null) ? Colors.grey[400] : Colors.black54),
+                                      : ((currentStatus == 'Out' || currentStatus == 'Done' || progress?.lockedReasonOut != null) ? Colors.grey[400] : Colors.black54),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -281,7 +281,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                       });
                     }
                   },
-                  items: <String>['Semua', 'Pending', 'In', 'Out']
+                  items: <String>['Semua', 'Pending', 'In', 'Out', 'Done']
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
