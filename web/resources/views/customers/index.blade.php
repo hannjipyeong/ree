@@ -66,6 +66,10 @@
                                 {{ $c->created_at->format('d M Y') }}
                             </td>
                             <td class="py-4 px-6 text-right space-x-1">
+                                <a href="{{ route('customers.show', $c->id) }}" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-semibold transition inline-block">
+                                    <i class="fa-solid fa-circle-info me-1"></i> Detail
+                                </a>
+
                                 <button onclick="editCustomer({{ json_encode($c) }})" class="px-3 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white rounded-lg text-xs font-semibold transition">
                                     <i class="fa-solid fa-pen-to-square me-1"></i> Edit
                                 </button>

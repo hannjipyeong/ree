@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/features/all_in/models/container_entry.dart';
+import 'package:bkj_app/features/all_in/models/cargo_entry.dart';
 import 'package:bkj_app/core/services/api_service.dart';
 
 /// ViewModel for the ALL IN multi-step order form.
@@ -18,8 +19,9 @@ class AllInViewModel extends ChangeNotifier {
   // ─── Page 2 State ────────────────────────────────────────────────────────────
   final Set<String> _payloadTypes = {AppConstants.payloadContainer};
   final List<ContainerEntry> _containers = [ContainerEntry()];
+  final List<CargoEntry> _cargos = [CargoEntry()];
   
-  // Cargo fields
+  // Cargo fields (legacy single item compatibility)
   String? _jenisBarang;
   String? _jumlahBarang;
   String? _jumlahTonase;
@@ -181,6 +183,25 @@ class AllInViewModel extends ChangeNotifier {
   void setNoBp(String value) { _noBp = value; notifyListeners(); }
   void setNomorContainerCargo(String value) { _nomorContainerCargo = value; notifyListeners(); }
 
+  List<CargoEntry> get cargos => List.unmodifiable(_cargos);
+
+  void addCargo() {
+    _cargos.add(CargoEntry());
+    notifyListeners();
+  }
+
+  void removeCargo(int index) {
+    if (_cargos.length <= 1) return;
+    _cargos.removeAt(index);
+    notifyListeners();
+  }
+
+  void updateCargo(int index, CargoEntry updated) {
+    if (index < 0 || index >= _cargos.length) return;
+    _cargos[index] = updated;
+    notifyListeners();
+  }
+
   void setCargoFile({required String name, required String path, Uint8List? bytes}) {
     _cargoFileName = name;
     _cargoFilePath = path;
@@ -238,6 +259,16 @@ class AllInViewModel extends ChangeNotifier {
           ? _containers.map((c) => c.toJson()).toList() 
           : null;
 
+      final jenisBarangCombined = hasCargo ? _cargos.map((c) => c.jenisBarang?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final jumlahBarangCombined = hasCargo ? _cargos.map((c) => c.jumlahBarang?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final jumlahTonaseCombined = hasCargo ? _cargos.map((c) => c.jumlahTonase?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final nomorBlCombined = hasCargo ? _cargos.map((c) => c.nomorBl?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final vesselCombined = hasCargo ? _cargos.map((c) => c.vessel?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final voyageCombined = hasCargo ? _cargos.map((c) => c.voyage?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final noSuratJalanCombined = hasCargo ? _cargos.map((c) => c.noSuratJalan?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final noBpCombined = hasCargo ? _cargos.map((c) => c.noBp?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+      final nomorContainerCargoCombined = hasCargo ? _cargos.map((c) => c.nomorContainerCargo?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
+
       final success = await ApiService.submitOrder(
         source: 'ALL IN',
         namaPt: _namaPt ?? 'Unknown PT',
@@ -249,15 +280,15 @@ class AllInViewModel extends ChangeNotifier {
         payloadType: payloadType,
         services: servicesToSubmit,
         containers: containerList,
-        jenisBarang: hasCargo ? _jenisBarang : null,
-        jumlahBarang: hasCargo ? _jumlahBarang : null,
-        jumlahTonase: hasCargo ? _jumlahTonase : null,
-        nomorBl: hasCargo ? _nomorBl : null,
-        vessel: hasCargo ? _vessel : null,
-        voyage: hasCargo ? _voyage : null,
-        noSuratJalan: hasCargo ? _noSuratJalan : null,
-        noBp: hasCargo ? _noBp : null,
-        nomorContainerCargo: hasCargo ? _nomorContainerCargo : null,
+        jenisBarang: jenisBarangCombined,
+        jumlahBarang: jumlahBarangCombined,
+        jumlahTonase: jumlahTonaseCombined,
+        nomorBl: nomorBlCombined,
+        vessel: vesselCombined,
+        voyage: voyageCombined,
+        noSuratJalan: noSuratJalanCombined,
+        noBp: noBpCombined,
+        nomorContainerCargo: nomorContainerCargoCombined,
         cargoFilePath: hasCargo ? _cargoFilePath : null,
         haulageFilePath: _haulageFilePath,
         cargoFileBytes: hasCargo ? _cargoFileBytes : null,
@@ -296,6 +327,8 @@ class AllInViewModel extends ChangeNotifier {
     _payloadTypes.add(AppConstants.payloadContainer);
     _containers.clear();
     _containers.add(ContainerEntry());
+    _cargos.clear();
+    _cargos.add(CargoEntry());
     _jenisBarang = null;
     _jumlahBarang = null;
     _jumlahTonase = null;

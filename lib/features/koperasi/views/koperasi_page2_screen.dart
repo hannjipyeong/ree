@@ -4,7 +4,6 @@ import 'package:bkj_app/core/components/components.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/utils/app_constants.dart';
-import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/koperasi/viewmodels/koperasi_viewmodel.dart';
 
 /// Koperasi — Page 2: Payload selection (Container or Cargo).
@@ -19,44 +18,6 @@ class KoperasiPage2Screen extends StatefulWidget {
 
 class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _jenisBarangCtrl;
-  late final TextEditingController _jumlahBarangCtrl;
-  late final TextEditingController _jumlahTonaseCtrl;
-  late final TextEditingController _nomorBlCtrl;
-  late final TextEditingController _vesselCtrl;
-  late final TextEditingController _voyageCtrl;
-  late final TextEditingController _noSuratJalanCtrl;
-  late final TextEditingController _noBpCtrl;
-  late final TextEditingController _nomorContainerCargoCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    final vm = context.read<KoperasiViewModel>();
-    _jenisBarangCtrl = TextEditingController(text: vm.jenisBarang ?? '');
-    _jumlahBarangCtrl = TextEditingController(text: vm.jumlahBarang ?? '');
-    _jumlahTonaseCtrl = TextEditingController(text: vm.jumlahTonase ?? '');
-    _nomorBlCtrl = TextEditingController(text: vm.nomorBl ?? '');
-    _vesselCtrl = TextEditingController(text: vm.vessel ?? '');
-    _voyageCtrl = TextEditingController(text: vm.voyage ?? '');
-    _noSuratJalanCtrl = TextEditingController(text: vm.noSuratJalan ?? '');
-    _noBpCtrl = TextEditingController(text: vm.noBp ?? '');
-    _nomorContainerCargoCtrl = TextEditingController(text: vm.nomorContainerCargo ?? '');
-  }
-
-  @override
-  void dispose() {
-    _jenisBarangCtrl.dispose();
-    _jumlahBarangCtrl.dispose();
-    _jumlahTonaseCtrl.dispose();
-    _nomorBlCtrl.dispose();
-    _vesselCtrl.dispose();
-    _voyageCtrl.dispose();
-    _noSuratJalanCtrl.dispose();
-    _noBpCtrl.dispose();
-    _nomorContainerCargoCtrl.dispose();
-    super.dispose();
-  }
 
   void _handleNext() {
     final vm = context.read<KoperasiViewModel>();
@@ -82,16 +43,6 @@ class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
         );
         return;
       }
-      
-      vm.setJenisBarang(_jenisBarangCtrl.text);
-      vm.setJumlahBarang(_jumlahBarangCtrl.text);
-      vm.setJumlahTonase(_jumlahTonaseCtrl.text);
-      vm.setNomorBl(_nomorBlCtrl.text);
-      vm.setVessel(_vesselCtrl.text);
-      vm.setVoyage(_voyageCtrl.text);
-      vm.setNoSuratJalan(_noSuratJalanCtrl.text);
-      vm.setNoBp(_noBpCtrl.text);
-      vm.setNomorContainerCargo(_nomorContainerCargoCtrl.text);
     }
 
     if (_formKey.currentState!.validate()) {
@@ -102,6 +53,7 @@ class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<KoperasiViewModel>();
+    final showContainerInCargo = vm.wilayah == AppConstants.wilayahEximen && vm.lokasiFasilitas?.toLowerCase() == 'gudang';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -159,60 +111,12 @@ class _KoperasiPage2ScreenState extends State<KoperasiPage2Screen> {
               title: 'Dokumen & Rincian Cargo',
               icon: Icons.description_outlined,
               children: [
-                if (vm.wilayah == AppConstants.wilayahEximen && vm.lokasiFasilitas?.toLowerCase() == 'gudang')
-                  AppTextField(
-                    label: 'Nomor Container (Opsional)',
-                    hint: 'Masukkan nomor container',
-                    controller: _nomorContainerCargoCtrl,
-                  ),
-                AppTextField(
-                  label: 'Jenis Barang',
-                  hint: 'Masukkan jenis barang',
-                  controller: _jenisBarangCtrl,
-                  validator: (v) => AppValidators.required(v, fieldName: 'Jenis Barang'),
-                ),
-                AppTextField(
-                  label: 'Jumlah Barang',
-                  hint: 'Contoh: 500 Dus / 20 Pallet',
-                  controller: _jumlahBarangCtrl,
-                  validator: (v) => AppValidators.required(v, fieldName: 'Jumlah Barang'),
-                ),
-                AppTextField(
-                  label: 'Jumlah Tonase (Ton)',
-                  hint: 'Contoh: 10.5',
-                  controller: _jumlahTonaseCtrl,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  validator: (v) => AppValidators.required(v, fieldName: 'Jumlah Tonase'),
-                ),
-                AppTextField(
-                  label: 'Nomor BL',
-                  hint: 'Masukkan nomor Bill of Lading',
-                  controller: _nomorBlCtrl,
-                  validator: (v) => AppValidators.required(v, fieldName: 'Nomor BL'),
-                ),
-                AppTextField(
-                  label: 'Vessel (Nama Kapal)',
-                  hint: 'Masukkan nama kapal',
-                  controller: _vesselCtrl,
-                  validator: (v) => AppValidators.required(v, fieldName: 'Vessel / Nama Kapal'),
-                ),
-                AppTextField(
-                  label: 'Voyage (Kode Keberangkatan)',
-                  hint: 'Contoh: V.024N',
-                  controller: _voyageCtrl,
-                  validator: (v) => AppValidators.required(v, fieldName: 'Voyage'),
-                ),
-                AppTextField(
-                  label: 'No. Surat Jalan',
-                  hint: 'Masukkan no. surat jalan',
-                  controller: _noSuratJalanCtrl,
-                  validator: (v) => AppValidators.required(v, fieldName: 'No. Surat Jalan'),
-                ),
-                AppTextField(
-                  label: 'No. BP (Plat Nomor)',
-                  hint: 'Contoh: BP 1234 XY',
-                  controller: _noBpCtrl,
-                  validator: (v) => AppValidators.required(v, fieldName: 'No. BP'),
+                CargoListBuilder(
+                  cargos: vm.cargos,
+                  showContainerField: showContainerInCargo,
+                  onAdd: vm.addCargo,
+                  onRemove: vm.removeCargo,
+                  onUpdate: vm.updateCargo,
                 ),
                 const FormInfoBanner(
                   message: 'Upload manifest atau dokumen cargo dalam format PDF, JPG, atau PNG.',

@@ -342,12 +342,16 @@ class ApiController extends Controller
 
             // Check if all containers for this subtask are out
             $allProgress = \App\Models\SubTaskContainerProgress::where('sub_task_id', $subTask->id)->get();
-            $allOut = $allProgress->every(fn($p) => $p->status === 'Out');
-            $anyIn = $allProgress->some(fn($p) => $p->status === 'In' || $p->status === 'Out');
+            $allDone = $allProgress->every(fn($p) => in_array($p->status, ['Out', 'Done', 'DONE', 'OUT']));
+            $anyOut = $allProgress->some(fn($p) => in_array($p->status, ['Out', 'OUT', 'Done', 'DONE']));
+            $anyIn = $allProgress->some(fn($p) => in_array($p->status, ['In', 'IN']));
             
-            if ($allOut && $allProgress->count() > 0) {
+            if ($allDone && $allProgress->count() > 0) {
                 $subTask->status = 'Done';
-            } else if ($anyIn && $subTask->status === 'Masuk') {
+                $subTask->done_time = now();
+            } else if ($anyOut) {
+                $subTask->status = 'Out';
+            } else if ($anyIn) {
                 $subTask->status = 'In';
             }
             $subTask->save();

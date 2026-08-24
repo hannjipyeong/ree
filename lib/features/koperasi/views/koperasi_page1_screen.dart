@@ -57,10 +57,11 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
   Widget build(BuildContext context) {
     final vm = context.watch<KoperasiViewModel>();
 
-    // Sync controllers with VM
-    if (_namaPbmCtrl.text != (vm.namaPbm ?? '')) {
-      _namaPbmCtrl.text = vm.namaPbm ?? '';
+    // If Wilayah is Utara, ensure Nama PBM is BACT
+    if (vm.wilayah == AppConstants.wilayahUtara && _namaPbmCtrl.text != 'BACT') {
+      _namaPbmCtrl.text = 'BACT';
     }
+
     final expectedJenis = (vm.jenisKegiatan ?? '').toUpperCase();
     if (_jenisKegiatanCtrl.text.toUpperCase() != expectedJenis) {
       _jenisKegiatanCtrl.text = expectedJenis;
@@ -108,12 +109,14 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                 label: 'Nama PT',
                 hint: 'Masukkan nama PT',
                 controller: _namaPtCtrl,
+                onChanged: vm.setNamaPt,
                 validator: (v) => AppValidators.required(v, fieldName: 'Nama PT'),
               ),
               AppTextField(
                 label: 'Nama PBM',
                 hint: 'Masukkan nama PBM',
                 controller: _namaPbmCtrl,
+                onChanged: vm.setNamaPbm,
                 readOnly: vm.wilayah == AppConstants.wilayahUtara,
                 validator: (v) => AppValidators.required(v, fieldName: 'Nama PBM'),
               ),
@@ -121,6 +124,7 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                 label: 'No Telp',
                 hint: 'Contoh: 081234567890',
                 controller: _noTelpCtrl,
+                onChanged: vm.setNoTelp,
                 keyboardType: TextInputType.phone,
                 validator: AppValidators.phoneNumber,
               ),

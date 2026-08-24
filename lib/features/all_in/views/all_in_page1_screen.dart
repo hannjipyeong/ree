@@ -94,6 +94,7 @@ class _AllInPage1ScreenState extends State<AllInPage1Screen> {
                 label: 'Nama PT',
                 hint: 'Masukkan nama PT',
                 controller: _namaPtCtrl,
+                onChanged: vm.setNamaPt,
                 validator: (v) => AppValidators.required(v, fieldName: 'Nama PT'),
               ),
               AppTextField(
@@ -106,6 +107,7 @@ class _AllInPage1ScreenState extends State<AllInPage1Screen> {
                 label: 'No Telp',
                 hint: 'Contoh: 081234567890',
                 controller: _noTelpCtrl,
+                onChanged: vm.setNoTelp,
                 keyboardType: TextInputType.phone,
                 validator: AppValidators.phoneNumber,
               ),

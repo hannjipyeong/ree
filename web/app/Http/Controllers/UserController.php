@@ -25,6 +25,19 @@ class UserController extends Controller
         return view('customers.index', compact('customers'));
     }
 
+    public function show(User $customer)
+    {
+        $customer->load(['orders.containers', 'orders.subTasks.supir']);
+        $totalOrders = $customer->orders()->count();
+        $doneOrders = $customer->orders()->whereIn('status', ['Done', 'DONE', 'Selesai', 'completed'])->count();
+        $inProgressOrders = $customer->orders()->whereIn('status', ['In Progress', 'In', 'Out', 'in', 'out'])->count();
+        $pendingOrders = $customer->orders()->whereIn('status', ['Submitted', 'Masuk', 'Pending', 'masuk'])->count();
+
+        $orders = $customer->orders()->with(['containers', 'subTasks.supir'])->latest()->paginate(15);
+
+        return view('customers.show', compact('customer', 'totalOrders', 'doneOrders', 'inProgressOrders', 'pendingOrders', 'orders'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

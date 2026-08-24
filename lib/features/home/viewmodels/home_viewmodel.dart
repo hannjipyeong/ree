@@ -24,9 +24,11 @@ class HomeViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   // ─── Methods ────────────────────────────────────────────────────────────────
-  Future<void> loadDashboard() async {
-    _isLoading = true;
-    notifyListeners();
+  Future<void> loadDashboard({bool silent = false}) async {
+    if (!silent) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     try {
       final orders = await ApiService.getOrders(role: 'customer');

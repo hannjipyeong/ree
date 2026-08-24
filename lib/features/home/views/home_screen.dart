@@ -6,6 +6,8 @@ import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/home/viewmodels/home_viewmodel.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart' as bkj_app;
 
+import 'dart:async';
+
 /// The main Dashboard/Home screen.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,12 +17,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Timer? _pollingTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeViewModel>().loadDashboard();
+      _pollingTimer = Timer.periodic(const Duration(seconds: 8), (_) {
+        if (mounted) {
+          context.read<HomeViewModel>().loadDashboard(silent: true);
+        }
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -29,23 +44,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: vm.isLoading
+      body: vm.isLoading && vm.recentActivities.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : CustomScrollView(
-              slivers: [
-                _buildAppBar(context, vm),
-                SliverPadding(
-                  padding: const EdgeInsets.all(16),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      _buildStatisticsSection(vm),
-                      const SizedBox(height: 24),
-                      _buildRecentActivity(vm),
-                      const SizedBox(height: 24),
-                    ]),
+          : RefreshIndicator(
+              onRefresh: () => context.read<HomeViewModel>().loadDashboard(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  _buildAppBar(context, vm),
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildStatisticsSection(vm),
+                        const SizedBox(height: 24),
+                        _buildRecentActivity(vm),
+                        const SizedBox(height: 24),
+                      ]),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
     );
   }

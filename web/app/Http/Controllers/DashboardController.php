@@ -32,10 +32,18 @@ class DashboardController extends Controller
         $totalSubTasks = (clone $subTaskBaseQuery)->count();
 
         $subTaskStats = [
-            'masuk' => (clone $subTaskBaseQuery)->where('status', 'Masuk')->count(),
-            'in'    => (clone $subTaskBaseQuery)->where('status', 'In')->count(),
-            'out'   => (clone $subTaskBaseQuery)->where('status', 'Out')->count(),
-            'done'  => (clone $subTaskBaseQuery)->where('status', 'Done')->count(),
+            'masuk' => (clone $subTaskBaseQuery)->where(function ($q) {
+                $q->where('status', 'Masuk')->orWhere('status', 'Pending')->orWhere('status', 'MASUK');
+            })->count(),
+            'in'    => (clone $subTaskBaseQuery)->where(function ($q) {
+                $q->where('status', 'In')->orWhere('status', 'IN')->orWhere('status', 'in');
+            })->count(),
+            'out'   => (clone $subTaskBaseQuery)->where(function ($q) {
+                $q->where('status', 'Out')->orWhere('status', 'OUT')->orWhere('status', 'out');
+            })->count(),
+            'done'  => (clone $subTaskBaseQuery)->where(function ($q) {
+                $q->where('status', 'Done')->orWhere('status', 'DONE')->orWhere('status', 'Selesai')->orWhere('status', 'done');
+            })->count(),
         ];
 
         // ── Filter params ─────────────────────────────────────────────
@@ -73,14 +81,24 @@ class DashboardController extends Controller
             }
         }
 
-        // Precise status filter: only orders that have AT LEAST ONE sub-task
-        // matching the requested status (and optionally the requested service)
+        // Precise status filter: matches orders with subtasks or container progress in the given status
         if ($activeStatus) {
-            $recentQuery->whereHas('subTasks', function ($q) use ($activeStatus, $activeLayanan) {
-                $q->where('status', $activeStatus);
-                if ($activeLayanan) {
-                    $q->where('service_type', $activeLayanan);
-                }
+            $recentQuery->where(function ($q) use ($activeStatus, $activeLayanan) {
+                $q->whereHas('subTasks', function ($sq) use ($activeStatus, $activeLayanan) {
+                    $sq->where(function ($stq) use ($activeStatus) {
+                        $stq->where('status', $activeStatus)
+                            ->orWhere('status', strtolower($activeStatus))
+                            ->orWhere('status', strtoupper($activeStatus))
+                            ->orWhereHas('containerProgress', function ($cpq) use ($activeStatus) {
+                                $cpq->where('status', $activeStatus)
+                                    ->orWhere('status', strtolower($activeStatus))
+                                    ->orWhere('status', strtoupper($activeStatus));
+                            });
+                    });
+                    if ($activeLayanan) {
+                        $sq->where('service_type', $activeLayanan);
+                    }
+                });
             });
         } elseif ($activeLayanan) {
             // If only layanan filter (no status filter)

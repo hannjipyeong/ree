@@ -190,7 +190,21 @@
 </div>
 
 <script>
+    function isUserInteracting() {
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+            return true;
+        }
+        const openModals = document.querySelectorAll('.fixed:not(.hidden), [id*="modal"]:not(.hidden), [id*="Modal"]:not(.hidden)');
+        for (let m of openModals) {
+            if (!m.classList.contains('hidden') && m.offsetParent !== null) return true;
+        }
+        return false;
+    }
+
     function pollRequestsUpdates() {
+        if (isUserInteracting()) return;
+
         fetch(window.location.href, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
@@ -199,7 +213,7 @@
             return response.text();
         })
         .then(html => {
-            if (!html) return;
+            if (!html || isUserInteracting()) return;
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
@@ -210,8 +224,8 @@
         .catch(err => console.error("Error polling requests updates:", err));
     }
 
-    // Poll every 3 seconds
-    setInterval(pollRequestsUpdates, 3000);
+    // Poll every 5 seconds safely
+    setInterval(pollRequestsUpdates, 5000);
 </script>
 @endsection
 

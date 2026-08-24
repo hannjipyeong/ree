@@ -7,7 +7,6 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
-import 'dart:typed_data';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 

@@ -646,7 +646,24 @@ function updateOrderRow(orderId) {
     .catch(() => location.reload());
 }
 
-// ── Background polling (every 5s) — refresh stats + table ─────────────────
+// ── Background polling (every 6s) — refresh stats + table safely ─────────────────
+function isUserInteracting() {
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+        return true;
+    }
+    // Check open dropdowns
+    const openDropdowns = document.querySelectorAll('.invoice-dropdown-menu:not(.hidden)');
+    if (openDropdowns.length > 0) return true;
+    
+    // Check open modals
+    const openModals = document.querySelectorAll('.fixed:not(.hidden), [id*="modal"]:not(.hidden), [id*="Modal"]:not(.hidden)');
+    for (let m of openModals) {
+        if (!m.classList.contains('hidden') && m.offsetParent !== null) return true;
+    }
+    return false;
+}
+
 function pollDashboardUpdates() {
     fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(r => { if (!r.ok) return; return r.text(); })
@@ -654,16 +671,24 @@ function pollDashboardUpdates() {
         if (!html) return;
         const doc = new DOMParser().parseFromString(html, 'text/html');
 
-        const ids = ['kpi-cards', 'status-breakdown', 'recent-orders-table'];
-        ids.forEach(id => {
+        // Always update KPI cards and status breakdown
+        const statIds = ['kpi-cards', 'status-breakdown'];
+        statIds.forEach(id => {
             const cur = document.getElementById(id);
             const nxt = doc.getElementById(id);
             if (cur && nxt) cur.innerHTML = nxt.innerHTML;
         });
+
+        // Only update recent-orders-table if user is NOT currently interacting/typing/opening dropdowns
+        if (!isUserInteracting()) {
+            const cur = document.getElementById('recent-orders-table');
+            const nxt = doc.getElementById('recent-orders-table');
+            if (cur && nxt) cur.innerHTML = nxt.innerHTML;
+        }
     })
     .catch(err => console.error('Dashboard poll error:', err));
 }
 
-setInterval(pollDashboardUpdates, 5000);
+setInterval(pollDashboardUpdates, 6000);
 </script>
 @endsection
