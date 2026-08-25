@@ -617,15 +617,15 @@ class RequestController extends Controller
                 $progress->save();
             }
 
-            // Check if all containers for this subtask are out/done
+            // Find highest status among containers: Done > Out > In
             $allProgress = \App\Models\SubTaskContainerProgress::where('sub_task_id', $subTask->id)->get();
-            $allDone = $allProgress->every(fn($p) => in_array($p->status, ['Out', 'Done', 'DONE', 'OUT']));
-            $anyOut = $allProgress->some(fn($p) => in_array($p->status, ['Out', 'OUT', 'Done', 'DONE']));
+            $anyDone = $allProgress->some(fn($p) => in_array($p->status, ['Done', 'DONE', 'Selesai']));
+            $anyOut = $allProgress->some(fn($p) => in_array($p->status, ['Out', 'OUT']));
             $anyIn = $allProgress->some(fn($p) => in_array($p->status, ['In', 'IN']));
             
-            if ($allDone && $allProgress->count() > 0) {
+            if ($anyDone) {
                 $subTask->status = 'Done';
-                $subTask->done_time = now();
+                if (!$subTask->done_time) $subTask->done_time = now();
             } else if ($anyOut) {
                 $subTask->status = 'Out';
             } else if ($anyIn) {
