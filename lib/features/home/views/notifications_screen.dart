@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
-import 'package:bkj_app/core/routing/app_routes.dart';
-import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/features/home/models/app_notification.dart';
 import 'package:bkj_app/features/home/viewmodels/notification_viewmodel.dart';
-import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
-import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
-import 'package:bkj_app/features/supir/views/supir_action_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -101,211 +96,160 @@ class _NotifTile extends StatelessWidget {
     final style = _styleFor(notif.type, notif.category);
     final isUnread = !notif.isRead;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        onTap: () => _handleOpen(context),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isUnread
-                  ? const Color(0xFFE0E7FF)
-                  : const Color(0xFFE5E7EB),
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF1E3A8A).withValues(alpha: 0.04),
-                blurRadius: 14,
-                offset: const Offset(0, 3),
-              ),
-            ],
+        border: Border.all(
+          color: isUnread
+              ? const Color(0xFFE0E7FF)
+              : const Color(0xFFE5E7EB),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEEF2FF),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    style.icon,
-                    size: 28,
-                    color: const Color(0xFF1E40AF),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEEF2FF),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                style.icon,
+                size: 28,
+                color: const Color(0xFF1E40AF),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              notif.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF0F172A),
-                                height: 1.25,
-                              ),
-                            ),
+                      Expanded(
+                        child: Text(
+                          notif.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0F172A),
+                            height: 1.25,
                           ),
-                          if (isUnread)
-                            Container(
-                              margin: const EdgeInsets.only(left: 10, top: 6),
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E40AF),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        notif.message,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF475569).withValues(alpha: 0.92),
-                          height: 1.45,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          if (style.chipLabel != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: style.chipBg,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                style.chipLabel!,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: style.chipColor,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                            ),
-                          if (notif.serviceType != null && notif.serviceType!.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFDBEAFE),
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(
-                                  color: const Color(0xFFBFDBFE).withValues(alpha: 0.9),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                notif.serviceType!,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1D4ED8),
-                                ),
-                              ),
-                            ),
-                          if (notif.orderNumber != null && notif.orderNumber!.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 2),
-                              child: Text(
-                                notif.orderNumber!,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF94A3B8).withValues(alpha: 0.95),
-                                  letterSpacing: 0.15,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        AppFormatters.toRelativeTime(notif.time),
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF94A3B8).withValues(alpha: 0.95),
+                      if (isUnread)
+                        Container(
+                          margin: const EdgeInsets.only(left: 10, top: 6),
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E40AF),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
                         ),
-                      ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    notif.message,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF475569).withValues(alpha: 0.92),
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (style.chipLabel != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: style.chipBg,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            style.chipLabel!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: style.chipColor,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      if (notif.serviceType != null && notif.serviceType!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDBEAFE),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: const Color(0xFFBFDBFE).withValues(alpha: 0.9),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            notif.serviceType!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1D4ED8),
+                            ),
+                          ),
+                        ),
+                      if (notif.orderNumber != null && notif.orderNumber!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2),
+                          child: Text(
+                            notif.orderNumber!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF94A3B8).withValues(alpha: 0.95),
+                              letterSpacing: 0.15,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    AppFormatters.toRelativeTime(notif.time),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF94A3B8).withValues(alpha: 0.95),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
-    );
-  }
-
-  Future<void> _handleOpen(BuildContext context) async {
-    final orderId = notif.orderId;
-    if (orderId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Notifikasi ini tidak terhubung ke order manapun.')),
-      );
-      return;
-    }
-    final authVm = context.read<AuthViewModel>();
-    final supirVm = context.read<SupirViewModel>();
-
-    final orderIdStr = orderId.toString();
-    AppOrder? order = supirVm.getAllOrders().where((o) => o.id == orderIdStr).firstOrNull;
-    if (order == null) {
-      final st = authVm.supirType ?? '';
-      try {
-        await supirVm.fetchOrders(st);
-      } catch (_) {}
-      if (context.mounted) {
-        order = supirVm.getAllOrders().where((o) => o.id == orderIdStr).firstOrNull;
-      }
-    }
-
-    if (!context.mounted) return;
-
-    if (order == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Order #$orderId belum tersinkron di list, coba buka tab Home lalu refresh.')),
-      );
-      return;
-    }
-
-    final t = notif.type.toUpperCase();
-    String actionType = 'DETAIL';
-    if (t == 'IN') actionType = 'IN';
-    if (t == 'OUT') actionType = 'OUT';
-
-    Navigator.pushNamed(
-      context,
-      AppRoutes.supirAction,
-      arguments: SupirActionScreenArgs(order: order, actionType: actionType),
     );
   }
 

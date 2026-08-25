@@ -500,123 +500,10 @@ class ApiController extends Controller
 
         $notifications = collect();
 
-        // 1. Bukti IN/OUT per container
-        $containerProofsQuery = \App\Models\SubTaskContainerProgress::with([
-            'subTask.order',
-            'container',
-        ])->where(function ($q) {
-            $q->whereNotNull('in_time')->orWhereNotNull('out_time');
-        });
-        $containerProofsQuery = $this->applyRoleFilter($containerProofsQuery, $user, 'subTask.order');
-
-        $containerProofs = $containerProofsQuery
-            ->latest('updated_at')
-            ->take(100)
-            ->get()
-            ->flatMap(function ($progress) use ($buildActionLabel) {
-                $items = [];
-                $order = optional($progress->subTask)->order;
-                $containerNum = optional($progress->container)->container_number;
-                $service = optional($progress->subTask)->service_type;
-                $namaPt = optional($order)->nama_pt;
-
-                if ($progress->in_time) {
-                    $action = $progress->in_note ?: $buildActionLabel($service, 'IN');
-                    $items[] = [
-                        'id'            => 'cpin-' . $progress->id,
-                        'category'      => 'progress',
-                        'type'          => 'IN',
-                        'time'          => $progress->in_time,
-                        'is_read'       => $progress->in_time ? optional($progress->in_time)->isBefore(now()->subMinutes(30)) : true,
-                        'title'         => ($service ? "[$service] " : '') . "Proses IN" . ($containerNum ? " — Kontainer $containerNum" : ''),
-                        'message'       => ($namaPt ? "$namaPt — " : '') . $action,
-                        'photo'         => $progress->in_photo_path,
-                        'service_type'  => $service,
-                        'container_num' => $containerNum,
-                        'order_id'      => optional($order)->id,
-                        'order_number'  => optional($order)->order_number,
-                        'nama_pt'       => $namaPt,
-                        'source'        => optional($order)->source,
-                    ];
-                }
-                if ($progress->out_time) {
-                    $action = $progress->out_note ?: $buildActionLabel($service, 'OUT');
-                    $items[] = [
-                        'id'            => 'cpout-' . $progress->id,
-                        'category'      => 'progress',
-                        'type'          => 'OUT',
-                        'time'          => $progress->out_time,
-                        'is_read'       => $progress->out_time ? optional($progress->out_time)->isBefore(now()->subMinutes(30)) : true,
-                        'title'         => ($service ? "[$service] " : '') . "Proses OUT Selesai" . ($containerNum ? " — Kontainer $containerNum" : ''),
-                        'message'       => ($namaPt ? "$namaPt — " : '') . $action,
-                        'photo'         => $progress->out_photo_path,
-                        'service_type'  => $service,
-                        'container_num' => $containerNum,
-                        'order_id'      => optional($order)->id,
-                        'order_number'  => optional($order)->order_number,
-                        'nama_pt'       => $namaPt,
-                        'source'        => optional($order)->source,
-                    ];
-                }
-                return $items;
-            });
-
-        // 2. Bukti global (Cargo)
-        $globalProofsQuery = SubTask::with('order')
-            ->whereDoesntHave('containerProgress')
-            ->where(function ($q) {
-                $q->whereNotNull('in_photo_path')->orWhereNotNull('out_photo_path');
-            });
-        $globalProofsQuery = $this->applyRoleFilter($globalProofsQuery, $user, 'order');
-
-        $globalProofs = $globalProofsQuery
-            ->latest('updated_at')
-            ->take(50)
-            ->get()
-            ->flatMap(function ($subTask) {
-                $items = [];
-                $order = $subTask->order;
-
-                if ($subTask->in_photo_path) {
-                    $items[] = [
-                        'id'            => 'spin-' . $subTask->id,
-                        'category'      => 'progress',
-                        'type'          => 'IN',
-                        'time'          => $subTask->in_time ?: $subTask->updated_at,
-                        'is_read'       => optional($subTask->in_time ?: $subTask->updated_at)->isBefore(now()->subMinutes(30)),
-                        'title'         => "[{$subTask->service_type}] Proses IN — Cargo",
-                        'message'       => $subTask->in_note ?: 'Bukti IN cargo telah diunggah.',
-                        'photo'         => $subTask->in_photo_path,
-                        'service_type'  => $subTask->service_type,
-                        'container_num' => null,
-                        'order_id'      => optional($order)->id,
-                        'order_number'  => optional($order)->order_number,
-                        'nama_pt'       => optional($order)->nama_pt,
-                        'source'        => optional($order)->source,
-                    ];
-                }
-                if ($subTask->out_photo_path) {
-                    $items[] = [
-                        'id'            => 'spout-' . $subTask->id,
-                        'category'      => 'progress',
-                        'type'          => 'OUT',
-                        'time'          => $subTask->out_time ?: $subTask->updated_at,
-                        'is_read'       => optional($subTask->out_time ?: $subTask->updated_at)->isBefore(now()->subMinutes(30)),
-                        'title'         => "[{$subTask->service_type}] Proses OUT Selesai — Cargo",
-                        'message'       => $subTask->out_note ?: 'Bukti OUT cargo telah diunggah.',
-                        'photo'         => $subTask->out_photo_path,
-                        'service_type'  => $subTask->service_type,
-                        'container_num' => null,
-                        'order_id'      => optional($order)->id,
-                        'order_number'  => optional($order)->order_number,
-                        'nama_pt'       => optional($order)->nama_pt,
-                        'source'        => optional($order)->source,
-                    ];
-                }
-                return $items;
-            });
-
-        // 3. Order BARU masuk dari user (Khusus non-customer — HANYA 1 jam terakhir)
+        // 1. Order BARU masuk dari user (KHUSUS non-customer — HANYA 1 jam terakhir
+        //    HANYA ini yang masuk ke notif. Karena udah difilter applyRoleFilter
+        //    (sama persis yang tampil di Home Screen list order user).
+        //    Bukti IN/OUT buatan supir sendiri GA USAH — karena user upload sendiri dari home screen.
         if (!in_array($user?->role, ['customer', null])) {
             $taskQuery = SubTask::with('order')
                 ->whereIn('status', ['Masuk', 'Submitted', 'Pending'])
@@ -650,7 +537,7 @@ class ApiController extends Controller
             $notifications = $notifications->merge($newTasks);
         }
 
-        // 4. Customer: Order submission confirmation
+        // 2. Customer: return empty (sudah di guard top, tapi disini jaga-jaga)
         if ($user?->role === 'customer') {
             $orderQuery = Order::where('customer_id', $user->id)
                 ->whereIn('status', ['Submitted', 'In Progress'])
@@ -680,8 +567,6 @@ class ApiController extends Controller
         }
 
         $notifications = $notifications
-            ->merge($containerProofs)
-            ->merge($globalProofs)
             ->sortByDesc('time')
             ->values();
 
