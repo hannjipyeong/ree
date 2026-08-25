@@ -334,11 +334,8 @@ class ApiService {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/orders'));
       
-      final authData = await LocalStorageService.getAuthData();
-      if (authData != null && authData.token != null) {
-        request.headers['Authorization'] = 'Bearer ${authData.token}';
-      }
-      request.headers['Accept'] = 'application/json';
+      final headers = await getHeaders();
+      request.headers.addAll(headers);
       request.fields['source'] = source;
       request.fields['tanggal_order'] = DateTime.now().toIso8601String().substring(0, 10);
       request.fields['nama_pt'] = namaPt;
