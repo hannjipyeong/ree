@@ -215,7 +215,9 @@
                     <div>
                         <div class="text-sm font-bold text-slate-800">Lampiran Dokumen Manifest Cargo</div>
                         <div class="text-xs text-slate-500">
-                            @if($order->cargo_file_path)
+                            @if(is_array($order->cargo_file_path) && count($order->cargo_file_path) > 0)
+                                Terlampir {{ count($order->cargo_file_path) }} berkas (Otomatis menjadi lampiran Surat Permohonan)
+                            @elseif(is_string($order->cargo_file_path))
                                 Terlampir: {{ basename($order->cargo_file_path) }} (Otomatis menjadi Hal. 2 Surat Permohonan)
                             @else
                                 Belum ada berkas manifest yang diunggah
@@ -224,7 +226,16 @@
                     </div>
                 </div>
 
-                @if($order->cargo_file_path)
+                @if(is_array($order->cargo_file_path) && count($order->cargo_file_path) > 0)
+                    <div class="flex items-center gap-2 flex-wrap">
+                        @foreach($order->cargo_file_path as $idx => $path)
+                        <a href="{{ asset($path) }}" target="_blank" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <span>Buka Berkas {{ count($order->cargo_file_path) > 1 ? '#' . ($idx + 1) : '' }}</span>
+                        </a>
+                        @endforeach
+                    </div>
+                @elseif(is_string($order->cargo_file_path))
                     <div class="flex items-center gap-2">
                         <a href="{{ asset($order->cargo_file_path) }}" target="_blank" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>

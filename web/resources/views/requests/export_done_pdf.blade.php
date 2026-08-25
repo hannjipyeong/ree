@@ -139,7 +139,7 @@
     <table class="header-table">
         <tr>
             <td style="width: 60%;">
-                <div class="title">PT. BERKAH KARYA JASATAMA</div>
+                <div class="title">PT. BINTANG KEPRI JAYA</div>
                 <div class="subtitle">Laporan Monitoring & Rekapitulasi Order Selesai (Status: DONE)</div>
             </td>
             <td style="width: 40%; text-align: right;">
@@ -217,7 +217,8 @@
         <tbody>
             @php $cRow = 1; @endphp
             @forelse($containerOrders as $ord)
-                @foreach($ord->containers as $c)
+                @php $containerCount = $ord->containers->count(); @endphp
+                @foreach($ord->containers as $idx => $c)
                     @php
                         $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
                         $pLolo = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
@@ -245,9 +246,11 @@
                         $pnbpNum = $c->pnbp_number;
                     @endphp
                     <tr>
-                        <td style="text-align: center;">{{ $cRow++ }}</td>
-                        <td><strong>{{ $ord->order_number }}</strong></td>
-                        <td>{{ $ord->nama_pt }}</td>
+                        @if($idx === 0)
+                            <td rowspan="{{ $containerCount }}" style="text-align: center; vertical-align: top;">{{ $cRow++ }}</td>
+                            <td rowspan="{{ $containerCount }}" style="vertical-align: top;"><strong>{{ $ord->order_number }}</strong></td>
+                            <td rowspan="{{ $containerCount }}" style="vertical-align: top;">{{ $ord->nama_pt }}</td>
+                        @endif
                         <td><strong>{{ $c->container_number ?: 'Tanpa No' }}</strong></td>
                         <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
                         

@@ -314,11 +314,10 @@ class ApiService {
     }
   }
 
-  /// 3. Submit Order (Multipart)
   static Future<bool> submitOrder({
     required String source,
     required String namaPt,
-    required String namaPbm,
+    String? namaPbm,
     required String noTelp,
     required String wilayah,
     required String lokasiFasilitas,
@@ -326,62 +325,63 @@ class ApiService {
     required String payloadType,
     required Set<String> services,
     List<Map<String, dynamic>>? containers,
-    String? jenisBarang,
-    String? jumlahBarang,
-    String? jumlahTonase,
-    String? nomorBl,
-    String? vessel,
-    String? voyage,
-    String? noSuratJalan,
-    String? noBp,
-    String? nomorContainerCargo,
-    String? cargoFilePath,
+    List<CargoEntry>? cargos,
     String? haulageFilePath,
-    Uint8List? cargoFileBytes,
-    String? cargoFileName,
     Uint8List? haulageFileBytes,
     String? haulageFileName,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/orders');
-      var request = http.MultipartRequest('POST', url);
-      final headers = await getHeaders();
-      request.headers.addAll(headers);
-
-      // Text fields
+      final request = http.MultipartRequest('POST', Uri.parse('${AppConstants.apiBaseUrl}/orders'));
+      
+      final authData = await LocalStorageService.getAuthData();
+      if (authData != null && authData.token != null) {
+        request.headers['Authorization'] = 'Bearer ${authData.token}';
+      }
+      request.headers['Accept'] = 'application/json';
       request.fields['source'] = source;
       request.fields['tanggal_order'] = DateTime.now().toIso8601String().substring(0, 10);
       request.fields['nama_pt'] = namaPt;
-      request.fields['nama_pbm'] = namaPbm;
+      request.fields['nama_pbm'] = namaPbm ?? '';
       request.fields['no_telp'] = noTelp;
       request.fields['wilayah'] = wilayah;
       request.fields['lokasi_fasilitas'] = lokasiFasilitas;
       request.fields['jenis_kegiatan'] = jenisKegiatan;
       request.fields['payload_type'] = payloadType;
       
-      if (jenisBarang != null) request.fields['jenis_barang'] = jenisBarang;
-      if (jumlahBarang != null) request.fields['jumlah_barang'] = jumlahBarang;
-      if (jumlahTonase != null) request.fields['jumlah_tonase'] = jumlahTonase;
-      if (nomorBl != null) request.fields['nomor_bl'] = nomorBl;
-      if (vessel != null) request.fields['vessel'] = vessel;
-      if (voyage != null) request.fields['voyage'] = voyage;
-      if (noSuratJalan != null) request.fields['no_surat_jalan'] = noSuratJalan;
-      if (noBp != null) request.fields['no_bp'] = noBp;
-      if (nomorContainerCargo != null) request.fields['nomor_container_cargo'] = nomorContainerCargo;
-      
+      if (cargos != null && cargos.isNotEmpty) {
+        // Text fields
+        final jenisBarang = cargos.map((c) => c.jenisBarang?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final jumlahBarang = cargos.map((c) => c.jumlahBarang?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final jumlahTonase = cargos.map((c) => c.jumlahTonase?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final nomorBl = cargos.map((c) => c.nomorBl?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final vessel = cargos.map((c) => c.vessel?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final voyage = cargos.map((c) => c.voyage?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final noSuratJalan = cargos.map((c) => c.noSuratJalan?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final noBp = cargos.map((c) => c.noBp?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+        final nomorContainerCargo = cargos.map((c) => c.nomorContainerCargo?.trim()).where((s) => s != null && s.isNotEmpty).join(', ');
+
+        if (jenisBarang.isNotEmpty) request.fields['jenis_barang'] = jenisBarang;
+        if (jumlahBarang.isNotEmpty) request.fields['jumlah_barang'] = jumlahBarang;
+        if (jumlahTonase.isNotEmpty) request.fields['jumlah_tonase'] = jumlahTonase;
+        if (nomorBl.isNotEmpty) request.fields['nomor_bl'] = nomorBl;
+        if (vessel.isNotEmpty) request.fields['vessel'] = vessel;
+        if (voyage.isNotEmpty) request.fields['voyage'] = voyage;
+        if (noSuratJalan.isNotEmpty) request.fields['no_surat_jalan'] = noSuratJalan;
+        if (noBp.isNotEmpty) request.fields['no_bp'] = noBp;
+        if (nomorContainerCargo.isNotEmpty) request.fields['nomor_container_cargo'] = nomorContainerCargo;
+
+        // Files - array of cargo files
+        for (var c in cargos) {
+          if (c.cargoFileBytes != null && c.cargoFileName != null) {
+            request.files.add(http.MultipartFile.fromBytes('cargo_files[]', c.cargoFileBytes!, filename: c.cargoFileName));
+          }
+        }
+      }
+
       // JSON strings for arrays
       request.fields['services'] = jsonEncode(services.toList());
       if (containers != null && containers.isNotEmpty) {
         request.fields['containers'] = jsonEncode(containers);
-      }
-
-      // Files — always use bytes since file_picker withData: true provides bytes on all platforms
-      // and fromPath crashes the Dart web compiler.
-      if (cargoFileBytes != null && cargoFileName != null) {
-        request.files.add(http.MultipartFile.fromBytes('cargo_file', cargoFileBytes, filename: cargoFileName));
-      } else if (cargoFilePath != null && cargoFilePath.isNotEmpty) {
-        // Fallback for native if bytes are missing for some reason
-        debugPrint('Warning: Missing cargo bytes on native. Cannot upload via path on Web.');
       }
       
       if (haulageFileBytes != null && haulageFileName != null) {

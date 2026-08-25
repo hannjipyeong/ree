@@ -728,8 +728,8 @@ class RequestController extends Controller
         $romanMonth = $romanMonths[$now->month] ?? 'I';
         $year = $now->year;
 
-        // Nomor surat: nomor/PBM-PKJ/bulan(romawi)/tahun (contoh: 001/PBM-PKJ/VIII/2026)
-        $nomorSurat = "{$seqNumber}/PBM-PKJ/{$romanMonth}/{$year}";
+        // Nomor surat: nomor/PBM-BKJ/bulan(romawi)/tahun (contoh: 001/PBM-BKJ/VIII/2026)
+        $nomorSurat = "{$seqNumber}/PBM-BKJ/{$romanMonth}/{$year}";
 
         // Lampiran: "-"
         $lampiran = '-';

@@ -85,7 +85,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Laporan Operasional & Progress Layanan — PT. Berkah Karya Jasatama</h1>
+        <h1>Laporan Operasional & Progress Layanan — PT. Bintang Kepri Jaya</h1>
         <div class="meta">
             Dicetak oleh: <strong>{{ $adminUser }}</strong> &nbsp;|&nbsp; Waktu Cetak: <strong>{{ $tanggalCetak }}</strong> &nbsp;|&nbsp; Periode: <strong>{{ $periodeText }}</strong>
         </div>
@@ -144,7 +144,8 @@
         <tbody>
             @php $cRow = 1; @endphp
             @forelse($containerOrders as $ord)
-                @foreach($ord->containers as $c)
+                @php $containerCount = $ord->containers->count(); @endphp
+                @foreach($ord->containers as $idx => $c)
                     @php
                         // Fetch progresses per service for this container
                         $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
@@ -176,9 +177,11 @@
                         $pnbpNum = $c->pnbp_number;
                     @endphp
                     <tr>
-                        <td style="text-align: center;">{{ $cRow++ }}</td>
-                        <td><strong>{{ $ord->order_number }}</strong></td>
-                        <td>{{ $ord->nama_pt }}</td>
+                        @if($idx === 0)
+                            <td rowspan="{{ $containerCount }}" style="text-align: center; vertical-align: middle;">{{ $cRow++ }}</td>
+                            <td rowspan="{{ $containerCount }}" style="vertical-align: middle;"><strong>{{ $ord->order_number }}</strong></td>
+                            <td rowspan="{{ $containerCount }}" style="vertical-align: middle;">{{ $ord->nama_pt }}</td>
+                        @endif
                         <td><strong>{{ $c->container_number ?: 'Tanpa No' }}</strong></td>
                         <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
                         

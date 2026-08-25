@@ -234,28 +234,20 @@ class PbmLainViewModel extends ChangeNotifier {
       final nomorContainerCargoCombined = hasCargo ? _cargos.map((c) => c.nomorContainerCargo?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
 
       final success = await ApiService.submitOrder(
-        source: 'LOLO',
+        source: 'PBM LAIN',
         namaPt: _namaPt ?? 'Unknown PT',
-        namaPbm: _namaPbm ?? 'Unknown PBM',
+        namaPbm: _namaPbm,
         noTelp: _noTelp ?? '081234567890',
-        wilayah: _wilayah ?? 'Utara',
+        wilayah: _wilayah ?? 'Selatan',
         lokasiFasilitas: _lokasiFasilitas ?? 'TPFT',
         jenisKegiatan: _jenisKegiatan ?? 'cek fisik',
         payloadType: payloadType,
         services: servicesToSubmit,
         containers: containerList,
-        jenisBarang: jenisBarangCombined,
-        jumlahBarang: jumlahBarangCombined,
-        jumlahTonase: jumlahTonaseCombined,
-        nomorBl: nomorBlCombined,
-        vessel: vesselCombined,
-        voyage: voyageCombined,
-        noSuratJalan: noSuratJalanCombined,
-        noBp: noBpCombined,
-        nomorContainerCargo: nomorContainerCargoCombined,
-        cargoFilePath: hasCargo ? _cargoFilePath : null,
-        cargoFileBytes: hasCargo ? _cargoFileBytes : null,
-        cargoFileName: hasCargo ? _cargoFileName : null,
+        cargos: hasCargo ? _cargos : null,
+        haulageFilePath: _haulageFilePath,
+        haulageFileBytes: _haulageFileBytes,
+        haulageFileName: _haulageFileName,
       );
 
       if (success) {

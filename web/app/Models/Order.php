@@ -56,6 +56,7 @@ class Order extends Model
         'invoiced_at' => 'datetime',
         'is_pnbp' => 'boolean',
         'pnbp_completed_at' => 'datetime',
+        'cargo_file_path' => 'array',
     ];
 
     public function customer(): BelongsTo

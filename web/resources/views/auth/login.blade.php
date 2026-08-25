@@ -77,7 +77,7 @@
         </div>
 
         <div class="px-8 py-4 bg-slate-50 border-t border-slate-100 text-center text-xs text-slate-500 font-medium">
-            PT. Berkah Karya Jasatama &copy; {{ date('Y') }}
+            PT. Bintang Kepri Jaya &copy; {{ date('Y') }}
         </div>
     </div>
 

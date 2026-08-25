@@ -173,10 +173,15 @@ class ApiController extends Controller
             'nomor_container_cargo' => 'nullable|string',
         ]);
 
-        $cargoPath = null;
-        if ($request->hasFile('cargo_file')) {
-            $cargoPath = $request->file('cargo_file')->store('uploads/cargo', 'public');
+        $cargoPaths = [];
+        if ($request->hasFile('cargo_files')) {
+            foreach ($request->file('cargo_files') as $file) {
+                if ($file) {
+                    $cargoPaths[] = Storage::url($file->store('uploads/cargo', 'public'));
+                }
+            }
         }
+        $cargoPathsJson = !empty($cargoPaths) ? json_encode($cargoPaths) : null;
 
         $haulagePath = null;
         if ($request->hasFile('haulage_file')) {
@@ -203,7 +208,7 @@ class ApiController extends Controller
             'lokasi_fasilitas' => $validated['lokasi_fasilitas'],
             'jenis_kegiatan' => $validated['jenis_kegiatan'],
             'payload_type' => $validated['payload_type'],
-            'cargo_file_path' => $cargoPath ? Storage::url($cargoPath) : null,
+            'cargo_file_path' => $cargoPathsJson,
             'haulage_file_path' => $haulagePath ? Storage::url($haulagePath) : null,
             'tkbm_option' => $request->tkbm_option,
             'jenis_barang' => $request->jenis_barang,

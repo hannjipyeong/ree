@@ -115,20 +115,6 @@ class _PbmLainPage2ScreenState extends State<PbmLainPage2Screen> {
                   onRemove: vm.removeCargo,
                   onUpdate: vm.updateCargo,
                 ),
-                const FormInfoBanner(
-                  message: 'Upload manifest atau dokumen cargo dalam format PDF, JPG, atau PNG.',
-                  icon: Icons.info_outline,
-                ),
-                const SizedBox(height: 8),
-                AppFileUploadTile(
-                  label: 'Manifest / Dokumen Cargo',
-                  hint: 'Upload manifest cargo',
-                  fileName: vm.cargoFileName,
-                  allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
-                  onFileSelected: (name, bytes, path) =>
-                      vm.setCargoFile(name: name, path: path ?? '', bytes: bytes),
-                  onCleared: vm.clearCargoFile,
-                ),
               ],
             ),
         ],

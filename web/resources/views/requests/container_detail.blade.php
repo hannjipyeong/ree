@@ -886,7 +886,24 @@
         return false;
     }
 
+    // Track selects that the user has manually changed (to prevent polling from resetting them)
+    const userChangedSelects = new Set();
+    document.querySelectorAll('[id^="statusSelect-"]').forEach(sel => {
+        sel.addEventListener('change', () => userChangedSelects.add(sel.id));
+    });
+
+    function isUserInteractingWithForms() {
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+            return true;
+        }
+        return false;
+    }
+
     function pollContainerUpdates() {
+        // Skip polling entirely if user is interacting with any form element
+        if (isUserInteractingWithForms()) return;
+
         fetch(window.location.href, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
@@ -895,11 +912,11 @@
             return response.text();
         })
         .then(html => {
-            if (!html) return;
+            if (!html || isUserInteractingWithForms()) return;
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // Update subtask displays
+            // Only update display areas (badges, info text) — never touch form elements
             document.querySelectorAll('[id^="subtask-display-"]').forEach(displayEl => {
                 const id = displayEl.id;
                 const newDisplayEl = doc.getElementById(id);
@@ -908,9 +925,10 @@
                 }
             });
 
-            // Update select values if they are not currently focused/active
+            // Only update selects that the user has NOT manually changed
             document.querySelectorAll('[id^="statusSelect-"]').forEach(selectEl => {
                 const id = selectEl.id;
+                if (userChangedSelects.has(id)) return; // User changed this — do NOT reset
                 const newSelectEl = doc.getElementById(id);
                 if (newSelectEl && document.activeElement !== selectEl) {
                     selectEl.value = newSelectEl.value;
@@ -920,8 +938,8 @@
         .catch(err => console.error("Error polling container updates:", err));
     }
 
-    // Set polling every 3 seconds
-    setInterval(pollContainerUpdates, 3000);
+    // Set polling every 5 seconds (increased from 3s to reduce flicker)
+    setInterval(pollContainerUpdates, 5000);
 
     document.addEventListener('DOMContentLoaded', function() {
         @if($container->sp3kk_file_path)

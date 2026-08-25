@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/core/components/app_button.dart';
 import 'package:bkj_app/core/components/app_text_field.dart';
+import 'package:bkj_app/core/components/app_file_upload_tile.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/all_in/models/cargo_entry.dart';
 
@@ -222,6 +223,22 @@ class _CargoEntryCard extends StatelessWidget {
             initialValue: entry.noBp,
             onChanged: (v) => onChanged(entry.copyWith(noBp: v)),
             validator: (v) => AppValidators.required(v, fieldName: 'No. BP'),
+          ),
+          const SizedBox(height: 12),
+
+          AppFileUploadTile(
+            label: 'Manifest / Dokumen Cargo #${index + 1}',
+            hint: 'Upload manifest cargo (PDF/JPG/PNG)',
+            fileName: entry.cargoFileName,
+            allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
+            onFileSelected: (name, bytes, path) => onChanged(
+              entry.copyWith(
+                cargoFileName: name,
+                cargoFilePath: path ?? '',
+                cargoFileBytes: bytes,
+              ),
+            ),
+            onCleared: () => onChanged(entry.copyWith(clearFile: true)),
           ),
         ],
       ),
