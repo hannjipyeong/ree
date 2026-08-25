@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/main.dart'; // import rootScaffoldMessengerKey
 import 'package:bkj_app/core/theme/app_theme.dart';
+import 'package:bkj_app/features/all_in/models/cargo_entry.dart';
 
 class ApiService {
   static void _showErrorToast(String message) {
@@ -331,7 +332,7 @@ class ApiService {
     String? haulageFileName,
   }) async {
     try {
-      final request = http.MultipartRequest('POST', Uri.parse('${AppConstants.apiBaseUrl}/orders'));
+      final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/orders'));
       
       final authData = await LocalStorageService.getAuthData();
       if (authData != null && authData.token != null) {
