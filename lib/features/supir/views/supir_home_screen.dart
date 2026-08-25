@@ -273,7 +273,7 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
                         spacing: 8,
                         runSpacing: 4,
                         children: order.containers.map((c) {
-                          final hasSp3kk = c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty;
+                          final hasSp3kk = order.serviceType == 'Haulage' && c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty;
                           return Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
