@@ -70,7 +70,7 @@
                 <div class="text-xs text-slate-500 mt-1.5">
                     @if($order->has_asuransi)
                         <span class="text-emerald-600 font-semibold flex items-center gap-1 text-xs">
-                            <i class="fa-solid fa-shield-halved"></i> Asuransi Aktif @if($order->asuransi_value) (Rp {{ number_format($order->asuransi_value, 0, ',', '.') }}) @endif
+                            <i class="fa-solid fa-shield-halved"></i> Asuransi Aktif
                         </span>
                     @else
                         <span class="text-slate-400 font-normal text-xs">Tanpa Asuransi</span>
