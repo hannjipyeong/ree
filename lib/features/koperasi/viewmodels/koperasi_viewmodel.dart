@@ -241,16 +241,6 @@ class KoperasiViewModel extends ChangeNotifier {
           ? _containers.map((c) => c.toJson()).toList() 
           : null;
 
-      final jenisBarangCombined = hasCargo ? _cargos.map((c) => c.jenisBarang?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final jumlahBarangCombined = hasCargo ? _cargos.map((c) => c.jumlahBarang?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final jumlahTonaseCombined = hasCargo ? _cargos.map((c) => c.jumlahTonase?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final nomorBlCombined = hasCargo ? _cargos.map((c) => c.nomorBl?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final vesselCombined = hasCargo ? _cargos.map((c) => c.vessel?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final voyageCombined = hasCargo ? _cargos.map((c) => c.voyage?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final noSuratJalanCombined = hasCargo ? _cargos.map((c) => c.noSuratJalan?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final noBpCombined = hasCargo ? _cargos.map((c) => c.noBp?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-      final nomorContainerCargoCombined = hasCargo ? _cargos.map((c) => c.nomorContainerCargo?.trim()).where((s) => s != null && s.isNotEmpty).join(', ') : null;
-
       final success = await ApiService.submitOrder(
         source: 'KOPERASI',
         namaPt: _namaPt ?? 'Unknown PT',
