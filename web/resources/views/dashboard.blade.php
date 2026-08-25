@@ -415,6 +415,7 @@
                             </td>
 
                             {{-- ── Tiket Task Column ─────────────────────────────── --}}
+                            @php
                             $visibleTasks = $ord->subTasks;
                             if ($activeLayanan) {
                                 $visibleTasks = $visibleTasks->filter(fn($st) => $st->service_type == $activeLayanan);
