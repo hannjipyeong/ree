@@ -110,9 +110,11 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
           final order = orders[index];
           final formattedDate = "${order.date.day.toString().padLeft(2, '0')}/${order.date.month.toString().padLeft(2, '0')}/${order.date.year} ${order.date.hour.toString().padLeft(2, '0')}:${order.date.minute.toString().padLeft(2, '0')}";
           
-          final sp3kkContainers = order.containers
-              .where((c) => c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
-              .toList();
+          final sp3kkContainers = order.serviceType == 'Haulage' 
+              ? order.containers
+                  .where((c) => c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
+                  .toList()
+              : [];
 
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
