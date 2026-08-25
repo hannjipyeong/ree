@@ -303,7 +303,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Tiket</label>
-                                <select name="status" id="statusSelect-{{ $st->id }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                                <select name="status" id="statusSelect-{{ $st->id }}" onchange="if(typeof userChangedSelects !== 'undefined') userChangedSelects.add(this.id);" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none">
                                     <option value="Masuk" {{ $currentStatus == 'Masuk' ? 'selected' : '' }}>Masuk (Pending)</option>
                                     <option value="In" {{ $currentStatus == 'In' || $currentStatus == 'IN' ? 'selected' : '' }}>In (Progres IN)</option>
                                     <option value="Out" {{ $currentStatus == 'Out' || $currentStatus == 'OUT' ? 'selected' : '' }}>Out (Progres OUT)</option>
