@@ -31,20 +31,27 @@ class DashboardController extends Controller
         }
         $totalSubTasks = (clone $subTaskBaseQuery)->count();
 
-        $subTaskStats = [
-            'masuk' => (clone $subTaskBaseQuery)->where(function ($q) {
-                $q->where('status', 'Masuk')->orWhere('status', 'Pending')->orWhere('status', 'MASUK');
-            })->count(),
-            'in'    => (clone $subTaskBaseQuery)->where(function ($q) {
-                $q->where('status', 'In')->orWhere('status', 'IN')->orWhere('status', 'in');
-            })->count(),
-            'out'   => (clone $subTaskBaseQuery)->where(function ($q) {
-                $q->where('status', 'Out')->orWhere('status', 'OUT')->orWhere('status', 'out');
-            })->count(),
-            'done'  => (clone $subTaskBaseQuery)->where(function ($q) {
-                $q->where('status', 'Done')->orWhere('status', 'DONE')->orWhere('status', 'Selesai')->orWhere('status', 'done');
-            })->count(),
+        // Count unique ORDERS that have at least one SubTask or ContainerProgress
+        // matching each status. This ensures the badge count matches the filtered list.
+        $statusGroups = [
+            'masuk' => ['Masuk', 'Pending', 'MASUK'],
+            'in'    => ['In', 'IN', 'in'],
+            'out'   => ['Out', 'OUT', 'out'],
+            'done'  => ['Done', 'DONE', 'done', 'Selesai'],
         ];
+
+        $subTaskStats = [];
+        foreach ($statusGroups as $key => $statuses) {
+            $q = clone $orderBaseQuery;
+            $subTaskStats[$key] = $q->where(function ($oq) use ($statuses) {
+                $oq->whereHas('subTasks', function ($sq) use ($statuses) {
+                    $sq->whereIn('status', $statuses)
+                       ->orWhereHas('containerProgress', function ($cpq) use ($statuses) {
+                           $cpq->whereIn('status', $statuses);
+                       });
+                });
+            })->count();
+        }
 
         // ── Filter params ─────────────────────────────────────────────
         $activeStatus  = $request->input('tiket_status');

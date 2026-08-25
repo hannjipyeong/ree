@@ -416,7 +416,21 @@
 
                             {{-- ── Tiket Task Column ─────────────────────────────── --}}
                             @php
+                                // Determine which sub-task statuses to SHOW based on active filter
+                                // IN   → only show tikets with status In
+                            // OUT  → show tikets with status In + Out
+                            // Done → show tikets with status In + Out + Done (not Masuk)
+                            // no filter / Masuk → show all
+                            $allowedStatuses = match($activeStatus) {
+                                'In'   => ['In'],
+                                'Out'  => ['Masuk', 'In', 'Out'],
+                                'Done' => ['Masuk', 'In', 'Out', 'Done'],
+                                default => null, // null = show all
+                            };
                             $visibleTasks = $ord->subTasks;
+                            if ($allowedStatuses) {
+                                $visibleTasks = $visibleTasks->filter(fn($st) => in_array($st->status, $allowedStatuses));
+                            }
                             if ($activeLayanan) {
                                 $visibleTasks = $visibleTasks->filter(fn($st) => $st->service_type == $activeLayanan);
                             }
@@ -437,6 +451,8 @@
                                                 } elseif ($st->status == 'Done') {
                                                     $history = ['In', 'Out', 'Done'];
                                                 }
+                                                // If filtering by a specific status, limit by allowedStatuses
+                                                $history = array_intersect($history, $allowedStatuses ?? ['Masuk', 'In', 'Out', 'Done']);
                                             @endphp
 
                                             @foreach($history as $hStatus)
