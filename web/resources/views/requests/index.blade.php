@@ -7,10 +7,18 @@
 <div class="space-y-6">
 
     <!-- Header Actions & Filters -->
-    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+    @php
+        $reqFilterCount = 0;
+        if (request('search')) $reqFilterCount++;
+        if (request('layanan')) $reqFilterCount++;
+        if (request('source')) $reqFilterCount++;
+        if (request('status')) $reqFilterCount++;
+    @endphp
+
+    <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
         
-        <!-- Search & Filter Form -->
-        <form method="GET" action="{{ route('requests.index') }}" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <!-- Search & Filter Bar (Desktop) -->
+        <form method="GET" action="{{ route('requests.index') }}" class="hidden lg:flex flex-wrap items-center gap-3">
             <div class="relative min-w-[220px]">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -36,19 +44,86 @@
             @endif
         </form>
 
-        <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        <!-- Search Bar & Drawer Trigger (Mobile/Tablet) -->
+        <div class="flex lg:hidden gap-2">
+            <form method="GET" action="{{ route('requests.index') }}" class="flex-1 flex gap-2">
+                @if(request('layanan'))<input type="hidden" name="layanan" value="{{ request('layanan') }}">@endif
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Order / PT..." 
+                        class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shrink-0">
+                    <i class="fa-solid fa-search"></i>
+                </button>
+            </form>
+            <button type="button" onclick="openRequestFilterDrawer()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 border border-slate-200">
+                <i class="fa-solid fa-sliders text-blue-600"></i>
+                <span>Filter</span>
+                @if($reqFilterCount > 0)
+                    <span class="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-extrabold flex items-center justify-center">{{ $reqFilterCount }}</span>
+                @endif
+            </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto justify-end">
             <!-- Export Done Data Button -->
-            <button type="button" onclick="openGlobalExportDoneModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow-md shadow-emerald-600/20 transition flex items-center gap-2">
+            <button type="button" onclick="openGlobalExportDoneModal()" class="flex-1 sm:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-file-export text-xs"></i>
-                <span>Ekspor Data Done (PDF / Excel)</span>
+                <span>Ekspor Done</span>
             </button>
 
             <!-- New Request Button -->
-            <a href="{{ route('requests.create') }}" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center gap-2">
+            <a href="{{ route('requests.create') }}" class="flex-1 sm:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-plus text-xs"></i>
-                <span>Buat Order Manual</span>
+                <span>Order Manual</span>
             </a>
         </div>
+    </div>
+
+    <!-- Right Sidebar Filter Drawer for Requests (Mobile/Tablet) -->
+    <div id="requestFilterBackdrop" onclick="closeRequestFilterDrawer()" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-opacity"></div>
+
+    <div id="requestFilterDrawer" class="fixed inset-y-0 right-0 w-80 sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-blue-400"></i>
+                <h4 class="font-bold text-sm">Filter Request Order</h4>
+            </div>
+            <button type="button" onclick="closeRequestFilterDrawer()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form method="GET" action="{{ route('requests.index') }}" class="flex-1 overflow-y-auto p-5 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Kunci</label>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Order / PT..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Layanan</label>
+                <select name="layanan" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                    <option value="">-- Semua Layanan --</option>
+                    <option value="Haulage"     {{ request('layanan') == 'Haulage'     ? 'selected' : '' }}>Haulage</option>
+                    <option value="LOLO"        {{ request('layanan') == 'LOLO'        ? 'selected' : '' }}>LOLO</option>
+                    <option value="Penumpukan"  {{ request('layanan') == 'Penumpukan'  ? 'selected' : '' }}>Penumpukan</option>
+                    <option value="TKBM"        {{ request('layanan') == 'TKBM'        ? 'selected' : '' }}>TKBM</option>
+                    <option value="Asuransi"    {{ request('layanan') == 'Asuransi'    ? 'selected' : '' }}>Asuransi</option>
+                </select>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex gap-2">
+                <a href="{{ route('requests.index') }}" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs text-center transition">
+                    Reset
+                </a>
+                <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition shadow">
+                    Terapkan Filter
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Request Table -->
@@ -190,6 +265,20 @@
 </div>
 
 <script>
+    function openRequestFilterDrawer() {
+        const drawer = document.getElementById('requestFilterDrawer');
+        const backdrop = document.getElementById('requestFilterBackdrop');
+        if (drawer) drawer.classList.remove('translate-x-full');
+        if (backdrop) backdrop.classList.remove('hidden');
+    }
+
+    function closeRequestFilterDrawer() {
+        const drawer = document.getElementById('requestFilterDrawer');
+        const backdrop = document.getElementById('requestFilterBackdrop');
+        if (drawer) drawer.classList.add('translate-x-full');
+        if (backdrop) backdrop.classList.add('hidden');
+    }
+
     function isUserInteracting() {
         const activeEl = document.activeElement;
         if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {

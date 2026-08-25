@@ -616,7 +616,7 @@
 
 <!-- Modal PNBP Check / Uncheck & Notes Submission -->
 <div id="pnbpModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl space-y-0">
+    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-0">
         <!-- Modal Header -->
         <div class="p-5 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white flex items-center justify-between">
             <div class="flex items-center gap-3">

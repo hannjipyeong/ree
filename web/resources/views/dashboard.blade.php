@@ -88,23 +88,24 @@
     </div>
 
     <!-- Status Breakdown Cards (clickable filter) -->
-    <div id="status-breakdown" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+    <div id="status-breakdown" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 
         {{-- Masuk --}}
         <a href="{{ $activeStatus == 'Masuk' ? route('dashboard') : route('dashboard', array_merge(request()->except('tiket_status'), ['tiket_status' => 'Masuk'])) }}"
-           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+           onclick="event.preventDefault(); applyFilterAjax(this.href);"
+           class="group p-3 sm:p-4 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer
                   bg-slate-800 text-white shadow
                   {{ $activeStatus && $activeStatus != 'Masuk' ? 'opacity-40 grayscale' : '' }}
                   {{ $activeStatus == 'Masuk' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-slate-700' }}">
-            <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-slate-400 {{ $activeStatus == 'Masuk' ? 'animate-pulse' : '' }}"></span>
-                <span class="text-sm font-medium">Status 'Masuk'</span>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-slate-400 {{ $activeStatus == 'Masuk' ? 'animate-pulse' : '' }}"></span>
+                <span class="text-xs sm:text-sm font-medium">Status 'Masuk'</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="font-bold text-lg">{{ $subTaskStats['masuk'] }}</span>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <span class="font-bold text-base sm:text-lg">{{ $subTaskStats['masuk'] }}</span>
                 @if($activeStatus == 'Masuk')
-                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                        <i class="fa-solid fa-check text-[10px]"></i>
+                    <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[9px]"></i>
                     </span>
                 @endif
             </div>
@@ -112,19 +113,20 @@
 
         {{-- IN --}}
         <a href="{{ $activeStatus == 'In' ? route('dashboard') : route('dashboard', array_merge(request()->except('tiket_status'), ['tiket_status' => 'In'])) }}"
-           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+           onclick="event.preventDefault(); applyFilterAjax(this.href);"
+           class="group p-3 sm:p-4 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer
                   bg-blue-600 text-white shadow-lg shadow-blue-600/20
                   {{ $activeStatus && $activeStatus != 'In' ? 'opacity-40 grayscale' : '' }}
                   {{ $activeStatus == 'In' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-blue-500' }}">
-            <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-blue-200 {{ $activeStatus == 'In' ? 'animate-ping' : '' }}"></span>
-                <span class="text-sm font-medium">Status 'IN'</span>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-200 {{ $activeStatus == 'In' ? 'animate-ping' : '' }}"></span>
+                <span class="text-xs sm:text-sm font-medium">Status 'IN'</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="font-bold text-lg">{{ $subTaskStats['in'] }}</span>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <span class="font-bold text-base sm:text-lg">{{ $subTaskStats['in'] }}</span>
                 @if($activeStatus == 'In')
-                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                        <i class="fa-solid fa-check text-[10px]"></i>
+                    <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[9px]"></i>
                     </span>
                 @endif
             </div>
@@ -132,19 +134,20 @@
 
         {{-- OUT --}}
         <a href="{{ $activeStatus == 'Out' ? route('dashboard') : route('dashboard', array_merge(request()->except('tiket_status'), ['tiket_status' => 'Out'])) }}"
-           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+           onclick="event.preventDefault(); applyFilterAjax(this.href);"
+           class="group p-3 sm:p-4 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer
                   bg-amber-500 text-white shadow-lg shadow-amber-500/20
                   {{ $activeStatus && $activeStatus != 'Out' ? 'opacity-40 grayscale' : '' }}
                   {{ $activeStatus == 'Out' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-amber-400' }}">
-            <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-amber-200"></span>
-                <span class="text-sm font-medium">Status 'OUT'</span>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-200"></span>
+                <span class="text-xs sm:text-sm font-medium">Status 'OUT'</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="font-bold text-lg">{{ $subTaskStats['out'] }}</span>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <span class="font-bold text-base sm:text-lg">{{ $subTaskStats['out'] }}</span>
                 @if($activeStatus == 'Out')
-                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                        <i class="fa-solid fa-check text-[10px]"></i>
+                    <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[9px]"></i>
                     </span>
                 @endif
             </div>
@@ -152,19 +155,20 @@
 
         {{-- Done --}}
         <a href="{{ $activeStatus == 'Done' ? route('dashboard') : route('dashboard', array_merge(request()->except('tiket_status'), ['tiket_status' => 'Done'])) }}"
-           class="group p-4 rounded-xl flex items-center justify-between transition-all duration-200
+           onclick="event.preventDefault(); applyFilterAjax(this.href);"
+           class="group p-3 sm:p-4 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer
                   bg-emerald-600 text-white shadow-lg shadow-emerald-600/20
                   {{ $activeStatus && $activeStatus != 'Done' ? 'opacity-40 grayscale' : '' }}
                   {{ $activeStatus == 'Done' ? 'ring-2 ring-white/60 scale-[1.02]' : 'hover:bg-emerald-500' }}">
-            <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-emerald-200"></span>
-                <span class="text-sm font-medium">Status 'Done'</span>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-200"></span>
+                <span class="text-xs sm:text-sm font-medium">Status 'Done'</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="font-bold text-lg">{{ $subTaskStats['done'] }}</span>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <span class="font-bold text-base sm:text-lg">{{ $subTaskStats['done'] }}</span>
                 @if($activeStatus == 'Done')
-                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                        <i class="fa-solid fa-check text-[10px]"></i>
+                    <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check text-[9px]"></i>
                     </span>
                 @endif
             </div>
@@ -173,10 +177,48 @@
     </div>
 
     <!-- ════════════════════════════════════════════════════════════════
-         FILTER BAR — Search, Layanan, Tanggal, Export
+         FILTER BAR — Search, Layanan, Tanggal, Export (Responsive & Shopee Drawer)
          ════════════════════════════════════════════════════════════════ -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
-        <form method="GET" action="{{ route('dashboard') }}" id="dashboard-filter-form" class="space-y-4">
+    @php
+        $activeFilterCount = 0;
+        if ($activeStatus) $activeFilterCount++;
+        if ($activeLayanan) $activeFilterCount++;
+        if (!empty($activePayload)) $activeFilterCount++;
+        if ($dateFrom) $activeFilterCount++;
+        if ($dateTo) $activeFilterCount++;
+        if ($search) $activeFilterCount++;
+    @endphp
+
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5">
+        
+        <!-- Mobile Search & Filter Trigger (lg:hidden) -->
+        <div class="block lg:hidden space-y-3">
+            <form method="GET" action="{{ route('dashboard') }}" class="flex gap-2">
+                @if($activeStatus)<input type="hidden" name="tiket_status" value="{{ $activeStatus }}">@endif
+                @if($activeLayanan)<input type="hidden" name="layanan" value="{{ $activeLayanan }}">@endif
+                @if(!empty($activePayload))<input type="hidden" name="payload_type" value="{{ $activePayload }}">@endif
+                @if($dateFrom)<input type="hidden" name="date_from" value="{{ $dateFrom }}">@endif
+                @if($dateTo)<input type="hidden" name="date_to" value="{{ $dateTo }}">@endif
+
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari Order / PT..." class="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                </div>
+                <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shrink-0">
+                    <i class="fa-solid fa-search"></i>
+                </button>
+                <button type="button" onclick="openDashboardFilterDrawer()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 border border-slate-200">
+                    <i class="fa-solid fa-sliders text-blue-600"></i>
+                    <span>Filter</span>
+                    @if($activeFilterCount > 0)
+                        <span class="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-extrabold flex items-center justify-center">{{ $activeFilterCount }}</span>
+                    @endif
+                </button>
+            </form>
+        </div>
+
+        <!-- Desktop Full Filter Form (hidden lg:block) -->
+        <form method="GET" action="{{ route('dashboard') }}" id="dashboard-filter-form" class="hidden lg:block space-y-4">
             {{-- preserve tiket_status from the status cards --}}
             @if($activeStatus)
                 <input type="hidden" name="tiket_status" value="{{ $activeStatus }}">
@@ -249,50 +291,49 @@
                 </div>
 
             </div>
-
-            {{-- Active Filter Chips --}}
-            @if($activeStatus || $activeLayanan || ($activePayload ?? null) || $dateFrom || $dateTo || $search)
-                <div class="flex flex-wrap gap-2 pt-1">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider self-center">Filter Aktif:</span>
-                    @if($activeStatus)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold
-                            {{ $activeStatus == 'In' ? 'bg-blue-100 text-blue-700' : '' }}
-                            {{ $activeStatus == 'Out' ? 'bg-amber-100 text-amber-700' : '' }}
-                            {{ $activeStatus == 'Done' ? 'bg-emerald-100 text-emerald-700' : '' }}
-                            {{ $activeStatus == 'Masuk' ? 'bg-slate-100 text-slate-700' : '' }}">
-                            <i class="fa-solid fa-circle text-[8px]"></i> Status: {{ $activeStatus }}
-                        </span>
-                    @endif
-                    @if($activeLayanan)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-violet-100 text-violet-700">
-                            <i class="fa-solid fa-layer-group text-[8px]"></i> Layanan: {{ $activeLayanan }}
-                        </span>
-                    @endif
-                    @if(!empty($activePayload))
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-700">
-                            <i class="fa-solid fa-boxes-stacked text-[8px]"></i> Tipe: {{ $activePayload == 'Container' ? 'Kontainer' : ($activePayload == 'Cargo' ? 'Cargo' : 'Kontainer & Cargo') }}
-                        </span>
-                    @endif
-                    @if($dateFrom || $dateTo)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700">
-                            <i class="fa-solid fa-calendar text-[8px]"></i>
-                            {{ $dateFrom ? \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') : '?' }}
-                            &ndash;
-                            {{ $dateTo ? \Carbon\Carbon::parse($dateTo)->format('d/m/Y') : '?' }}
-                        </span>
-                    @endif
-                    @if($search)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
-                            <i class="fa-solid fa-magnifying-glass text-[8px]"></i> "{{ $search }}"
-                        </span>
-                    @endif
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500">
-                        {{ $recentOrders->count() }} hasil
-                    </span>
-                </div>
-            @endif
-
         </form>
+
+        {{-- Active Filter Chips --}}
+        @if($activeStatus || $activeLayanan || ($activePayload ?? null) || $dateFrom || $dateTo || $search)
+            <div class="flex flex-wrap gap-2 pt-3 border-t border-slate-100 mt-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider self-center">Filter Aktif:</span>
+                @if($activeStatus)
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold
+                        {{ $activeStatus == 'In' ? 'bg-blue-100 text-blue-700' : '' }}
+                        {{ $activeStatus == 'Out' ? 'bg-amber-100 text-amber-700' : '' }}
+                        {{ $activeStatus == 'Done' ? 'bg-emerald-100 text-emerald-700' : '' }}
+                        {{ $activeStatus == 'Masuk' ? 'bg-slate-100 text-slate-700' : '' }}">
+                        <i class="fa-solid fa-circle text-[8px]"></i> Status: {{ $activeStatus }}
+                    </span>
+                @endif
+                @if($activeLayanan)
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-violet-100 text-violet-700">
+                        <i class="fa-solid fa-layer-group text-[8px]"></i> Layanan: {{ $activeLayanan }}
+                    </span>
+                @endif
+                @if(!empty($activePayload))
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-700">
+                        <i class="fa-solid fa-boxes-stacked text-[8px]"></i> Tipe: {{ $activePayload == 'Container' ? 'Kontainer' : ($activePayload == 'Cargo' ? 'Cargo' : 'Kontainer & Cargo') }}
+                    </span>
+                @endif
+                @if($dateFrom || $dateTo)
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700">
+                        <i class="fa-solid fa-calendar text-[8px]"></i>
+                        {{ $dateFrom ? \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') : '?' }}
+                        &ndash;
+                        {{ $dateTo ? \Carbon\Carbon::parse($dateTo)->format('d/m/Y') : '?' }}
+                    </span>
+                @endif
+                @if($search)
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
+                        <i class="fa-solid fa-magnifying-glass text-[8px]"></i> "{{ $search }}"
+                    </span>
+                @endif
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500">
+                    {{ $recentOrders->count() }} hasil
+                </span>
+            </div>
+        @endif
 
         {{-- Export Buttons — use GET with current filter params --}}
         @php
@@ -305,17 +346,104 @@
                 'search'       => $search,
             ]);
         @endphp
-        <div class="flex items-center gap-2 justify-end mt-4 pt-4 border-t border-slate-100">
-            <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Export data ini:</span>
-            <a href="{{ route('dashboard.exportExcel', $exportParams) }}"
-               class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl text-xs shadow-sm shadow-emerald-500/20 transition flex items-center gap-2">
-                <i class="fa-solid fa-file-csv"></i> Export Excel
-            </a>
-            <a href="{{ route('dashboard.exportPdf', $exportParams) }}"
-               class="px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold rounded-xl text-xs shadow-sm shadow-rose-500/20 transition flex items-center gap-2">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
-            </a>
+        <div class="flex flex-wrap items-center gap-2 justify-between sm:justify-end mt-4 pt-4 border-t border-slate-100">
+            <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Export data ini:</span>
+            <div class="flex gap-2">
+                <a href="{{ route('dashboard.exportExcel', $exportParams) }}"
+                   class="px-3 sm:px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl text-xs shadow-sm shadow-emerald-500/20 transition flex items-center gap-1.5 sm:gap-2">
+                    <i class="fa-solid fa-file-csv"></i> <span>Excel</span>
+                </a>
+                <a href="{{ route('dashboard.exportPdf', $exportParams) }}"
+                   class="px-3 sm:px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold rounded-xl text-xs shadow-sm shadow-rose-500/20 transition flex items-center gap-1.5 sm:gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> <span>PDF</span>
+                </a>
+            </div>
         </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SHOPEE-STYLE RIGHT SIDEBAR FILTER DRAWER (Mobile / Tablet)
+         ════════════════════════════════════════════════════════════════ -->
+    <div id="dashFilterBackdrop" onclick="closeDashboardFilterDrawer()" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-opacity"></div>
+
+    <div id="dashFilterDrawer" class="fixed inset-y-0 right-0 w-80 sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <!-- Header -->
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-blue-400"></i>
+                <h4 class="font-bold text-sm">Filter &amp; Opsi Lanjutan</h4>
+            </div>
+            <button type="button" onclick="closeDashboardFilterDrawer()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Body Form -->
+        <form method="GET" action="{{ route('dashboard') }}" class="flex-1 overflow-y-auto p-5 space-y-4">
+            <!-- Search -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Kunci Pencarian</label>
+                <input type="text" name="search" value="{{ $search }}" placeholder="No. Order, PT, Wilayah..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+            </div>
+
+            <!-- Status Tiket Selection (Pills) -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Status Tiket Pelaksana</label>
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach(['' => 'Semua', 'Masuk' => 'Masuk', 'In' => 'IN', 'Out' => 'OUT', 'Done' => 'Done'] as $val => $lbl)
+                        <label class="flex items-center gap-2 p-2 border rounded-xl cursor-pointer text-xs font-medium {{ $activeStatus == $val ? 'bg-blue-50 border-blue-300 text-blue-700 font-bold' : 'border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+                            <input type="radio" name="tiket_status" value="{{ $val }}" {{ $activeStatus == $val ? 'checked' : '' }} class="text-blue-600">
+                            <span>{{ $lbl }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Layanan Selection -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Layanan</label>
+                <select name="layanan" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                    <option value="">Semua Layanan</option>
+                    @foreach(['Haulage', 'LOLO', 'Penumpukan', 'TKBM'] as $layanan)
+                        <option value="{{ $layanan }}" {{ $activeLayanan == $layanan ? 'selected' : '' }}>{{ $layanan }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Tipe Muatan -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Tipe Muatan</label>
+                <select name="payload_type" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                    <option value="">Semua Tipe</option>
+                    <option value="Container" {{ ($activePayload ?? '') == 'Container' ? 'selected' : '' }}>Kontainer</option>
+                    <option value="Cargo" {{ ($activePayload ?? '') == 'Cargo' ? 'selected' : '' }}>Cargo</option>
+                    <option value="Both" {{ ($activePayload ?? '') == 'Both' || ($activePayload ?? '') == 'Container,Cargo' ? 'selected' : '' }}>Kontainer &amp; Cargo</option>
+                </select>
+            </div>
+
+            <!-- Date Range -->
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-700">Rentang Tanggal Order</label>
+                <div>
+                    <span class="text-[10px] text-slate-400 block mb-1">Dari Tanggal:</span>
+                    <input type="date" name="date_from" value="{{ $dateFrom }}" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50">
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-400 block mb-1">Sampai Tanggal:</span>
+                    <input type="date" name="date_to" value="{{ $dateTo }}" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50">
+                </div>
+            </div>
+
+            <!-- Footer Action Buttons inside Drawer -->
+            <div class="pt-4 border-t border-slate-100 flex gap-2">
+                <a href="{{ route('dashboard') }}" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs text-center transition">
+                    Reset
+                </a>
+                <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition shadow">
+                    Terapkan Filter
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Recent Orders Table -->
@@ -627,6 +755,54 @@ document.addEventListener('click', function(e) {
         });
     }
 });
+
+function openDashboardFilterDrawer() {
+    const drawer = document.getElementById('dashFilterDrawer');
+    const backdrop = document.getElementById('dashFilterBackdrop');
+    if (drawer) drawer.classList.remove('translate-x-full');
+    if (backdrop) backdrop.classList.remove('hidden');
+}
+
+function closeDashboardFilterDrawer() {
+    const drawer = document.getElementById('dashFilterDrawer');
+    const backdrop = document.getElementById('dashFilterBackdrop');
+    if (drawer) drawer.classList.add('translate-x-full');
+    if (backdrop) backdrop.classList.add('hidden');
+}
+
+// ── Seamless AJAX Filter (Zero Page Jump / Preserves Exact Scroll Position) ────
+function applyFilterAjax(url) {
+    const mainEl = document.querySelector('main');
+    const prevScrollTop = mainEl ? mainEl.scrollTop : window.scrollY;
+
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(r => r.text())
+    .then(html => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        // Update target sections in place
+        const targetIds = ['status-breakdown', 'recent-orders-table', 'dashboard-filter-form', 'kpi-cards'];
+        targetIds.forEach(id => {
+            const cur = document.getElementById(id);
+            const nxt = doc.getElementById(id);
+            if (cur && nxt) cur.innerHTML = nxt.innerHTML;
+        });
+
+        // Update URL without page reload
+        window.history.pushState(null, '', url);
+
+        // Retain exact scroll position
+        if (mainEl) {
+            mainEl.scrollTop = prevScrollTop;
+        } else {
+            window.scrollTo(0, prevScrollTop);
+        }
+    })
+    .catch(err => {
+        console.error('Filter AJAX error:', err);
+        window.location.href = url;
+    });
+}
 
 // Refresh only the changed row by re-fetching the page and replacing the row innerHTML
 function updateOrderRow(orderId) {

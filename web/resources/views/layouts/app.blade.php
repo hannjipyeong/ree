@@ -18,6 +18,12 @@
         .bg-navy-700 { background-color: #415a77; }
         .text-navy-900 { color: #0d1b2a; }
 
+        /* Smooth horizontal touch scroll */
+        .table-responsive-touch {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         /* ===== NOTIFIKASI PANEL ===== */
         @keyframes bellRing {
             0%,100% { transform: rotate(0deg); }
@@ -52,20 +58,29 @@
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden text-slate-800">
+<body class="flex h-screen overflow-hidden text-slate-800 relative">
 
-    <!-- Sidebar Navigasi -->
-    <aside class="w-64 bg-navy-900 text-white flex flex-col justify-between shadow-xl z-20 shrink-0">
-        <div>
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden lg:hidden transition-opacity"></div>
+
+    <!-- Sidebar Navigasi (Off-canvas Drawer on Mobile/Tablet, Static on Desktop) -->
+    <aside id="mainSidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-navy-900 text-white flex flex-col justify-between shadow-2xl lg:shadow-xl z-50 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="overflow-y-auto flex-1">
             <!-- Logo Header -->
-            <div class="h-20 flex items-center px-6 border-b border-slate-700/50 gap-3">
-                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg overflow-hidden shrink-0">
-                    <img src="{{ asset('images/logo_bkj.jpg') }}" alt="BKJ Logo" class="w-full h-full object-contain">
+            <div class="h-16 sm:h-20 flex items-center justify-between px-6 border-b border-slate-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg overflow-hidden shrink-0">
+                        <img src="{{ asset('images/logo_bkj.jpg') }}" alt="BKJ Logo" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight tracking-wide">BKJ</h1>
+                        <p class="text-xs text-blue-400 font-medium">Monitoring Dashboard</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-wide">BKJ</h1>
-                    <p class="text-xs text-blue-400 font-medium">Monitoring Dashboard</p>
-                </div>
+                <!-- Close Button on Mobile Drawer -->
+                <button type="button" onclick="toggleMobileSidebar()" class="lg:hidden w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             <!-- Navigation Links -->
@@ -102,7 +117,7 @@
         </div>
 
         <!-- Footer / Admin Info & Logout -->
-        <div class="p-4 border-t border-slate-700/50 bg-slate-900/50">
+        <div class="p-4 border-t border-slate-700/50 bg-slate-900/50 shrink-0">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-sm font-semibold text-white shrink-0">
@@ -127,28 +142,37 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         <!-- Top Header -->
-        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10 shrink-0">
-            <div class="flex items-center gap-4">
-                <h2 class="text-xl font-bold text-slate-800">@yield('page_heading', 'Dashboard Overview')</h2>
+        <header class="h-16 sm:h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-10 shrink-0">
+            <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+                <!-- Hamburger Button for Mobile/Tablet -->
+                <button type="button" onclick="toggleMobileSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center text-base shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <div class="min-w-0">
+                    <h2 class="text-base sm:text-xl font-bold text-slate-800 truncate">@yield('page_heading', 'Dashboard Overview')</h2>
+                </div>
+
                 @if(Auth::user()->admin_source)
-                    <span class="px-3 py-1 text-xs font-bold rounded-full border shadow-sm
+                    <span class="hidden sm:inline-flex px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-bold rounded-full border shadow-sm shrink-0
                         {{ Auth::user()->admin_source === 'ALL IN' ? 'bg-purple-50 text-purple-700 border-purple-200' : '' }}
                         {{ Auth::user()->admin_source === 'Koperasi' ? 'bg-amber-50 text-amber-700 border-amber-200' : '' }}
                         {{ Auth::user()->admin_source === 'PBM Lain' ? 'bg-blue-50 text-blue-700 border-blue-200' : '' }}">
                         <i class="fa-solid fa-filter text-[10px] me-1"></i> Modul: {{ Auth::user()->admin_source }}
                     </span>
                 @else
-                    <span class="px-3 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 shadow-sm">
+                    <span class="hidden md:inline-flex px-3 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 shadow-sm shrink-0">
                         <i class="fa-solid fa-globe text-[10px] me-1"></i> Semua Modul (Super Admin)
                     </span>
                 @endif
             </div>
-            <div class="flex items-center gap-4">
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     API Connected
                 </span>
-                <div class="text-xs text-slate-500 font-medium">
+                <div class="hidden md:block text-xs text-slate-500 font-medium">
                     {{ date('d M Y, H:i') }} WIB
                 </div>
 
@@ -156,7 +180,7 @@
                 <div class="relative bell-icon" id="notif-wrapper">
                     <button id="notif-btn"
                         onclick="toggleNotifPanel()"
-                        class="relative w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-600 hover:text-blue-600 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-600 hover:text-blue-600 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <svg class="bell-svg w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -170,7 +194,7 @@
 
                     <!-- ===== NOTIFICATION PANEL DROPDOWN ===== -->
                     <div id="notif-panel"
-                        class="hidden absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 z-50 overflow-hidden"
+                        class="hidden absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 z-50 overflow-hidden"
                         style="max-height: 520px;">
 
                         <!-- Header Panel -->
@@ -205,7 +229,7 @@
         </header>
 
         <!-- Main Body Scrollable Area -->
-        <main class="flex-1 overflow-y-auto p-8">
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
             <!-- Flash Message Alerts -->
             @if(session('success'))
                 <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl flex items-center justify-between shadow-sm">
@@ -303,6 +327,21 @@
 </body>
 
 <script>
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('mainSidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (!sidebar) return;
+
+        const isClosed = sidebar.classList.contains('-translate-x-full');
+        if (isClosed) {
+            sidebar.classList.remove('-translate-x-full');
+            if (backdrop) backdrop.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            if (backdrop) backdrop.classList.add('hidden');
+        }
+    }
+
     function openGlobalExportDoneModal() {
         document.getElementById('globalExportDoneModal').classList.remove('hidden');
     }
@@ -464,5 +503,20 @@
                 badge.classList.remove('hidden');
             }
         }).catch(() => {});
+
+    // Preserve scroll position on main scrollable body
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainEl = document.querySelector('main');
+        if (mainEl) {
+            const storageKey = 'bkj_scroll_' + window.location.pathname;
+            const savedPos = sessionStorage.getItem(storageKey);
+            if (savedPos !== null) {
+                mainEl.scrollTop = parseInt(savedPos, 10);
+            }
+            mainEl.addEventListener('scroll', function() {
+                sessionStorage.setItem(storageKey, mainEl.scrollTop);
+            }, { passive: true });
+        }
+    });
 </script>
 </html>

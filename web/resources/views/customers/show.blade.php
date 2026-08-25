@@ -91,7 +91,7 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="table-responsive-touch overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-slate-50 text-slate-400 uppercase text-[11px] font-bold tracking-wider border-b border-slate-100">
                     <tr>

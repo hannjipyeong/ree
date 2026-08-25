@@ -7,18 +7,18 @@
 <div class="space-y-6">
 
     <!-- Header Actions & Search -->
-    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col lg:flex-row gap-3 sm:gap-4 items-stretch lg:items-center justify-between">
         
-        <form method="GET" action="{{ route('supir.index') }}" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <div class="relative min-w-[240px]">
+        <form method="GET" action="{{ route('supir.index') }}" class="flex flex-wrap items-center gap-2 sm:gap-3 flex-1">
+            <div class="relative flex-1 min-w-[180px]">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Nama / Email / No. HP..." 
-                    class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white">
+                    class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white">
             </div>
 
-            <select name="supir_type" onchange="this.form.submit()" class="py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none">
+            <select name="supir_type" onchange="this.form.submit()" class="py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none shrink-0">
                 <option value="">-- Semua Spesialisasi --</option>
                 <option value="Haulage" {{ request('supir_type') == 'Haulage' ? 'selected' : '' }}>Haulage</option>
                 <option value="LOLO" {{ request('supir_type') == 'LOLO' ? 'selected' : '' }}>LOLO</option>
@@ -26,23 +26,23 @@
                 <option value="TKBM" {{ request('supir_type') == 'TKBM' ? 'selected' : '' }}>TKBM</option>
             </select>
 
-            <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-semibold hover:bg-slate-900 transition">
+            <button type="submit" class="px-3 sm:px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-semibold hover:bg-slate-900 transition shrink-0">
                 Cari
             </button>
             @if(request()->anyFilled(['search', 'supir_type']))
-                <a href="{{ route('supir.index') }}" class="text-xs text-slate-500 hover:text-slate-800 font-medium">Reset</a>
+                <a href="{{ route('supir.index') }}" class="text-xs text-slate-500 hover:text-slate-800 font-medium shrink-0">Reset</a>
             @endif
         </form>
 
-        <button onclick="document.getElementById('modalCreateSupir').classList.remove('hidden')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center gap-2">
+        <button onclick="document.getElementById('modalCreateSupir').classList.remove('hidden')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 shrink-0">
             <i class="fa-solid fa-truck-front text-xs"></i>
-            <span>Tambah Akun Pelaksana Lapangan Baru</span>
+            <span>Tambah Akun Pelaksana</span>
         </button>
     </div>
 
     <!-- Pelaksana Lapangan Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="table-responsive-touch overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-slate-50 text-slate-400 uppercase text-[11px] font-bold tracking-wider border-b border-slate-100">
                     <tr>
@@ -116,7 +116,7 @@
 
 <!-- Modal Tambah Pelaksana Lapangan -->
 <div id="modalCreateSupir" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-6">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <h3 class="font-bold text-lg text-slate-800">Tambah Akun Pelaksana Lapangan Baru</h3>
             <button onclick="document.getElementById('modalCreateSupir').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
@@ -180,7 +180,7 @@
 
 <!-- Modal Edit Pelaksana Lapangan -->
 <div id="modalEditSupir" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-6">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <h3 class="font-bold text-lg text-slate-800">Edit Akun Pelaksana Lapangan</h3>
             <button onclick="document.getElementById('modalEditSupir').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
