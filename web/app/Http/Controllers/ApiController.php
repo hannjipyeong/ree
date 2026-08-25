@@ -404,8 +404,7 @@ class ApiController extends Controller
     private function checkHierarchyAllowed($currentSubTask, $containerId, $actionType)
     {
         $hierarchy = ['Haulage', 'Lolo', 'Penumpukan', 'TKBM'];
-        
-        // Filter subtasks to only those in hierarchy and order them
+
         $order = $currentSubTask->order;
         $subTasksInHierarchy = $order->subTasks->filter(function($st) use ($hierarchy) {
             return in_array($st->service_type, $hierarchy);
@@ -421,7 +420,7 @@ class ApiController extends Controller
             }
         }
 
-        if ($currentIndex === -1) return null; // Not in hierarchy, no constraints
+        if ($currentIndex === -1) return null;
 
         if ($actionType === 'IN') {
             if ($currentIndex > 0) {
@@ -435,7 +434,6 @@ class ApiController extends Controller
             if ($currentIndex < count($subTasksInHierarchy) - 1) {
                 $nextSubTask = $subTasksInHierarchy[$currentIndex + 1];
                 $nextProgress = $nextSubTask->containerProgress->firstWhere('order_container_id', $containerId);
-                // If next subtask exists, it must have already finished OUT
                 if (!$nextProgress || $nextProgress->status !== 'Out') {
                     return "Menunggu proses OUT dari layanan " . $nextSubTask->service_type . ".";
                 }
@@ -443,5 +441,277 @@ class ApiController extends Controller
         }
 
         return null;
+    }
+
+    private function applyRoleFilter($query, $user, $orderRelation = 'order')
+    {
+        if (!$user) return $query;
+
+        if ($user->role === 'supir') {
+            $query->whereHas($orderRelation, fn($q) => true);
+            if ($user->supir_type) {
+                $query->where('service_type', $user->supir_type);
+                if ($user->supir_type === 'TKBM' && $user->supir_wilayah) {
+                    $query->whereHas($orderRelation, fn($q) => $q->where('wilayah', $user->supir_wilayah));
+                }
+            } else {
+                $query->where('supir_id', $user->id);
+            }
+        } elseif ($user->role === 'customer') {
+            $query->whereHas($orderRelation, fn($q) => $q->where('customer_id', $user->id));
+        } elseif ($user->role === 'admin' && $user->admin_source) {
+            $query->whereHas($orderRelation, fn($q) => $q->where('source', $user->admin_source));
+        }
+
+        return $query;
+    }
+
+    public function notifications(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->role === 'customer') {
+            return response()->json([
+                'success' => true,
+                'unread'  => 0,
+                'total'   => 0,
+                'data'    => [],
+            ]);
+        }
+
+        $buildActionLabel = function ($serviceType, $mode) {
+            $map = [
+                'Haulage'    => ['IN'  => 'Truk tiba di gerbang TPFT dan siap muat.',
+                                 'OUT' => 'Kontainer selesai dibongkar dan keluar area.'],
+                'LOLO'       => ['IN'  => 'Kontainer selesai dimuat dari dermaga ke kapal.',
+                                 'OUT' => 'Kontainer selesai dibongkar dari kapal ke dermaga.'],
+                'Penumpukan' => ['IN'  => 'Kontainer masuk ke area penumpukan CFS.',
+                                 'OUT' => 'Kontainer keluar dari area penumpukan.'],
+                'TKBM'       => ['IN'  => 'Buruh TKBM mulai bekerja di area muat.',
+                                 'OUT' => 'Pekerjaan TKBM selesai dan diverifikasi.'],
+            ];
+            $svc = $serviceType ?? 'Layanan';
+            $m   = $map[$svc][$mode] ?? null;
+            if ($m) return $m;
+            $label = $mode === 'IN' ? 'Bukti IN telah diunggah pelaksana lapangan.'
+                                    : 'Bukti OUT telah diunggah pelaksana lapangan.';
+            return $label;
+        };
+
+        $notifications = collect();
+
+        // 1. Bukti IN/OUT per container
+        $containerProofsQuery = \App\Models\SubTaskContainerProgress::with([
+            'subTask.order',
+            'container',
+        ])->where(function ($q) {
+            $q->whereNotNull('in_time')->orWhereNotNull('out_time');
+        });
+        $containerProofsQuery = $this->applyRoleFilter($containerProofsQuery, $user, 'subTask.order');
+
+        $containerProofs = $containerProofsQuery
+            ->latest('updated_at')
+            ->take(100)
+            ->get()
+            ->flatMap(function ($progress) use ($buildActionLabel) {
+                $items = [];
+                $order = optional($progress->subTask)->order;
+                $containerNum = optional($progress->container)->container_number;
+                $service = optional($progress->subTask)->service_type;
+                $namaPt = optional($order)->nama_pt;
+
+                if ($progress->in_time) {
+                    $action = $progress->in_note ?: $buildActionLabel($service, 'IN');
+                    $items[] = [
+                        'id'            => 'cpin-' . $progress->id,
+                        'category'      => 'progress',
+                        'type'          => 'IN',
+                        'time'          => $progress->in_time,
+                        'is_read'       => $progress->in_time ? optional($progress->in_time)->isBefore(now()->subMinutes(30)) : true,
+                        'title'         => ($service ? "[$service] " : '') . "Proses IN" . ($containerNum ? " — Kontainer $containerNum" : ''),
+                        'message'       => ($namaPt ? "$namaPt — " : '') . $action,
+                        'photo'         => $progress->in_photo_path,
+                        'service_type'  => $service,
+                        'container_num' => $containerNum,
+                        'order_id'      => optional($order)->id,
+                        'order_number'  => optional($order)->order_number,
+                        'nama_pt'       => $namaPt,
+                        'source'        => optional($order)->source,
+                    ];
+                }
+                if ($progress->out_time) {
+                    $action = $progress->out_note ?: $buildActionLabel($service, 'OUT');
+                    $items[] = [
+                        'id'            => 'cpout-' . $progress->id,
+                        'category'      => 'progress',
+                        'type'          => 'OUT',
+                        'time'          => $progress->out_time,
+                        'is_read'       => $progress->out_time ? optional($progress->out_time)->isBefore(now()->subMinutes(30)) : true,
+                        'title'         => ($service ? "[$service] " : '') . "Proses OUT Selesai" . ($containerNum ? " — Kontainer $containerNum" : ''),
+                        'message'       => ($namaPt ? "$namaPt — " : '') . $action,
+                        'photo'         => $progress->out_photo_path,
+                        'service_type'  => $service,
+                        'container_num' => $containerNum,
+                        'order_id'      => optional($order)->id,
+                        'order_number'  => optional($order)->order_number,
+                        'nama_pt'       => $namaPt,
+                        'source'        => optional($order)->source,
+                    ];
+                }
+                return $items;
+            });
+
+        // 2. Bukti global (Cargo)
+        $globalProofsQuery = SubTask::with('order')
+            ->whereDoesntHave('containerProgress')
+            ->where(function ($q) {
+                $q->whereNotNull('in_photo_path')->orWhereNotNull('out_photo_path');
+            });
+        $globalProofsQuery = $this->applyRoleFilter($globalProofsQuery, $user, 'order');
+
+        $globalProofs = $globalProofsQuery
+            ->latest('updated_at')
+            ->take(50)
+            ->get()
+            ->flatMap(function ($subTask) {
+                $items = [];
+                $order = $subTask->order;
+
+                if ($subTask->in_photo_path) {
+                    $items[] = [
+                        'id'            => 'spin-' . $subTask->id,
+                        'category'      => 'progress',
+                        'type'          => 'IN',
+                        'time'          => $subTask->in_time ?: $subTask->updated_at,
+                        'is_read'       => optional($subTask->in_time ?: $subTask->updated_at)->isBefore(now()->subMinutes(30)),
+                        'title'         => "[{$subTask->service_type}] Proses IN — Cargo",
+                        'message'       => $subTask->in_note ?: 'Bukti IN cargo telah diunggah.',
+                        'photo'         => $subTask->in_photo_path,
+                        'service_type'  => $subTask->service_type,
+                        'container_num' => null,
+                        'order_id'      => optional($order)->id,
+                        'order_number'  => optional($order)->order_number,
+                        'nama_pt'       => optional($order)->nama_pt,
+                        'source'        => optional($order)->source,
+                    ];
+                }
+                if ($subTask->out_photo_path) {
+                    $items[] = [
+                        'id'            => 'spout-' . $subTask->id,
+                        'category'      => 'progress',
+                        'type'          => 'OUT',
+                        'time'          => $subTask->out_time ?: $subTask->updated_at,
+                        'is_read'       => optional($subTask->out_time ?: $subTask->updated_at)->isBefore(now()->subMinutes(30)),
+                        'title'         => "[{$subTask->service_type}] Proses OUT Selesai — Cargo",
+                        'message'       => $subTask->out_note ?: 'Bukti OUT cargo telah diunggah.',
+                        'photo'         => $subTask->out_photo_path,
+                        'service_type'  => $subTask->service_type,
+                        'container_num' => null,
+                        'order_id'      => optional($order)->id,
+                        'order_number'  => optional($order)->order_number,
+                        'nama_pt'       => optional($order)->nama_pt,
+                        'source'        => optional($order)->source,
+                    ];
+                }
+                return $items;
+            });
+
+        // 3. Order BARU masuk dari user (Khusus non-customer — HANYA 1 jam terakhir)
+        if (!in_array($user?->role, ['customer', null])) {
+            $taskQuery = SubTask::with('order')
+                ->whereIn('status', ['Masuk', 'Submitted', 'Pending'])
+                ->where('sub_tasks.created_at', '>=', now()->subHours(1));
+            $taskQuery = $this->applyRoleFilter($taskQuery, $user, 'order');
+
+            $newTasks = $taskQuery
+                ->latest('sub_tasks.created_at')
+                ->take(50)
+                ->get()
+                ->map(function ($st) {
+                    $order = $st->order;
+                    $isUnread = optional($st->created_at)->isAfter(now()->subHours(1));
+                    return [
+                        'id'            => 'task-' . $st->id,
+                        'category'      => 'new_task',
+                        'type'          => 'NEW',
+                        'time'          => $st->created_at,
+                        'is_read'       => !$isUnread,
+                        'title'         => "📋 Tugas Baru: [{$st->service_type}] {$st->task_number}",
+                        'message'       => (optional($order)->nama_pt ?? 'Order') . " — Segera lakukan proses {$st->service_type}.",
+                        'photo'         => null,
+                        'service_type'  => $st->service_type,
+                        'container_num' => null,
+                        'order_id'      => optional($order)->id,
+                        'order_number'  => optional($order)->order_number,
+                        'nama_pt'       => optional($order)->nama_pt,
+                        'source'        => optional($order)->source,
+                    ];
+                });
+            $notifications = $notifications->merge($newTasks);
+        }
+
+        // 4. Customer: Order submission confirmation
+        if ($user?->role === 'customer') {
+            $orderQuery = Order::where('customer_id', $user->id)
+                ->whereIn('status', ['Submitted', 'In Progress'])
+                ->latest('created_at')
+                ->take(30);
+
+            $newOrderNotifs = $orderQuery->get()->map(function ($o) {
+                $isUnread = optional($o->created_at)->isAfter(now()->subHours(24));
+                return [
+                    'id'            => 'order-' . $o->id,
+                    'category'      => 'order_status',
+                    'type'          => 'ORDER',
+                    'time'          => $o->created_at,
+                    'is_read'       => !$isUnread,
+                    'title'         => "🧾 Order {$o->order_number} — {$o->status}",
+                    'message'       => "Order untuk {$o->nama_pt} sedang diproses. Cek halaman riwayat untuk update selanjutnya.",
+                    'photo'         => null,
+                    'service_type'  => null,
+                    'container_num' => null,
+                    'order_id'      => $o->id,
+                    'order_number'  => $o->order_number,
+                    'nama_pt'       => $o->nama_pt,
+                    'source'        => $o->source,
+                ];
+            });
+            $notifications = $notifications->merge($newOrderNotifs);
+        }
+
+        $notifications = $notifications
+            ->merge($containerProofs)
+            ->merge($globalProofs)
+            ->sortByDesc('time')
+            ->values();
+
+        $unreadCount = $notifications->where('is_read', false)->count();
+
+        return response()->json([
+            'success' => true,
+            'total'   => $notifications->count(),
+            'unread'  => $unreadCount,
+            'data'    => $notifications->take(100)->values(),
+        ]);
+    }
+
+    public function notificationSummary(Request $request)
+    {
+        $all = $this->notifications($request);
+        $payload = json_decode($all->getContent(), true);
+
+        return response()->json([
+            'success' => true,
+            'unread'  => $payload['unread'] ?? 0,
+            'total'   => $payload['total'] ?? 0,
+        ]);
+    }
+
+    public function markNotificationsRead(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifikasi telah ditandai dibaca.',
+        ]);
     }
 }

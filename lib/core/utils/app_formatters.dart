@@ -48,6 +48,33 @@ class AppFormatters {
     if (parts.length == 1) return parts[0][0].toUpperCase();
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
+
+  /// Returns a human-readable relative time ("5 menit lalu", "1 jam lalu", etc).
+  static String toRelativeTime(DateTime time) {
+    final now = DateTime.now();
+    final diff = now.difference(time);
+
+    if (diff.isNegative || inDays(diff) >= 7) {
+      return toDisplayDate(time);
+    }
+    if (inDays(diff) >= 2) {
+      return '${inDays(diff)} hari lalu';
+    }
+    if (inDays(diff) == 1) {
+      return 'Kemarin';
+    }
+    if (inHours(diff) >= 1) {
+      return '${inHours(diff)} jam lalu';
+    }
+    if (inMinutes(diff) >= 1) {
+      return '${inMinutes(diff)} menit lalu';
+    }
+    return 'Baru saja';
+  }
+
+  static int inDays(Duration d) => d.inDays;
+  static int inHours(Duration d) => d.inHours;
+  static int inMinutes(Duration d) => d.inMinutes;
 }
 
 /// Centralized validation utilities. All form field validators live here

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:bkj_app/features/auth/views/login_screen.dart';
 import 'package:bkj_app/features/auth/views/register_screen.dart';
 import 'package:bkj_app/features/supir/views/supir_action_screen.dart';
-
+import 'package:bkj_app/features/home/views/notifications_screen.dart';
 
 import 'package:bkj_app/features/all_in/views/all_in_page1_screen.dart';
 import 'package:bkj_app/features/all_in/views/all_in_page2_screen.dart';
@@ -38,6 +38,7 @@ class AppRoutes {
 
   // ─── Feature: Home ───────────────────────────────────────────────────────────
   static const String home = '/home';
+  static const String notifications = '/notifications';
 
   // ─── Feature: All In ────────────────────────────────────────────────────────
   static const String allInPage1 = '/all-in/page-1';
@@ -67,6 +68,7 @@ class AppRoutes {
     register: (_) => const RegisterScreen(),
     supirAction: (_) => const SupirActionScreen(),
     shell: (_) => const MainShell(),
+    notifications: (_) => const NotificationsScreen(),
     allInPage1: (_) => const AllInPage1Screen(),
     allInPage2: (_) => const AllInPage2Screen(),
     allInPage3: (_) => const AllInPage3Screen(),

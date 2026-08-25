@@ -21,4 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [ApiController::class, 'getOrders']);
     Route::post('/orders', [ApiController::class, 'createOrder']);
     Route::patch('/sub-tasks/{id}/action', [ApiController::class, 'updateSubTaskAction']);
+
+    Route::get('/notifications', [ApiController::class, 'notifications']);
+    Route::get('/notifications/summary', [ApiController::class, 'notificationSummary']);
+    Route::post('/notifications/mark-read', [ApiController::class, 'markNotificationsRead']);
 });

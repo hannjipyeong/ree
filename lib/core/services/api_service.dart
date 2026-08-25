@@ -405,7 +405,60 @@ class ApiService {
     }
   }
 
-  /// 4. Update Supir Action (Multipart)
+  /// 4.1 Fetch Notifications (IN/OUT proofs + new tasks per role)
+  static Future<Map<String, dynamic>?> getNotifications() async {
+    try {
+      final t = DateTime.now().millisecondsSinceEpoch;
+      final url = Uri.parse('$baseUrl/notifications?_t=$t');
+      final headers = await getHeaders();
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        if (body['success'] == true) {
+          return body;
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('API getNotifications error: $e');
+      return null;
+    }
+  }
+
+  /// 4.2 Quick Notification Summary (for badge polling)
+  static Future<Map<String, dynamic>?> getNotificationSummary() async {
+    try {
+      final t = DateTime.now().millisecondsSinceEpoch;
+      final url = Uri.parse('$baseUrl/notifications/summary?_t=$t');
+      final headers = await getHeaders();
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        if (body['success'] == true) return body;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('API getNotificationSummary error: $e');
+      return null;
+    }
+  }
+
+  /// 4.3 Mark all notifications as read
+  static Future<bool> markNotificationsRead() async {
+    try {
+      final url = Uri.parse('$baseUrl/notifications/mark-read');
+      final headers = await getHeaders();
+      final response = await http.post(url, headers: headers);
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('API markNotificationsRead error: $e');
+      return false;
+    }
+  }
+
+  /// 5. Update Supir Action (Multipart)
   static Future<bool> updateSubTaskAction({
     required String taskId,
     required String actionType,

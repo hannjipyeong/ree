@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
+import 'package:bkj_app/core/components/components.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 import 'package:bkj_app/features/supir/views/supir_action_screen.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/core/routing/app_routes.dart';
+import 'package:bkj_app/features/home/viewmodels/notification_viewmodel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'dart:async';
@@ -38,7 +40,11 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
 
   Future<void> _fetchData() async {
     final supirType = context.read<AuthViewModel>().supirType ?? '';
+    final notifVm = context.read<NotificationViewModel>();
     await context.read<SupirViewModel>().fetchOrders(supirType);
+    if (mounted) {
+      notifVm.loadSummary(silent: true);
+    }
   }
 
   @override
@@ -326,6 +332,10 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
                   ? 'Koordinator TKBM ${authVm.supirWilayah != null && authVm.supirWilayah!.isNotEmpty ? "(${authVm.supirWilayah})" : ""}'.trim()
                   : 'Dashboard Pelaksana Lapangan ${authVm.supirType ?? ''}',
         ),
+        actions: const [
+          AppNotificationBell(),
+          SizedBox(width: 4),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(

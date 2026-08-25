@@ -9,6 +9,7 @@ import 'package:bkj_app/features/koperasi/viewmodels/koperasi_viewmodel.dart';
 import 'package:bkj_app/features/pbm_lain/viewmodels/pbm_lain_viewmodel.dart';
 import 'package:bkj_app/features/profile/viewmodels/profile_viewmodel.dart';
 import 'package:bkj_app/features/home/viewmodels/home_viewmodel.dart';
+import 'package:bkj_app/features/home/viewmodels/notification_viewmodel.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 
@@ -47,6 +48,7 @@ class BkjApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => SupirViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => NotificationViewModel()),
         ChangeNotifierProvider(create: (_) => AllInViewModel()),
         ChangeNotifierProvider(create: (_) => KoperasiViewModel()),
         ChangeNotifierProvider(create: (_) => PbmLainViewModel()),
