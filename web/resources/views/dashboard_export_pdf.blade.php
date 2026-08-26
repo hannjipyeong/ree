@@ -223,12 +223,9 @@
                         <td style="line-height: 1.2;">{{ $notes ?: '-' }}</td>
 
                         <!-- Status Asuransi -->
-                        <td style="text-align: center;">
+                        <td class="text-center">
                             @if($ord->has_asuransi)
-                                <span class="badge badge-done">✓ Aktif</span>
-                                @if($ord->asuransi_value)
-                                    <div style="font-size: 5.5px; color: #15803d; margin-top: 1px;">Rp {{ number_format($ord->asuransi_value, 0, ',', '.') }}</div>
-                                @endif
+                                <span class="badge badge-done">&#10003; AKTIF</span>
                             @else
                                 <span class="badge badge-pending">✗ Tidak</span>
                             @endif
@@ -337,12 +334,9 @@
                     <td style="line-height: 1.2;">{{ $notesCargo ?: ($ord->pnbp_note ?: '-') }}</td>
 
                     <!-- Status Asuransi -->
-                    <td style="text-align: center;">
+                    <td class="text-center">
                         @if($ord->has_asuransi)
-                            <span class="badge badge-done">✓ Aktif</span>
-                            @if($ord->asuransi_value)
-                                <div style="font-size: 5.5px; color: #15803d; margin-top: 1px;">Rp {{ number_format($ord->asuransi_value, 0, ',', '.') }}</div>
-                            @endif
+                            <span class="badge badge-done">&#10003; AKTIF</span>
                         @else
                             <span class="badge badge-pending">✗ Tidak</span>
                         @endif

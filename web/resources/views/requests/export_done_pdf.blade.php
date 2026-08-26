@@ -298,9 +298,6 @@
                         <td style="text-align: center;">
                             @if($ord->has_asuransi)
                                 <span class="badge badge-done">✓ Aktif</span>
-                                @if($ord->asuransi_value)
-                                    <div style="font-size: 5.5px; color: #15803d; margin-top: 1px;">Rp {{ number_format($ord->asuransi_value, 0, ',', '.') }}</div>
-                                @endif
                             @else
                                 <span class="badge badge-pending">✗ Tidak</span>
                             @endif
@@ -412,9 +409,6 @@
                     <td style="text-align: center;">
                         @if($ord->has_asuransi)
                             <span class="badge badge-done">✓ Aktif</span>
-                            @if($ord->asuransi_value)
-                                <div style="font-size: 5.5px; color: #15803d; margin-top: 1px;">Rp {{ number_format($ord->asuransi_value, 0, ',', '.') }}</div>
-                            @endif
                         @else
                             <span class="badge badge-pending">✗ Tidak</span>
                         @endif
