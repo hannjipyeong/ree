@@ -356,140 +356,18 @@ class DashboardController extends Controller
     }
 
     /**
-     * Export dashboard filtered data as CSV (Excel-compatible).
+     * Export dashboard filtered data as styled Excel (.xlsx).
      */
     public function exportExcel(Request $request)
     {
-        $orders   = $this->buildExportQuery($request)->get();
-        $filename = 'Dashboard_Export_' . date('Ymd_His') . '.csv';
-
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma'              => 'no-cache',
-            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires'             => '0',
-        ];
-
+        $orders        = $this->buildExportQuery($request)->get();
         $payloadFilter = $request->input('payload_type');
+        $filename      = 'Dashboard_Export_' . date('Ymd_His') . '.xlsx';
 
-        $callback = function () use ($orders, $payloadFilter) {
-            $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // UTF-8 BOM
-
-            $containerOrders = $orders->filter(fn($o) => $o->containers->isNotEmpty());
-            $cargoOrders     = $orders->filter(fn($o) => $o->containers->isEmpty());
-
-            // ─── SECTION 1: CONTAINER ──────────────────────────────────────────────
-            $showContainer = !$payloadFilter || strtolower($payloadFilter) === 'container';
-            if ($showContainer && $containerOrders->isNotEmpty()) {
-                fputcsv($file, ['REKAPITULASI LAYANAN KONTAINER (HAULAGE, LOLO, PENUMPUKAN, TKBM)']);
-                fputcsv($file, [
-                    'No', 'No. Order', 'Nama PT', 'No. Container', 'Ukuran / Tipe',
-                    'Haulage IN', 'Haulage OUT',
-                    'LOLO IN', 'LOLO OUT',
-                    'Penumpukan IN', 'Penumpukan OUT',
-                    'TKBM IN', 'TKBM OUT',
-                    'Catatan', 'Status Invoice', 'Status PNBP'
-                ]);
-
-                $rowNo = 1;
-                foreach ($containerOrders as $ord) {
-                    $isFirst = true;
-                    foreach ($ord->containers as $c) {
-                        $pHaulage    = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
-                        $pLolo       = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
-                        $pPenumpukan = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Penumpukan') === 0);
-                        $pTkbm       = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'TKBM') === 0);
-
-                        $notes     = $c->progresses->pluck('in_note')->merge($c->progresses->pluck('out_note'))->merge($c->progresses->pluck('done_note'))->filter()->unique()->implode('; ');
-                        $isInvoiced = $c->progresses->contains('is_invoiced', true);
-                        $invStatus  = $isInvoiced ? 'Sudah Terbit' : 'Belum';
-                        $invNumber  = $c->progresses->where('is_invoiced', true)->pluck('invoice_number')->filter()->unique()->implode(', ');
-                        if ($invNumber) $invStatus .= " ({$invNumber})";
-                        $pnbpStatus = $c->is_pnbp ? 'Selesai' : 'Belum';
-                        if ($c->pnbp_number) $pnbpStatus .= " ({$c->pnbp_number})";
-
-                        fputcsv($file, [
-                            $isFirst ? $rowNo++ : '',
-                            $isFirst ? $ord->order_number : '',
-                            $isFirst ? $ord->nama_pt : '',
-                            $c->container_number ?: 'Tanpa No',
-                            $c->container_size . ' (' . $c->container_type . ')',
-                            $pHaulage && $pHaulage->in_time ? \Carbon\Carbon::parse($pHaulage->in_time)->format('d/m/Y H:i') : '-',
-                            $pHaulage && $pHaulage->out_time ? \Carbon\Carbon::parse($pHaulage->out_time)->format('d/m/Y H:i') : '-',
-                            $pLolo && $pLolo->in_time ? \Carbon\Carbon::parse($pLolo->in_time)->format('d/m/Y H:i') : '-',
-                            $pLolo && $pLolo->out_time ? \Carbon\Carbon::parse($pLolo->out_time)->format('d/m/Y H:i') : '-',
-                            $pPenumpukan && $pPenumpukan->in_time ? \Carbon\Carbon::parse($pPenumpukan->in_time)->format('d/m/Y H:i') : '-',
-                            $pPenumpukan && $pPenumpukan->out_time ? \Carbon\Carbon::parse($pPenumpukan->out_time)->format('d/m/Y H:i') : '-',
-                            $pTkbm && $pTkbm->in_time ? \Carbon\Carbon::parse($pTkbm->in_time)->format('d/m/Y H:i') : '-',
-                            $pTkbm && $pTkbm->out_time ? \Carbon\Carbon::parse($pTkbm->out_time)->format('d/m/Y H:i') : '-',
-                            $notes ?: '-',
-                            $invStatus,
-                            $pnbpStatus,
-                        ]);
-                        $isFirst = false;
-                    }
-                }
-                fputcsv($file, []); // blank separator row
-            }
-
-            // ─── SECTION 2: CARGO ──────────────────────────────────────────────────
-            $showCargo = !$payloadFilter || strtolower($payloadFilter) === 'cargo';
-            if ($showCargo && $cargoOrders->isNotEmpty()) {
-                fputcsv($file, ['REKAPITULASI LAYANAN CARGO (MUATAN BEBAS / GENERAL CARGO)']);
-                fputcsv($file, [
-                    'No', 'No. Order', 'Nama PT',
-                    'Jenis Barang', 'Jml Barang', 'Tonase',
-                    'No BL', 'Vessel', 'Voyage', 'No Surat Jalan', 'No BP',
-                    'Waktu IN', 'Waktu OUT / Selesai',
-                    'Catatan', 'Status Invoice', 'Status PNBP'
-                ]);
-
-                $gRowNo = 1;
-                foreach ($cargoOrders as $ord) {
-                    $inTimes   = $ord->subTasks->pluck('in_time')->filter();
-                    $outTimes  = $ord->subTasks->pluck('out_time')->filter();
-                    $doneTimes = $ord->subTasks->pluck('done_time')->filter();
-
-                    $earliestIn = $inTimes->isNotEmpty() ? \Carbon\Carbon::parse($inTimes->min())->format('d/m/Y H:i') : '-';
-                    $latestOut  = $outTimes->isNotEmpty()
-                        ? \Carbon\Carbon::parse($outTimes->max())->format('d/m/Y H:i')
-                        : ($doneTimes->isNotEmpty() ? \Carbon\Carbon::parse($doneTimes->max())->format('d/m/Y H:i') : '-');
-
-                    $notesCargo = $ord->subTasks->pluck('in_note')->merge($ord->subTasks->pluck('out_note'))->merge($ord->subTasks->pluck('done_note'))->filter()->unique()->implode('; ');
-                    $invStatus  = $ord->is_invoiced ? 'Sudah Terbit' : 'Belum';
-                    if ($ord->invoice_number) $invStatus .= " ({$ord->invoice_number})";
-                    $pnbpStatus = $ord->is_pnbp ? 'Selesai' : 'Belum';
-                    if ($ord->pnbp_number) $pnbpStatus .= " ({$ord->pnbp_number})";
-
-                    fputcsv($file, [
-                        $gRowNo++,
-                        $ord->order_number,
-                        $ord->nama_pt,
-                        $ord->jenis_barang ?: 'General Cargo',
-                        $ord->jumlah_barang ?: '-',
-                        $ord->jumlah_tonase ? $ord->jumlah_tonase . ' T' : '-',
-                        $ord->nomor_bl ?: '-',
-                        $ord->vessel ?: '-',
-                        $ord->voyage ?: '-',
-                        $ord->no_surat_jalan ?: '-',
-                        $ord->no_bp ?: '-',
-                        $earliestIn,
-                        $latestOut,
-                        $notesCargo ?: ($ord->pnbp_note ?: '-'),
-                        $invStatus,
-                        $pnbpStatus,
-                    ]);
-                }
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        $export = new \App\Exports\OperationalExport();
+        $export->build($orders, $payloadFilter);
+        return $export->stream($filename);
     }
-
 
     /**
      * Export dashboard filtered data as PDF.
