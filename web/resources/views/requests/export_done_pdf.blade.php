@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Order Selesai (Done) - BKJ Ops</title>
+    <title>Laporan Order Selesai (Done) - PT. Bintang Kepri Jaya</title>
     <style>
         @page {
             size: a4 landscape;
@@ -71,12 +71,16 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 8px;
+            table-layout: fixed;
         }
         table.data-table th, table.data-table td {
             border: 0.5px solid #94a3b8;
             padding: 3.5px 3px;
             font-size: 7px;
             vertical-align: middle;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
         table.data-table thead tr:first-child th {
             background-color: #1e3a8a;
@@ -187,31 +191,32 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th rowspan="3" style="width: 2%;">No</th>
-                <th rowspan="3" style="width: 8%;">No Order</th>
-                <th rowspan="3" style="width: 11%;">Nama PT</th>
-                <th rowspan="3" style="width: 9%;">No Container</th>
-                <th rowspan="3" style="width: 7%;">Ukuran / Tipe</th>
+                <th rowspan="3" style="width: 2.5%;">No</th>
+                <th rowspan="3" style="width: 7.5%;">No Order</th>
+                <th rowspan="3" style="width: 10%;">Nama PT</th>
+                <th rowspan="3" style="width: 8.5%;">No Container</th>
+                <th rowspan="3" style="width: 6.5%;">Ukuran / Tipe</th>
                 <th colspan="8" style="text-align: center;">Layanan & Progress Waktu Lapangan</th>
-                <th rowspan="3" style="width: 8%;">Catatan</th>
-                <th rowspan="3" style="width: 7%;">Status Invoice</th>
-                <th rowspan="3" style="width: 7%;">Status PNBP</th>
+                <th rowspan="3" style="width: 10%;">Catatan</th>
+                <th rowspan="3" style="width: 6.5%;">Asuransi</th>
+                <th rowspan="3" style="width: 6.5%;">Status Invoice</th>
+                <th rowspan="3" style="width: 6%;">Status PNBP</th>
             </tr>
             <tr>
-                <th colspan="2" style="width: 10%;">Haulage</th>
-                <th colspan="2" style="width: 10%;">LOLO</th>
-                <th colspan="2" style="width: 10%;">Penumpukan</th>
-                <th colspan="2" style="width: 10%;">TKBM</th>
+                <th colspan="2" style="width: 9%;">Haulage</th>
+                <th colspan="2" style="width: 9%;">LOLO</th>
+                <th colspan="2" style="width: 9%;">Penumpukan</th>
+                <th colspan="2" style="width: 9%;">TKBM</th>
             </tr>
             <tr>
-                <th style="width: 5%;">IN</th>
-                <th style="width: 5%;">OUT</th>
-                <th style="width: 5%;">IN</th>
-                <th style="width: 5%;">OUT</th>
-                <th style="width: 5%;">IN</th>
-                <th style="width: 5%;">OUT</th>
-                <th style="width: 5%;">IN</th>
-                <th style="width: 5%;">OUT</th>
+                <th style="width: 4.5%;">IN</th>
+                <th style="width: 4.5%;">OUT</th>
+                <th style="width: 4.5%;">IN</th>
+                <th style="width: 4.5%;">OUT</th>
+                <th style="width: 4.5%;">IN</th>
+                <th style="width: 4.5%;">OUT</th>
+                <th style="width: 4.5%;">IN</th>
+                <th style="width: 4.5%;">OUT</th>
             </tr>
         </thead>
         <tbody>
@@ -237,19 +242,25 @@
                         $tkbmIn = $pTkbm && $pTkbm->in_time ? \Carbon\Carbon::parse($pTkbm->in_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->in_photo_path ? '✓' : '-');
                         $tkbmOut = $pTkbm && $pTkbm->out_time ? \Carbon\Carbon::parse($pTkbm->out_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->out_photo_path ? '✓' : '-');
 
+                        $tkbmOpt = $c->tkbm_option ?: ($ord->tkbm_option ?? '');
+                        $tkbmBadge = str_contains(strtolower($tkbmOpt), 'forklift') ? 'MP+Forklift' : (strtolower($tkbmOpt) == 'man power' ? 'MP' : '');
+
+                        // Notes combined (Flexible wrap)
                         $notes = $c->progresses->pluck('in_note')->merge($c->progresses->pluck('out_note'))->merge($c->progresses->pluck('done_note'))->filter()->unique()->implode('; ');
 
+                        // Invoice Status
                         $isInvoiced = $c->progresses->contains('is_invoiced', true);
                         $invNumbers = $c->progresses->where('is_invoiced', true)->pluck('invoice_number')->filter()->unique()->implode(', ');
 
+                        // PNBP Status
                         $isPnbp = (bool) $c->is_pnbp;
                         $pnbpNum = $c->pnbp_number;
                     @endphp
                     <tr>
                         @if($idx === 0)
-                            <td rowspan="{{ $containerCount }}" style="text-align: center; vertical-align: top;">{{ $cRow++ }}</td>
-                            <td rowspan="{{ $containerCount }}" style="vertical-align: top;"><strong>{{ $ord->order_number }}</strong></td>
-                            <td rowspan="{{ $containerCount }}" style="vertical-align: top;">{{ $ord->nama_pt }}</td>
+                            <td rowspan="{{ $containerCount }}" style="text-align: center; vertical-align: middle;">{{ $cRow++ }}</td>
+                            <td rowspan="{{ $containerCount }}" style="vertical-align: middle;"><strong>{{ $ord->order_number }}</strong></td>
+                            <td rowspan="{{ $containerCount }}" style="vertical-align: middle;">{{ $ord->nama_pt }}</td>
                         @endif
                         <td><strong>{{ $c->container_number ?: 'Tanpa No' }}</strong></td>
                         <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
@@ -267,11 +278,33 @@
                         <td style="text-align: center;">{{ $penumpukanOut }}</td>
 
                         <!-- TKBM IN/OUT -->
-                        <td style="text-align: center;">{{ $tkbmIn }}</td>
-                        <td style="text-align: center;">{{ $tkbmOut }}</td>
+                        <td style="text-align: center;">
+                            {{ $tkbmIn }}
+                            @if($tkbmBadge && $tkbmIn != '-')
+                                <div style="font-size: 5.5px; color: #b45309; font-weight: bold;">{{ $tkbmBadge }}</div>
+                            @endif
+                        </td>
+                        <td style="text-align: center;">
+                            {{ $tkbmOut }}
+                            @if($tkbmBadge && $tkbmOut != '-')
+                                <div style="font-size: 5.5px; color: #b45309; font-weight: bold;">{{ $tkbmBadge }}</div>
+                            @endif
+                        </td>
 
-                        <!-- Catatan -->
-                        <td>{{ $notes ? \Illuminate\Support\Str::limit($notes, 35) : '-' }}</td>
+                        <!-- Catatan (Flexible Wrapping) -->
+                        <td style="line-height: 1.2;">{{ $notes ?: '-' }}</td>
+
+                        <!-- Status Asuransi -->
+                        <td style="text-align: center;">
+                            @if($ord->has_asuransi)
+                                <span class="badge badge-done">✓ Aktif</span>
+                                @if($ord->asuransi_value)
+                                    <div style="font-size: 5.5px; color: #15803d; margin-top: 1px;">Rp {{ number_format($ord->asuransi_value, 0, ',', '.') }}</div>
+                                @endif
+                            @else
+                                <span class="badge badge-pending">✗ Tidak</span>
+                            @endif
+                        </td>
 
                         <!-- Status Invoice -->
                         <td style="text-align: center;">
@@ -287,7 +320,9 @@
 
                         <!-- Status PNBP -->
                         <td style="text-align: center;">
-                            @if($isPnbp)
+                            @if(strcasecmp($ord->source, 'Koperasi') === 0)
+                                <span style="color: #94a3b8;">-</span>
+                            @elseif($isPnbp)
                                 <span class="badge badge-done">✓ Selesai</span>
                                 @if($pnbpNum)
                                     <div style="font-size: 6px; color: #15803d; margin-top: 1px;">{{ $pnbpNum }}</div>
@@ -300,7 +335,7 @@
                 @endforeach
             @empty
                 <tr>
-                    <td colspan="16" class="no-data">Tidak ada order kontainer yang berstatus Done pada periode ini.</td>
+                    <td colspan="17" class="no-data">Tidak ada order kontainer yang berstatus Done pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -314,21 +349,22 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th rowspan="3" style="width: 2%;">No</th>
+                <th rowspan="3" style="width: 2.5%;">No</th>
                 <th rowspan="3" style="width: 7%;">No Order</th>
                 <th rowspan="3" style="width: 9%;">Nama PT</th>
                 <th rowspan="3" style="width: 7%;">Jenis Barang</th>
-                <th rowspan="3" style="width: 5%;">Jml Barang</th>
+                <th rowspan="3" style="width: 5%;">Jml</th>
                 <th rowspan="3" style="width: 5%;">Tonase</th>
                 <th rowspan="3" style="width: 6%;">No BL</th>
-                <th rowspan="3" style="width: 7%;">Vessel</th>
+                <th rowspan="3" style="width: 6.5%;">Vessel</th>
                 <th rowspan="3" style="width: 5%;">Voyage</th>
-                <th rowspan="3" style="width: 6%;">No Surat Jalan</th>
+                <th rowspan="3" style="width: 6%;">Surat Jalan</th>
                 <th rowspan="3" style="width: 5%;">No BP</th>
                 <th colspan="4" style="text-align: center;">Progress Waktu Lapangan</th>
-                <th rowspan="3" style="width: 8%;">Catatan</th>
-                <th rowspan="3" style="width: 6%;">Invoice</th>
-                <th rowspan="3" style="width: 6%;">PNBP</th>
+                <th rowspan="3" style="width: 9.5%;">Catatan</th>
+                <th rowspan="3" style="width: 6.5%;">Asuransi</th>
+                <th rowspan="3" style="width: 6.5%;">Invoice</th>
+                <th rowspan="3" style="width: 5.5%;">PNBP</th>
             </tr>
             <tr>
                 <th colspan="2" style="width: 7%;">Waktu IN</th>
@@ -369,8 +405,20 @@
                     <td colspan="2" style="text-align: center;">{{ $earliestIn }}</td>
                     <td colspan="2" style="text-align: center;">{{ $latestOut }}</td>
 
-                    <!-- Catatan -->
-                    <td>{{ $notesCargo ? \Illuminate\Support\Str::limit($notesCargo, 30) : ($ord->pnbp_note ? \Illuminate\Support\Str::limit($ord->pnbp_note, 30) : '-') }}</td>
+                    <!-- Catatan (Flexible Wrapping) -->
+                    <td style="line-height: 1.2;">{{ $notesCargo ?: ($ord->pnbp_note ?: '-') }}</td>
+
+                    <!-- Status Asuransi -->
+                    <td style="text-align: center;">
+                        @if($ord->has_asuransi)
+                            <span class="badge badge-done">✓ Aktif</span>
+                            @if($ord->asuransi_value)
+                                <div style="font-size: 5.5px; color: #15803d; margin-top: 1px;">Rp {{ number_format($ord->asuransi_value, 0, ',', '.') }}</div>
+                            @endif
+                        @else
+                            <span class="badge badge-pending">✗ Tidak</span>
+                        @endif
+                    </td>
 
                     <!-- Invoice -->
                     <td style="text-align: center;">
@@ -386,7 +434,9 @@
 
                     <!-- PNBP -->
                     <td style="text-align: center;">
-                        @if($ord->is_pnbp)
+                        @if(strcasecmp($ord->source, 'Koperasi') === 0)
+                            <span style="color: #94a3b8;">-</span>
+                        @elseif($ord->is_pnbp)
                             <span class="badge badge-done">✓ Selesai</span>
                             @if($ord->pnbp_number)
                                 <div style="font-size: 6px; color: #15803d; margin-top: 1px;">{{ $ord->pnbp_number }}</div>
@@ -398,15 +448,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="16" class="no-data">Tidak ada order muatan cargo yang berstatus Done pada periode ini.</td>
+                    <td colspan="17" class="no-data">Tidak ada data order muatan cargo yang berstatus Done pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        Dokumen Laporan Operasional BKJ Ops &bull; Dicetak secara otomatis dari Sistem BKJ Platform pada {{ $tanggalCetak }}
+        Laporan Rekapitulasi Order Selesai &bull; Dicetak Otomatis oleh Sistem PT. Bintang Kepri Jaya pada {{ $tanggalCetak }}
     </div>
-
 </body>
 </html>

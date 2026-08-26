@@ -38,6 +38,7 @@ class AppContainer {
   final String size;
   final String number;
   final String? sp3kkFileUrl;
+  final String? tkbmOption;
   AppContainerProgress? progress;
 
   AppContainer({
@@ -46,6 +47,7 @@ class AppContainer {
     required this.size,
     required this.number,
     this.sp3kkFileUrl,
+    this.tkbmOption,
     this.progress,
   });
 }
@@ -59,6 +61,7 @@ class AppOrder {
   final DateTime date;
   final String? payloadType; // 'Container' or 'Cargo'
   final List<AppContainer> containers;
+  final String? tkbmOption; // e.g., 'Man Power', 'Man Power + Forklift'
   
   String status; // 'Masuk', 'In', 'Out', 'Done'
   String? inNote;
@@ -83,6 +86,7 @@ class AppOrder {
     required this.date,
     this.payloadType,
     this.containers = const [],
+    this.tkbmOption,
     this.status = 'Masuk',
     this.inNote,
     this.outNote,

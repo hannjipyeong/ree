@@ -268,11 +268,18 @@ class RequestController extends Controller
         // 3. Save Order updates
         $order->save();
 
-        // 4. Store supporting document / letter if uploaded
+        // 4. Store supporting document / letter / SPK if uploaded
         $docPath = null;
         if ($httpRequest->hasFile('supporting_letter')) {
             $path = $httpRequest->file('supporting_letter')->store('uploads/service_letters', 'public');
             $docPath = 'storage/' . $path;
+        }
+
+        if ($httpRequest->hasFile('spk_file')) {
+            $spkPath = $httpRequest->file('spk_file')->store('uploads/spk', 'public');
+            $order->haulage_file_path = 'storage/' . $spkPath;
+            if (!$docPath) $docPath = 'storage/' . $spkPath;
+            $order->save();
         }
 
         // 5. Record change log in OrderServiceChange
@@ -709,11 +716,6 @@ class RequestController extends Controller
     {
         $order = $request instanceof Order ? $request : Order::findOrFail($request);
         $this->authorizeOrderAccess($order);
-
-        // Requirement 5: Nonaktifkan fungsi Ekspor Surat secara khusus pada request Koperasi
-        if (strcasecmp($order->source, 'Koperasi') === 0) {
-            return back()->with('error', 'Fungsi Ekspor Surat dinonaktifkan secara khusus pada request Koperasi.');
-        }
 
         $order->load(['customer', 'containers', 'subTasks.supir']);
 

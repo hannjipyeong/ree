@@ -113,14 +113,52 @@ class _PbmLainPage3ScreenState extends State<PbmLainPage3Screen> {
                 icon: Icons.shield_outlined,
                 isSelected:
                     vm.isServiceSelected(AppConstants.serviceAsuransi),
-                onToggle: () =>
-                    vm.toggleService(AppConstants.serviceAsuransi),
+                onToggle: () => _toggleAsuransiWithConfirmation(vm),
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  void _toggleAsuransiWithConfirmation(PbmLainViewModel vm) {
+    final isSelected = vm.isServiceSelected(AppConstants.serviceAsuransi);
+    if (!isSelected) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.shield_outlined, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text('Konfirmasi Asuransi', style: AppTextStyles.heading3),
+            ],
+          ),
+          content: const Text(
+            'Apakah Anda yakin ingin menambahkan perlindungan Asuransi untuk pengiriman order ini?',
+            style: AppTextStyles.body2,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+              onPressed: () {
+                Navigator.pop(ctx);
+                vm.toggleService(AppConstants.serviceAsuransi);
+              },
+              child: const Text('Ya, Gunakan Asuransi', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+    } else {
+      vm.toggleService(AppConstants.serviceAsuransi);
+    }
   }
 }
 

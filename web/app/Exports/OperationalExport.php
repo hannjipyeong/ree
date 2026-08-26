@@ -54,8 +54,8 @@ class OperationalExport
             $this->writeCargoSection($cargoOrders);
         }
 
-        // Auto-size columns A-P
-        foreach (range('A', 'P') as $col) {
+        // Auto-size columns A-Q
+        foreach (range('A', 'Q') as $col) {
             $this->sheet->getColumnDimension($col)->setAutoSize(true);
         }
     }
@@ -63,9 +63,9 @@ class OperationalExport
     private function writeContainerSection(Collection $orders): void
     {
         // Section title
-        $this->sheet->mergeCells("A{$this->row}:P{$this->row}");
+        $this->sheet->mergeCells("A{$this->row}:Q{$this->row}");
         $this->sheet->setCellValue("A{$this->row}", '1. REKAPITULASI LAYANAN KONTAINER (HAULAGE, LOLO, PENUMPUKAN, TKBM)');
-        $this->applyStyle("A{$this->row}:P{$this->row}", [
+        $this->applyStyle("A{$this->row}:Q{$this->row}", [
             'font'      => ['bold' => true, 'size' => 11, 'color' => ['argb' => 'FF' . self::COLOR_SECTION_TEXT]],
             'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF' . self::COLOR_SECTION]],
             'alignment' => ['vertical' => Alignment::VERTICAL_CENTER, 'indent' => 1],
@@ -76,11 +76,12 @@ class OperationalExport
 
         $r1 = $this->row; $r2 = $r1 + 1; $r3 = $r1 + 2;
 
-        // Merge static columns A-E spanning 3 header rows
+        // Merge static columns A-E spanning 3 header rows, and N-Q
         foreach (['A','B','C','D','E'] as $col) $this->sheet->mergeCells("{$col}{$r1}:{$col}{$r3}");
         $this->sheet->mergeCells("N{$r1}:N{$r3}");
         $this->sheet->mergeCells("O{$r1}:O{$r3}");
         $this->sheet->mergeCells("P{$r1}:P{$r3}");
+        $this->sheet->mergeCells("Q{$r1}:Q{$r3}");
 
         $this->sheet->setCellValue("A{$r1}", 'No');
         $this->sheet->setCellValue("B{$r1}", 'No Order');
@@ -88,8 +89,9 @@ class OperationalExport
         $this->sheet->setCellValue("D{$r1}", 'No Container');
         $this->sheet->setCellValue("E{$r1}", 'Ukuran / Tipe');
         $this->sheet->setCellValue("N{$r1}", 'Catatan');
-        $this->sheet->setCellValue("O{$r1}", 'Status Invoice');
-        $this->sheet->setCellValue("P{$r1}", 'Status PNBP');
+        $this->sheet->setCellValue("O{$r1}", 'Status Asuransi');
+        $this->sheet->setCellValue("P{$r1}", 'Status Invoice');
+        $this->sheet->setCellValue("Q{$r1}", 'Status PNBP');
 
         // Row 1: "Layanan & Progress" spanning F-M
         $this->sheet->mergeCells("F{$r1}:M{$r1}");
@@ -110,9 +112,9 @@ class OperationalExport
             $this->sheet->setCellValue("{$col}{$r3}", $lbl);
         }
 
-        $this->applyStyle("A{$r1}:P{$r1}", $this->headerStyle(self::COLOR_HEADER1));
-        $this->applyStyle("A{$r2}:P{$r2}", $this->headerStyle(self::COLOR_HEADER2));
-        $this->applyStyle("A{$r3}:P{$r3}", $this->headerStyle(self::COLOR_HEADER3));
+        $this->applyStyle("A{$r1}:Q{$r1}", $this->headerStyle(self::COLOR_HEADER1));
+        $this->applyStyle("A{$r2}:Q{$r2}", $this->headerStyle(self::COLOR_HEADER2));
+        $this->applyStyle("A{$r3}:Q{$r3}", $this->headerStyle(self::COLOR_HEADER3));
         foreach([$r1,$r2,$r3] as $hr) $this->sheet->getRowDimension($hr)->setRowHeight(16);
 
         $this->row = $r3 + 1;
@@ -128,12 +130,21 @@ class OperationalExport
                 $pP = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'Penumpukan')===0);
                 $pT = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'TKBM')===0);
 
+                $tkbmOpt = $c->tkbm_option ?: ($ord->tkbm_option ?? '');
+                $tkbmBadge = str_contains(strtolower($tkbmOpt), 'forklift') ? ' (MP+Forklift)' : (strtolower($tkbmOpt) == 'man power' ? ' (MP)' : '');
+
                 $notes     = $c->progresses->pluck('in_note')->merge($c->progresses->pluck('out_note'))->merge($c->progresses->pluck('done_note'))->filter()->unique()->implode('; ');
+                
+                $isAsuransi = (bool)$ord->has_asuransi;
+                $asuransiText = ($isAsuransi ? '✓ Aktif' : '✗ Tidak') . ($isAsuransi && $ord->asuransi_value ? "\n(Rp " . number_format($ord->asuransi_value, 0, ',', '.') . ')' : '');
+
                 $isInv     = $c->progresses->contains('is_invoiced', true);
                 $invNum    = $c->progresses->where('is_invoiced',true)->pluck('invoice_number')->filter()->unique()->implode(', ');
                 $invText   = ($isInv ? '✓ Terbit' : '✗ Belum') . ($invNum ? "\n{$invNum}" : '');
+
+                $isKoperasi = strcasecmp($ord->source, 'Koperasi') === 0;
                 $isPnbp    = (bool)$c->is_pnbp;
-                $pnbpText  = ($isPnbp ? '✓ Selesai' : '✗ Belum') . ($c->pnbp_number ? "\n{$c->pnbp_number}" : '');
+                $pnbpText  = $isKoperasi ? '-' : (($isPnbp ? '✓ Selesai' : '✗ Belum') . ($c->pnbp_number ? "\n{$c->pnbp_number}" : ''));
 
                 $this->sheet->setCellValue("D{$this->row}", $c->container_number ?: 'Tanpa No');
                 $this->sheet->setCellValue("E{$this->row}", $c->container_size . ' (' . $c->container_type . ')');
@@ -143,17 +154,21 @@ class OperationalExport
                 $this->sheet->setCellValue("I{$this->row}", $this->ft($pL?->out_time));
                 $this->sheet->setCellValue("J{$this->row}", $this->ft($pP?->in_time));
                 $this->sheet->setCellValue("K{$this->row}", $this->ft($pP?->out_time));
-                $this->sheet->setCellValue("L{$this->row}", $this->ft($pT?->in_time));
-                $this->sheet->setCellValue("M{$this->row}", $this->ft($pT?->out_time));
+                $this->sheet->setCellValue("L{$this->row}", $this->ft($pT?->in_time) . ($pT?->in_time && $tkbmBadge ? "\n{$tkbmBadge}" : ''));
+                $this->sheet->setCellValue("M{$this->row}", $this->ft($pT?->out_time) . ($pT?->out_time && $tkbmBadge ? "\n{$tkbmBadge}" : ''));
                 $this->sheet->setCellValue("N{$this->row}", $notes ?: '-');
-                $this->sheet->setCellValue("O{$this->row}", $invText);
-                $this->sheet->setCellValue("P{$this->row}", $pnbpText);
+                $this->sheet->setCellValue("O{$this->row}", $asuransiText);
+                $this->sheet->setCellValue("P{$this->row}", $invText);
+                $this->sheet->setCellValue("Q{$this->row}", $pnbpText);
 
                 $rowBg = ($rowNo % 2 === 0) ? self::COLOR_ALT_ROW : self::COLOR_WHITE;
-                $this->applyStyle("A{$this->row}:P{$this->row}", ['fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.$rowBg]],'borders'=>$this->thinBorder(),'alignment'=>['vertical'=>Alignment::VERTICAL_CENTER,'wrapText'=>true]]);
+                $this->applyStyle("A{$this->row}:Q{$this->row}", ['fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.$rowBg]],'borders'=>$this->thinBorder(),'alignment'=>['vertical'=>Alignment::VERTICAL_CENTER,'wrapText'=>true]]);
                 $this->applyStyle("A{$this->row}", ['alignment'=>['horizontal'=>Alignment::HORIZONTAL_CENTER]]);
-                $this->applyStyle("O{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
-                $this->applyStyle("P{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+                $this->applyStyle("O{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isAsuransi?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isAsuransi?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+                $this->applyStyle("P{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+                if (!$isKoperasi) {
+                    $this->applyStyle("Q{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+                }
                 $this->sheet->getRowDimension($this->row)->setRowHeight(-1);
                 $this->row++;
             }
@@ -176,9 +191,9 @@ class OperationalExport
     private function writeCargoSection(Collection $orders): void
     {
         // Section title
-        $this->sheet->mergeCells("A{$this->row}:P{$this->row}");
+        $this->sheet->mergeCells("A{$this->row}:Q{$this->row}");
         $this->sheet->setCellValue("A{$this->row}", '2. REKAPITULASI LAYANAN CARGO (MUATAN BEBAS / GENERAL CARGO)');
-        $this->applyStyle("A{$this->row}:P{$this->row}", [
+        $this->applyStyle("A{$this->row}:Q{$this->row}", [
             'font'      => ['bold' => true, 'size' => 11, 'color' => ['argb' => 'FF' . self::COLOR_SECTION_TEXT]],
             'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF' . self::COLOR_SECTION]],
             'alignment' => ['vertical' => Alignment::VERTICAL_CENTER, 'indent' => 1],
@@ -189,10 +204,10 @@ class OperationalExport
 
         $r1 = $this->row; $r2 = $r1 + 1; $r3 = $r1 + 2;
 
-        $staticCols = ['A','B','C','D','E','F','G','H','I','J','K','N','O','P'];
+        $staticCols = ['A','B','C','D','E','F','G','H','I','J','K','N','O','P','Q'];
         foreach($staticCols as $col) $this->sheet->mergeCells("{$col}{$r1}:{$col}{$r3}");
 
-        $labels = ['A'=>'No','B'=>'No Order','C'=>'Nama PT','D'=>'Jenis Barang','E'=>'Jml Barang','F'=>'Tonase','G'=>'No BL','H'=>'Vessel','I'=>'Voyage','J'=>'No Surat Jalan','K'=>'No BP','N'=>'Catatan','O'=>'Status Invoice','P'=>'Status PNBP'];
+        $labels = ['A'=>'No','B'=>'No Order','C'=>'Nama PT','D'=>'Jenis Barang','E'=>'Jml Barang','F'=>'Tonase','G'=>'No BL','H'=>'Vessel','I'=>'Voyage','J'=>'No Surat Jalan','K'=>'No BP','N'=>'Catatan','O'=>'Status Asuransi','P'=>'Status Invoice','Q'=>'Status PNBP'];
         foreach($labels as $col=>$lbl) $this->sheet->setCellValue("{$col}{$r1}", $lbl);
 
         $this->sheet->mergeCells("L{$r1}:M{$r1}");
@@ -202,9 +217,9 @@ class OperationalExport
         $this->sheet->setCellValue("L{$r3}", 'Tgl & Jam IN');
         $this->sheet->setCellValue("M{$r3}", 'Tgl & Jam OUT');
 
-        $this->applyStyle("A{$r1}:P{$r1}", $this->headerStyle(self::COLOR_HEADER1));
-        $this->applyStyle("A{$r2}:P{$r2}", $this->headerStyle(self::COLOR_HEADER2));
-        $this->applyStyle("A{$r3}:P{$r3}", $this->headerStyle(self::COLOR_HEADER3));
+        $this->applyStyle("A{$r1}:Q{$r1}", $this->headerStyle(self::COLOR_HEADER1));
+        $this->applyStyle("A{$r2}:Q{$r2}", $this->headerStyle(self::COLOR_HEADER2));
+        $this->applyStyle("A{$r3}:Q{$r3}", $this->headerStyle(self::COLOR_HEADER3));
         foreach([$r1,$r2,$r3] as $hr) $this->sheet->getRowDimension($hr)->setRowHeight(16);
 
         $this->row = $r3 + 1;
@@ -217,10 +232,16 @@ class OperationalExport
             $earliestIn = $inTimes->isNotEmpty() ? \Carbon\Carbon::parse($inTimes->min())->format('d/m/Y H:i') : '-';
             $latestOut  = $outTimes->isNotEmpty() ? \Carbon\Carbon::parse($outTimes->max())->format('d/m/Y H:i') : ($doneTimes->isNotEmpty() ? \Carbon\Carbon::parse($doneTimes->max())->format('d/m/Y H:i') : '-');
             $notesCargo = $ord->subTasks->pluck('in_note')->merge($ord->subTasks->pluck('out_note'))->merge($ord->subTasks->pluck('done_note'))->filter()->unique()->implode('; ');
+            
+            $isAsuransi = (bool)$ord->has_asuransi;
+            $asuransiText = ($isAsuransi ? '✓ Aktif' : '✗ Tidak') . ($isAsuransi && $ord->asuransi_value ? "\n(Rp " . number_format($ord->asuransi_value, 0, ',', '.') . ')' : '');
+
             $isInv     = (bool)$ord->is_invoiced;
             $invText   = ($isInv ? '✓ Terbit' : '✗ Belum') . ($ord->invoice_number ? "\n{$ord->invoice_number}" : '');
+            
+            $isKoperasi = strcasecmp($ord->source, 'Koperasi') === 0;
             $isPnbp    = (bool)$ord->is_pnbp;
-            $pnbpText  = ($isPnbp ? '✓ Selesai' : '✗ Belum') . ($ord->pnbp_number ? "\n{$ord->pnbp_number}" : '');
+            $pnbpText  = $isKoperasi ? '-' : (($isPnbp ? '✓ Selesai' : '✗ Belum') . ($ord->pnbp_number ? "\n{$ord->pnbp_number}" : ''));
 
             $this->sheet->setCellValue("A{$this->row}", $rowNo);
             $this->sheet->setCellValue("B{$this->row}", $ord->order_number);
@@ -236,15 +257,19 @@ class OperationalExport
             $this->sheet->setCellValue("L{$this->row}", $earliestIn);
             $this->sheet->setCellValue("M{$this->row}", $latestOut);
             $this->sheet->setCellValue("N{$this->row}", $notesCargo ?: ($ord->pnbp_note ?: '-'));
-            $this->sheet->setCellValue("O{$this->row}", $invText);
-            $this->sheet->setCellValue("P{$this->row}", $pnbpText);
+            $this->sheet->setCellValue("O{$this->row}", $asuransiText);
+            $this->sheet->setCellValue("P{$this->row}", $invText);
+            $this->sheet->setCellValue("Q{$this->row}", $pnbpText);
 
             $rowBg = ($rowNo % 2 === 0) ? self::COLOR_ALT_ROW : self::COLOR_WHITE;
-            $this->applyStyle("A{$this->row}:P{$this->row}", ['fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.$rowBg]],'borders'=>$this->thinBorder(),'alignment'=>['vertical'=>Alignment::VERTICAL_CENTER,'wrapText'=>true]]);
+            $this->applyStyle("A{$this->row}:Q{$this->row}", ['fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.$rowBg]],'borders'=>$this->thinBorder(),'alignment'=>['vertical'=>Alignment::VERTICAL_CENTER,'wrapText'=>true]]);
             $this->applyStyle("A{$this->row}", ['font'=>['bold'=>true],'alignment'=>['horizontal'=>Alignment::HORIZONTAL_CENTER]]);
             $this->applyStyle("B{$this->row}", ['font'=>['bold'=>true]]);
-            $this->applyStyle("O{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
-            $this->applyStyle("P{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+            $this->applyStyle("O{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isAsuransi?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isAsuransi?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+            $this->applyStyle("P{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isInv?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+            if (!$isKoperasi) {
+                $this->applyStyle("Q{$this->row}", ['font'=>['bold'=>true,'color'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_FG:self::COLOR_PENDING_FG)]],'fill'=>['fillType'=>Fill::FILL_SOLID,'startColor'=>['argb'=>'FF'.($isPnbp?self::COLOR_DONE_BG:self::COLOR_PENDING_BG)]]]);
+            }
             $this->sheet->getRowDimension($this->row)->setRowHeight(-1);
             $this->row++;
             $rowNo++;

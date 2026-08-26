@@ -167,7 +167,9 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -187,7 +189,25 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        if (order.serviceType.toUpperCase() == 'TKBM' || (order.tkbmOption != null && order.tkbmOption!.isNotEmpty))
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF3C7),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: const Color(0xFFF59E0B)),
+                            ),
+                            child: Text(
+                              order.tkbmOption?.toLowerCase().contains('forklift') == true
+                                  ? 'Man Power + Forklift'
+                                  : 'Man Power (MP)',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF92400E),
+                              ),
+                            ),
+                          ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(

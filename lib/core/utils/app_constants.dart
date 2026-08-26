@@ -61,6 +61,7 @@ class AppConstants {
 
   static const List<String> lokasiFasilitasUtara = [
     'TPFT',
+    'gudang',
   ];
 
   static const List<String> lokasiFasilitasPbmLain = [

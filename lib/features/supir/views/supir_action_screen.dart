@@ -333,7 +333,12 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Ukuran: ${c.size} • Tipe: ${c.type}', style: AppTextStyles.body2),
+                          Expanded(
+                            child: Text(
+                              'Ukuran: ${c.size} • Tipe: ${c.type}${(c.tkbmOption != null || currentOrder.tkbmOption != null) ? " • TKBM: ${c.tkbmOption ?? currentOrder.tkbmOption}" : ""}',
+                              style: AppTextStyles.body2,
+                            ),
+                          ),
                           if (currentOrder.serviceType == 'Haulage' && c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
                             InkWell(
                               onTap: () async {

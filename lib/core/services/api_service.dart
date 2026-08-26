@@ -247,6 +247,7 @@ class ApiService {
                   size: c['container_size'] ?? '',
                   number: c['container_number'] ?? '',
                   sp3kkFileUrl: c['sp3kk_file_url'],
+                  tkbmOption: c['tkbm_option'] ?? order['tkbm_option'],
                   progress: progObj,
                 ));
               }
@@ -259,6 +260,7 @@ class ApiService {
                 date: DateTime.tryParse(task['created_at'] ?? '') ?? DateTime.now(),
                 status: task['status'] ?? 'Masuk',
                 payloadType: order['payload_type'] ?? 'Container',
+                tkbmOption: order['tkbm_option'] ?? task['tkbm_option'],
                 jenisBarang: order['jenis_barang'],
                 jumlahBarang: order['jumlah_barang'],
                 jumlahTonase: order['jumlah_tonase']?.toString(),
