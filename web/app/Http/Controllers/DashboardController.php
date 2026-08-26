@@ -385,6 +385,7 @@ class DashboardController extends Controller
             $rowNo = 1;
             foreach ($orders as $ord) {
                 if ($ord->containers->isNotEmpty()) {
+                    $isFirstContainer = true;
                     foreach ($ord->containers as $c) {
                         $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
                         $pLolo = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
@@ -402,9 +403,9 @@ class DashboardController extends Controller
                         if ($c->pnbp_number) $pnbpStatus .= " ({$c->pnbp_number})";
 
                         fputcsv($file, [
-                            $rowNo++,
-                            $ord->order_number,
-                            $ord->nama_pt,
+                            $isFirstContainer ? $rowNo++ : '',
+                            $isFirstContainer ? $ord->order_number : '',
+                            $isFirstContainer ? $ord->nama_pt : '',
                             $c->container_number ?: 'Tanpa No',
                             $c->container_size . ' (' . $c->container_type . ')',
                             $pHaulage && $pHaulage->in_time ? \Carbon\Carbon::parse($pHaulage->in_time)->format('d/m/Y H:i') : '-',
@@ -419,6 +420,7 @@ class DashboardController extends Controller
                             $invStatus,
                             $pnbpStatus
                         ]);
+                        $isFirstContainer = false;
                     }
                 } else {
                     $stHaulage = $ord->subTasks->firstWhere('service_type', 'Haulage');
