@@ -102,6 +102,7 @@ class RequestController extends Controller
         $haulagePath = null;
         if ($request->hasFile('haulage_file')) {
             $haulagePath = $request->file('haulage_file')->store('uploads/haulage', 'public');
+        }
         $orderNumber = Order::generateNextOrderNumber();
 
         $hasAsuransi = in_array('Asuransi', $validated['services']) || $request->boolean('has_asuransi');
