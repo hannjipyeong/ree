@@ -143,6 +143,11 @@
                 <label for="asuransiCreate" class="text-sm font-medium text-slate-700">Otomatis Centang Asuransi saat Order</label>
             </div>
 
+            <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" name="has_default_sp3kk" id="sp3kkCreate" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-600">
+                <label for="sp3kkCreate" class="text-sm font-medium text-slate-700">Wajib / Centang SP3KK Khusus Haulage</label>
+            </div>
+
             <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('modalCreateCustomer').classList.add('hidden')" class="px-4 py-2.5 bg-slate-100 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-200 transition">
                     Batal
@@ -199,6 +204,11 @@
                 <label for="editHasDefaultAsuransi" class="text-sm font-medium text-slate-700">Otomatis Centang Asuransi saat Order</label>
             </div>
 
+            <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" id="editHasDefaultSp3kk" name="has_default_sp3kk" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-600">
+                <label for="editHasDefaultSp3kk" class="text-sm font-medium text-slate-700">Wajib / Centang SP3KK Khusus Haulage</label>
+            </div>
+
             <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('modalEditCustomer').classList.add('hidden')" class="px-4 py-2.5 bg-slate-100 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-200 transition">
                     Batal
@@ -219,6 +229,7 @@
         document.getElementById('editPhone').value = c.phone || '';
         document.getElementById('editDefaultNamaPt').value = c.default_nama_pt || '';
         document.getElementById('editHasDefaultAsuransi').checked = c.has_default_asuransi == 1;
+        document.getElementById('editHasDefaultSp3kk').checked = c.has_default_sp3kk == 1;
         document.getElementById('modalEditCustomer').classList.remove('hidden');
     }
 </script>

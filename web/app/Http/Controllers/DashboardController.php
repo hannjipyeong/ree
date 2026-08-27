@@ -320,11 +320,22 @@ class DashboardController extends Controller
         }
 
         if ($activeStatus) {
-            $query->whereHas('subTasks', function ($q) use ($activeStatus, $activeLayanan) {
-                $q->where('status', $activeStatus);
-                if ($activeLayanan) {
-                    $q->where('service_type', $activeLayanan);
-                }
+            $query->where(function ($q) use ($activeStatus, $activeLayanan) {
+                $q->whereHas('subTasks', function ($sq) use ($activeStatus, $activeLayanan) {
+                    $sq->where(function ($stq) use ($activeStatus) {
+                        $stq->where('status', $activeStatus)
+                            ->orWhere('status', strtolower($activeStatus))
+                            ->orWhere('status', strtoupper($activeStatus))
+                            ->orWhereHas('containerProgress', function ($cpq) use ($activeStatus) {
+                                $cpq->where('status', $activeStatus)
+                                    ->orWhere('status', strtolower($activeStatus))
+                                    ->orWhere('status', strtoupper($activeStatus));
+                            });
+                    });
+                    if ($activeLayanan) {
+                        $sq->where('service_type', $activeLayanan);
+                    }
+                });
             });
         } elseif ($activeLayanan) {
             $query->whereHas('subTasks', fn ($q) => $q->where('service_type', $activeLayanan));

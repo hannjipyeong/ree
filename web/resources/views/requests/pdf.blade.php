@@ -273,9 +273,12 @@
         </div>
 
         <!-- PEMBUKA SURAT -->
+        @php
+            $entityName = strcasecmp($order->source, 'Koperasi') === 0 ? 'Koperasi TKBM PT. Bintang Kepri Jaya' : 'PT. Bintang Kepri Jaya';
+        @endphp
         <div class="content-paragraph">
             Dengan hormat,<br>
-            Sehubungan dengan kelancaran kegiatan operasional pengiriman dan logistik muatan, bersama surat ini kami dari <strong>PT. Bintang Kepri Jaya</strong> mengajukan permohonan <strong>{{ strtolower($order->jenis_kegiatan ?: 'penumpukan') }}</strong> dengan rincian data sebagai berikut:
+            Sehubungan dengan kelancaran kegiatan operasional pengiriman dan logistik muatan, bersama surat ini kami dari <strong>{{ $entityName }}</strong> mengajukan permohonan <strong>{{ strtolower($order->jenis_kegiatan ?: 'penumpukan') }}</strong> dengan rincian data sebagai berikut:
         </div>
 
         <!-- TABEL RINCIAN PERMOHONAN CONTAINER -->
@@ -345,7 +348,7 @@
                     @if($ttdBase64)
                         <img src="{{ $ttdBase64 }}" class="signature-image" style="margin: 0 auto;" alt="Tanda Tangan & Cap PT. Bintang Kepri Jaya">
                     @else
-                        <div style="font-weight: bold; margin-top: 4px;">Hormat kami,<br>PT. BINTANG KEPRI JAYA</div>
+                        <div style="font-weight: bold; margin-top: 4px;">Hormat kami,<br>{{ strtoupper($entityName) }}</div>
                         <div style="height: 60px;"></div>
                         <div style="font-weight: bold; text-decoration: underline;">Nandi Pinto</div>
                         <div style="font-size: 9pt; color: #4b5563;">Operational</div>

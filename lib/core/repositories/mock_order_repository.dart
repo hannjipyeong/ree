@@ -62,6 +62,12 @@ class AppOrder {
   final String? payloadType; // 'Container' or 'Cargo'
   final List<AppContainer> containers;
   final String? tkbmOption; // e.g., 'Man Power', 'Man Power + Forklift'
+  final String? wilayah;
+  final String? lokasiFasilitas;
+  final String? namaPbm;
+  final String? noTelp;
+  final String? haulageFilePath;
+  final List<Map<String, dynamic>> subTasksList;
   
   String status; // 'Masuk', 'In', 'Out', 'Done'
   String? inNote;
@@ -87,6 +93,12 @@ class AppOrder {
     this.payloadType,
     this.containers = const [],
     this.tkbmOption,
+    this.wilayah,
+    this.lokasiFasilitas,
+    this.namaPbm,
+    this.noTelp,
+    this.haulageFilePath,
+    this.subTasksList = const [],
     this.status = 'Masuk',
     this.inNote,
     this.outNote,

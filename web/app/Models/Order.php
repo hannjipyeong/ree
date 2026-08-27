@@ -78,4 +78,28 @@ class Order extends Model
     {
         return $this->hasMany(OrderServiceChange::class)->latest();
     }
+
+    /**
+     * Generate sequential incrementing order number: ORD-001, ORD-002, ORD-003, ...
+     */
+    public static function generateNextOrderNumber(): string
+    {
+        $orders = self::where('order_number', 'like', 'ORD-%')->get();
+        $maxNum = 0;
+        foreach ($orders as $o) {
+            if (preg_match('/^ORD-(\d+)$/', (string)$o->order_number, $matches)) {
+                $num = intval($matches[1]);
+                if ($num > $maxNum) {
+                    $maxNum = $num;
+                }
+            }
+        }
+
+        if ($maxNum === 0) {
+            $maxNum = self::count();
+        }
+
+        $nextNum = $maxNum + 1;
+        return 'ORD-' . str_pad((string)$nextNum, 3, '0', STR_PAD_LEFT);
+    }
 }

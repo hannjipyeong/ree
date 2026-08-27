@@ -67,6 +67,7 @@ class HomeViewModel extends ChangeNotifier {
           'status': statusLabel,
           'statusColor': statusColor,
           'originalDate': order.date,
+          'order': order,
         });
       }
       debugPrint('DEBUG: Activities count = ${activities.length}');

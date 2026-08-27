@@ -57,13 +57,13 @@
         <hr class="my-6 border-slate-100">
 
         <!-- Info Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs">
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <span class="text-slate-400 font-medium block mb-1"><i class="fa-solid fa-envelope me-1.5 text-blue-500"></i>Email Login</span>
-                <span class="font-bold text-slate-800 text-sm">{{ $customer->email }}</span>
+                <span class="font-bold text-slate-800 text-sm truncate block">{{ $customer->email }}</span>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <span class="text-slate-400 font-medium block mb-1"><i class="fa-solid fa-phone me-1.5 text-emerald-500"></i>No. Telepon / WhatsApp</span>
+                <span class="text-slate-400 font-medium block mb-1"><i class="fa-solid fa-phone me-1.5 text-emerald-500"></i>No. Telepon</span>
                 <span class="font-bold text-slate-800 text-sm">{{ $customer->phone ?? '-' }}</span>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
@@ -73,7 +73,13 @@
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <span class="text-slate-400 font-medium block mb-1"><i class="fa-solid fa-shield-halved me-1.5 text-amber-500"></i>Default Asuransi</span>
                 <span class="font-bold text-sm {{ $customer->has_default_asuransi ? 'text-emerald-600' : 'text-slate-500' }}">
-                    {{ $customer->has_default_asuransi ? 'Aktif (Centang Otomatis)' : 'Tidak Aktif' }}
+                    {{ $customer->has_default_asuransi ? 'Aktif' : 'Tidak' }}
+                </span>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <span class="text-slate-400 font-medium block mb-1"><i class="fa-solid fa-file-contract me-1.5 text-teal-500"></i>Default SP3KK</span>
+                <span class="font-bold text-sm {{ $customer->has_default_sp3kk ? 'text-emerald-600' : 'text-slate-500' }}">
+                    {{ $customer->has_default_sp3kk ? 'Wajib / Aktif' : 'Tidak' }}
                 </span>
             </div>
         </div>

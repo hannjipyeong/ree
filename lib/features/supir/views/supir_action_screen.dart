@@ -489,8 +489,14 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                         ),
                       ),
                     ),
+                    if (order.wilayah != null && order.wilayah!.isNotEmpty)
+                      _buildInfoRow('Wilayah', order.wilayah!),
+                    if (order.lokasiFasilitas != null && order.lokasiFasilitas!.isNotEmpty)
+                      _buildInfoRow('Lokasi', order.lokasiFasilitas!),
+                    if (order.tkbmOption != null && order.tkbmOption!.isNotEmpty)
+                      _buildInfoRow('Opsi TKBM', order.tkbmOption!),
                     _buildInfoRow('Tipe', order.payloadType ?? 'Container'),
-                    _buildInfoRow('Tanggal', '${order.date.day}/${order.date.month}/${order.date.year} ${order.date.hour}:${order.date.minute}'),
+                    _buildInfoRow('Tanggal', '${order.date.day}/${order.date.month}/${order.date.year} ${order.date.hour.toString().padLeft(2, "0")}:${order.date.minute.toString().padLeft(2, "0")}'),
                   ],
                 ),
               ),

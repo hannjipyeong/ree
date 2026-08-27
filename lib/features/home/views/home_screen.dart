@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bkj_app/core/theme/app_theme.dart';
-
+import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/home/viewmodels/home_viewmodel.dart';
+import 'package:bkj_app/features/home/views/customer_order_detail_screen.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart' as bkj_app;
 
 import 'dart:async';
@@ -288,9 +289,20 @@ class _ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final order = activity['order'] as AppOrder?;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
+        onTap: order != null
+            ? () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CustomerOrderDetailScreen(order: order),
+                  ),
+                );
+              }
+            : null,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 8,

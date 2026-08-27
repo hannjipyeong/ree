@@ -485,9 +485,13 @@
                                     </span>
                                 @endif
                                 
-                                @if($effectiveTkbm)
+                                @php
+                                    $rawTkbm = $c->tkbm_option ?: ($order->tkbm_option ?? '');
+                                    $tkbmDisplay = str_contains(strtolower($rawTkbm), 'forklift') ? 'Man Power + Forklift' : (strtolower($rawTkbm) == 'man power' ? 'Man Power (MP)' : $rawTkbm);
+                                @endphp
+                                @if($tkbmDisplay)
                                     <span class="px-2.5 py-1 bg-amber-100 text-amber-800 font-bold rounded-lg text-xs flex items-center gap-1 border border-amber-200">
-                                        <i class="fa-solid fa-users-gear text-[10px]"></i> {{ $effectiveTkbm }}
+                                        <i class="fa-solid fa-users-gear text-[10px]"></i> TKBM: {{ $tkbmDisplay }}
                                     </span>
                                 @endif
                                 @if(!empty($c->additional_services))
@@ -502,7 +506,7 @@
                                         </span>
                                     @endforeach
                                 @endif
-                                @if($c->is_pnbp)
+                                @if(strcasecmp($order->source, 'Koperasi') !== 0 && $c->is_pnbp)
                                     <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                                         <i class="fa-solid fa-receipt text-[10px]"></i> PNBP Selesai
                                     </span>

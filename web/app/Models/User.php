@@ -23,6 +23,7 @@ class User extends Authenticatable
         'supir_wilayah',
         'default_nama_pt',
         'has_default_asuransi',
+        'has_default_sp3kk',
     ];
 
     protected $hidden = [
@@ -36,6 +37,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'has_default_asuransi' => 'boolean',
+            'has_default_sp3kk' => 'boolean',
         ];
     }
 

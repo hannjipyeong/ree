@@ -56,6 +56,7 @@ class UserController extends Controller
             'role' => 'customer',
             'default_nama_pt' => $validated['default_nama_pt'] ?? null,
             'has_default_asuransi' => $request->has('has_default_asuransi'),
+            'has_default_sp3kk' => $request->has('has_default_sp3kk'),
         ]);
 
         return redirect()->route('customers.index')->with('success', 'Akun Customer berhasil ditambahkan!');
@@ -76,6 +77,7 @@ class UserController extends Controller
         $customer->phone = $validated['phone'];
         $customer->default_nama_pt = $validated['default_nama_pt'] ?? null;
         $customer->has_default_asuransi = $request->has('has_default_asuransi');
+        $customer->has_default_sp3kk = $request->has('has_default_sp3kk');
         
         if (!empty($validated['password'])) {
             $customer->password = Hash::make($validated['password']);

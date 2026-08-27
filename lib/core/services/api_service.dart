@@ -261,6 +261,11 @@ class ApiService {
                 status: task['status'] ?? 'Masuk',
                 payloadType: order['payload_type'] ?? 'Container',
                 tkbmOption: order['tkbm_option'] ?? task['tkbm_option'],
+                wilayah: order['wilayah'],
+                lokasiFasilitas: order['lokasi_fasilitas'],
+                namaPbm: order['nama_pbm'],
+                noTelp: order['no_telp'],
+                haulageFilePath: order['haulage_file_path'],
                 jenisBarang: order['jenis_barang'],
                 jumlahBarang: order['jumlah_barang'],
                 jumlahTonase: order['jumlah_tonase']?.toString(),
@@ -276,9 +281,24 @@ class ApiService {
               ));
             }
           } else {
-            // Data is a list of Orders (For Customer history - if needed later)
+            // Data is a list of Orders (For Customer history & details)
             for (var order in data) {
               try {
+                List<AppContainer> parsedCustContainers = [];
+                final rawCustContainers = order['containers'] ?? [];
+                for (var c in rawCustContainers) {
+                  parsedCustContainers.add(AppContainer(
+                    id: c['id'] ?? 0,
+                    type: c['container_type'] ?? '',
+                    size: c['container_size'] ?? '',
+                    number: c['container_number'] ?? '',
+                    sp3kkFileUrl: c['sp3kk_file_url'],
+                    tkbmOption: c['tkbm_option'] ?? order['tkbm_option'],
+                  ));
+                }
+
+                final rawSubTasks = (order['sub_tasks'] as List?)?.map((st) => Map<String, dynamic>.from(st)).toList() ?? [];
+
                 appOrders.add(AppOrder(
                   id: order['order_number']?.toString() ?? order['id'].toString(),
                   customerName: order['nama_pt'] ?? 'Unknown Customer',
@@ -287,6 +307,14 @@ class ApiService {
                   date: DateTime.tryParse(order['tanggal_order'] ?? '') ?? DateTime.now(),
                   status: order['status'] ?? 'Submitted',
                   payloadType: order['payload_type'] ?? 'Container',
+                  tkbmOption: order['tkbm_option'],
+                  wilayah: order['wilayah'],
+                  lokasiFasilitas: order['lokasi_fasilitas'],
+                  namaPbm: order['nama_pbm'],
+                  noTelp: order['no_telp'],
+                  haulageFilePath: order['haulage_file_path'],
+                  subTasksList: rawSubTasks,
+                  containers: parsedCustContainers,
                   jenisBarang: order['jenis_barang'],
                   jumlahBarang: order['jumlah_barang'],
                   jumlahTonase: order['jumlah_tonase']?.toString(),

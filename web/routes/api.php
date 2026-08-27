@@ -5,8 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 
 Route::post('/login', [ApiController::class, 'login']);
-// Self-registration disabled — customers are created by admin via web dashboard only.
-// Route::post('/register', [ApiController::class, 'register']);
+Route::get('/draft_template_spk', [ApiController::class, 'downloadDraftTemplateSpk']);
 
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -45,6 +45,7 @@ class ApiController extends Controller
                 'supir_wilayah'        => $user->supir_wilayah,
                 'default_nama_pt'      => $user->default_nama_pt,
                 'has_default_asuransi' => (bool) $user->has_default_asuransi,
+                'has_default_sp3kk'    => (bool) $user->has_default_sp3kk,
             ],
         ]);
     }
@@ -194,7 +195,7 @@ class ApiController extends Controller
         $hasAsuransi = (is_array($services) && in_array('Asuransi', $services)) || $request->boolean('has_asuransi');
         $asuransiValue = $request->input('asuransi_value');
 
-        $orderNumber = 'ORD-' . date('Ymd') . '-' . rand(100, 999);
+        $orderNumber = Order::generateNextOrderNumber();
 
         $order = Order::create([
             'order_number' => $orderNumber,
@@ -535,6 +536,43 @@ class ApiController extends Controller
                     ];
                 });
             $notifications = $notifications->merge($newTasks);
+
+            // 1.b Notifikasi khusus Supir Haulage jika TKBM sudah OUT pada kontainer di order yang sama
+            if (in_array(strtolower((string)$user?->supir_type), ['haulage', 'houlage', '']) || $user?->role === 'admin') {
+                $tkbmOutProgress = ContainerProgress::with(['orderContainer', 'subTask.order'])
+                    ->whereHas('subTask', function ($q) {
+                        $q->where('service_type', 'TKBM');
+                    })
+                    ->where('status', 'Out')
+                    ->whereHas('orderContainer.order.subTasks', function ($q) {
+                        $q->where('service_type', 'Haulage');
+                    })
+                    ->where('out_time', '>=', now()->subHours(48))
+                    ->latest('out_time')
+                    ->take(30)
+                    ->get()
+                    ->map(function ($cp) {
+                        $order = $cp->subTask?->order;
+                        $c = $cp->orderContainer;
+                        return [
+                            'id'            => 'tkbm-out-' . $cp->id,
+                            'category'      => 'tkbm_done',
+                            'type'          => 'TKBM_OUT',
+                            'time'          => $cp->out_time ?? $cp->updated_at,
+                            'is_read'       => false,
+                            'title'         => "⚡ TKBM Selesai (OUT) — Kontainer " . ($c?->container_number ?: 'Tanpa No'),
+                            'message'       => "Pekerjaan TKBM telah selesai untuk Order " . ($order?->order_number ?? '') . " ({$order?->nama_pt}). Supir Haulage siap melakukan penarikan.",
+                            'photo'         => $cp->out_photo_path,
+                            'service_type'  => 'Haulage',
+                            'container_num' => $c?->container_number,
+                            'order_id'      => optional($order)->id,
+                            'order_number'  => optional($order)->order_number,
+                            'nama_pt'       => optional($order)->nama_pt,
+                            'source'        => optional($order)->source,
+                        ];
+                    });
+                $notifications = $notifications->merge($tkbmOutProgress);
+            }
         }
 
         // 2. Customer: return empty (sudah di guard top, tapi disini jaga-jaga)
@@ -598,5 +636,15 @@ class ApiController extends Controller
             'success' => true,
             'message' => 'Notifikasi telah ditandai dibaca.',
         ]);
+    }
+
+    public function downloadDraftTemplateSpk()
+    {
+        if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('spk_draft_template_pdf');
+            return $pdf->download('Draft_Template_SPK_Koperasi_TKBM.pdf');
+        }
+
+        return response()->view('spk_draft_template_pdf');
     }
 }
