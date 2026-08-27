@@ -268,11 +268,12 @@
                                             {{ $st->service_type }}
                                         </span>
                                     </div>
-                                    @if($st->service_type == 'TKBM' && $order->tkbm_option)
+                                    @if($st->service_type == 'TKBM')
+                                        @php $tkbmOpt = $order->tkbm_option ?: 'Man Power'; @endphp
                                         <div class="mt-1.5">
-                                            @if($order->tkbm_option == 'Man Power + Forklift')
+                                            @if(str_contains(strtolower($tkbmOpt), 'forklift'))
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
-                                                    <i class="fa-solid fa-forklift text-[10px]"></i> Man Power + Fork Lift
+                                                    <i class="fa-solid fa-forklift text-[10px]"></i> Man Power + Forklift
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-sky-100 text-sky-700 border border-sky-200">
