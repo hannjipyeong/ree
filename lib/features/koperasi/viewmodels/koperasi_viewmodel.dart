@@ -126,7 +126,7 @@ class KoperasiViewModel extends ChangeNotifier {
     } else if (locLower == 'loss cargo' || locLower == 'los cargo') {
       _jenisKegiatan = 'Rigger';
     } else if (locLower == 'gudang') {
-      _jenisKegiatan = 'Man Power';
+      _jenisKegiatan = '';
     } else if (locLower == 'cfs' || locLower == 'tps') {
       _jenisKegiatan = '';
     } else {
