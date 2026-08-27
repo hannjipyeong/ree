@@ -234,6 +234,7 @@ class DatabaseSeeder extends Seeder
             'lokasi_fasilitas' => 'CFS',
             'jenis_kegiatan' => 'stripping / staffing',
             'payload_type' => 'Container',
+            'tkbm_option' => 'Man Power',
             'status' => 'Submitted',
             'created_at' => now()->subMinutes(30),
         ]);
