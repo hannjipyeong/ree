@@ -182,9 +182,16 @@
                                         </span>
                                     </div>
                                 @else
-                                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium inline-flex items-center gap-1.5">
-                                        <i class="fa-solid fa-box text-blue-600"></i> Container ({{ $ord->containers->count() }})
-                                    </span>
+                                    <div class="inline-flex flex-col items-start gap-1">
+                                        <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium inline-flex items-center gap-1.5">
+                                            <i class="fa-solid fa-box text-blue-600"></i> Container ({{ $ord->containers->count() }})
+                                        </span>
+                                        @if($ord->tkbm_option)
+                                            <span class="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded font-bold">
+                                                TKBM: {{ str_contains(strtolower($ord->tkbm_option), 'forklift') ? 'Man Power + Forklift' : (strtolower($ord->tkbm_option) == 'man power' ? 'Man Power' : $ord->tkbm_option) }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                             <td class="py-4 px-6">

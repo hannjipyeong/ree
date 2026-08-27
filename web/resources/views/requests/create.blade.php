@@ -172,7 +172,7 @@
                     </label>
 
                     <label class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="services[]" value="TKBM" class="w-4 h-4 text-blue-600 rounded">
+                        <input type="checkbox" name="services[]" value="TKBM" id="service_tkbm" onchange="toggleTkbmOption()" class="w-4 h-4 text-blue-600 rounded">
                         <span class="text-sm font-semibold text-slate-800">TKBM</span>
                     </label>
                 </div>
@@ -198,8 +198,17 @@
                 </div>
             </div>
 
+            <!-- Section: TKBM Option (Hidden by default) -->
+            <div id="tkbm_option_section" class="hidden">
+                <label class="block text-xs font-bold text-slate-700 mb-2">Opsi TKBM Khusus *</label>
+                <select name="tkbm_option" class="w-full md:w-1/2 py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="Man Power" selected>Man Power</option>
+                    <option value="Man Power + Forklift">Man Power + Forklift</option>
+                </select>
+            </div>
+
             <!-- Submit Button -->
-            <div class="pt-4 border-t border-slate-100 flex justify-end">
+            <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-lg shadow-blue-600/30 transition">
                     Simpan & Publish Order Request
                 </button>
@@ -207,7 +216,6 @@
 
         </form>
     </div>
-
 </div>
 
 <script>
@@ -222,5 +230,17 @@ function togglePayloadSections(type) {
         cargoSection.classList.add('hidden');
     }
 }
+function toggleTkbmOption() {
+    const tkbmCheckbox = document.getElementById('service_tkbm');
+    const tkbmOptionSection = document.getElementById('tkbm_option_section');
+    if (tkbmCheckbox && tkbmCheckbox.checked) {
+        tkbmOptionSection.classList.remove('hidden');
+    } else {
+        tkbmOptionSection.classList.add('hidden');
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    togglePayloadSections(document.getElementById('payload_type_select').value);
+});
 </script>
 @endsection
