@@ -856,12 +856,17 @@ class RequestController extends Controller
         $tanggalCetak = Carbon::now()->translatedFormat('d F Y, H:i') . ' WIB';
         $adminUser = $user ? $user->name : 'Admin Ops';
 
+        $pdfTitle = (strtolower($adminSource) === 'koperasi') 
+            ? 'Koperasi TKBM PT Bintang Kepri Jaya' 
+            : 'Laporan Monitoring & Rekapitulasi Order Selesai (Status: DONE)';
+
         $pdf = Pdf::loadView('requests.export_done_pdf', compact(
             'orders',
             'periodeText',
             'filterSource',
             'tanggalCetak',
-            'adminUser'
+            'adminUser',
+            'pdfTitle'
         ))->setPaper('a4', 'landscape');
 
         $filename = 'Laporan_Order_Done_' . date('Ymd_His') . '.pdf';

@@ -144,7 +144,7 @@
         <tr>
             <td style="width: 60%;">
                 <div class="title">PT. BINTANG KEPRI JAYA</div>
-                <div class="subtitle">Laporan Monitoring & Rekapitulasi Order Selesai (Status: DONE)</div>
+                <div class="subtitle">{{ $pdfTitle ?? 'Laporan Monitoring & Rekapitulasi Order Selesai (Status: DONE)' }}</div>
             </td>
             <td style="width: 40%; text-align: right;">
                 <div style="font-size: 8px; color: #475569;">Dicetak pada: <strong>{{ $tanggalCetak }}</strong></div>

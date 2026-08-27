@@ -89,7 +89,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Laporan Operasional & Progress Layanan — PT. Bintang Kepri Jaya</h1>
+        <h1>{{ $pdfTitle ?? 'Laporan Operasional & Progress Layanan — PT. Bintang Kepri Jaya' }}</h1>
         <div class="meta">
             Dicetak oleh: <strong>{{ $adminUser }}</strong> &nbsp;|&nbsp; Waktu Cetak: <strong>{{ $tanggalCetak }}</strong> &nbsp;|&nbsp; Periode: <strong>{{ $periodeText }}</strong>
         </div>

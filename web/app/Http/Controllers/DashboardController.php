@@ -405,9 +405,14 @@ class DashboardController extends Controller
 
         $tanggalCetak = now()->translatedFormat('d F Y, H:i') . ' WIB';
 
+        $adminSource = auth()->user()?->admin_source;
+        $pdfTitle = (strtolower($adminSource) === 'koperasi') 
+            ? 'Koperasi TKBM PT Bintang Kepri Jaya' 
+            : 'Laporan Operasional & Progress Layanan — PT. Bintang Kepri Jaya';
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('dashboard_export_pdf', compact(
             'orders', 'activeStatus', 'activeLayanan', 'activePayload', 'periodeText',
-            'tanggalCetak', 'adminUser', 'search'
+            'tanggalCetak', 'adminUser', 'search', 'pdfTitle'
         ))->setPaper('a4', 'landscape');
 
         return $pdf->stream('Dashboard_Export_' . date('Ymd_His') . '.pdf');
