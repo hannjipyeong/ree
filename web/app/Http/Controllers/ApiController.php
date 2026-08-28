@@ -640,11 +640,15 @@ class ApiController extends Controller
 
     public function downloadDraftTemplateSpk()
     {
-        if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('spk_draft_template_pdf');
-            return $pdf->download('Draft_Template_SPK_Koperasi_TKBM.pdf');
+        $filePath = public_path('templates/SURAT_PENUNJUKAN_KERJA_KOPERASI.pdf');
+        
+        if (file_exists($filePath)) {
+            return response()->download($filePath, 'SURAT_PENUNJUKAN_KERJA_KOPERASI.pdf');
         }
 
-        return response()->view('spk_draft_template_pdf');
+        return response()->json([
+            'success' => false,
+            'message' => 'File template tidak ditemukan.'
+        ], 404);
     }
 }
