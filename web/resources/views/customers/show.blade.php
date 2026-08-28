@@ -77,7 +77,7 @@
                 </span>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <span class="text-slate-400 font-medium block mb-1"><i class="fa-solid fa-file-contract me-1.5 text-teal-500"></i>Default SP3KK</span>
+                <span class="text-slate-400 font-medium block mb-1"><i class="fa-solid fa-file-contract me-1.5 text-teal-500"></i>Default SPK</span>
                 <span class="font-bold text-sm {{ $customer->has_default_sp3kk ? 'text-emerald-600' : 'text-slate-500' }}">
                     {{ $customer->has_default_sp3kk ? 'Wajib / Aktif' : 'Tidak' }}
                 </span>
