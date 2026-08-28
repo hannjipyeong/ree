@@ -850,6 +850,12 @@ class RequestController extends Controller
             $query->whereDate('tanggal_order', '<=', $request->end_date);
         }
 
+        if ($request->filled('layanan')) {
+            $query->whereHas('subTasks', function ($q) use ($request) {
+                $q->where('service_type', $request->layanan);
+            });
+        }
+
         $orders = $query->latest('tanggal_order')->get();
 
         $startDateStr = $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d/m/Y') : null;
@@ -873,13 +879,16 @@ class RequestController extends Controller
             ? 'Koperasi TKBM PT Bintang Kepri Jaya' 
             : 'Laporan Monitoring & Rekapitulasi Order Selesai (Status: DONE)';
 
+        $filterLayanan = $request->input('layanan');
+
         $pdf = Pdf::loadView('requests.export_done_pdf', compact(
             'orders',
             'periodeText',
             'filterSource',
             'tanggalCetak',
             'adminUser',
-            'pdfTitle'
+            'pdfTitle',
+            'filterLayanan'
         ))->setPaper('a4', 'landscape');
 
         $filename = 'Laporan_Order_Done_' . date('Ymd_His') . '.pdf';
@@ -914,6 +923,12 @@ class RequestController extends Controller
 
         if ($request->filled('end_date')) {
             $query->whereDate('tanggal_order', '<=', $request->end_date);
+        }
+
+        if ($request->filled('layanan')) {
+            $query->whereHas('subTasks', function ($q) use ($request) {
+                $q->where('service_type', $request->layanan);
+            });
         }
 
         $orders = $query->latest('tanggal_order')->get();

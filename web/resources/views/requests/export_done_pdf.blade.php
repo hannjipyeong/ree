@@ -196,27 +196,30 @@
                 <th rowspan="3" style="width: 10%;">Nama PT</th>
                 <th rowspan="3" style="width: 8.5%;">No Container</th>
                 <th rowspan="3" style="width: 6.5%;">Ukuran / Tipe</th>
-                <th colspan="8" style="text-align: center;">Layanan & Progress Waktu Lapangan</th>
+                @php
+                    $showHaulage = empty($filterLayanan) || strcasecmp($filterLayanan, 'Haulage') === 0;
+                    $showLolo = empty($filterLayanan) || strcasecmp($filterLayanan, 'LOLO') === 0;
+                    $showPenumpukan = empty($filterLayanan) || strcasecmp($filterLayanan, 'Penumpukan') === 0;
+                    $showTkbm = empty($filterLayanan) || strcasecmp($filterLayanan, 'TKBM') === 0;
+                    $colspanLayanan = ($showHaulage ? 2 : 0) + ($showLolo ? 2 : 0) + ($showPenumpukan ? 2 : 0) + ($showTkbm ? 2 : 0);
+                @endphp
+                <th colspan="{{ $colspanLayanan }}" style="text-align: center;">Layanan & Progress Waktu Lapangan</th>
                 <th rowspan="3" style="width: 10%;">Catatan</th>
                 <th rowspan="3" style="width: 6.5%;">Asuransi</th>
                 <th rowspan="3" style="width: 6.5%;">Status Invoice</th>
                 <th rowspan="3" style="width: 6%;">Status PNBP</th>
             </tr>
             <tr>
-                <th colspan="2" style="width: 9%;">Haulage</th>
-                <th colspan="2" style="width: 9%;">LOLO</th>
-                <th colspan="2" style="width: 9%;">Penumpukan</th>
-                <th colspan="2" style="width: 9%;">TKBM</th>
+                @if($showHaulage) <th colspan="2" style="width: 9%;">Haulage</th> @endif
+                @if($showLolo) <th colspan="2" style="width: 9%;">LOLO</th> @endif
+                @if($showPenumpukan) <th colspan="2" style="width: 9%;">Penumpukan</th> @endif
+                @if($showTkbm) <th colspan="2" style="width: 9%;">TKBM</th> @endif
             </tr>
             <tr>
-                <th style="width: 4.5%;">IN</th>
-                <th style="width: 4.5%;">OUT</th>
-                <th style="width: 4.5%;">IN</th>
-                <th style="width: 4.5%;">OUT</th>
-                <th style="width: 4.5%;">IN</th>
-                <th style="width: 4.5%;">OUT</th>
-                <th style="width: 4.5%;">IN</th>
-                <th style="width: 4.5%;">OUT</th>
+                @if($showHaulage) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
+                @if($showLolo) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
+                @if($showPenumpukan) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
+                @if($showTkbm) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
             </tr>
         </thead>
         <tbody>
@@ -266,18 +269,25 @@
                         <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
                         
                         <!-- Haulage IN/OUT -->
+                        @if($showHaulage)
                         <td style="text-align: center;">{{ $haulageIn }}</td>
                         <td style="text-align: center;">{{ $haulageOut }}</td>
+                        @endif
                         
                         <!-- LOLO IN/OUT -->
+                        @if($showLolo)
                         <td style="text-align: center;">{{ $loloIn }}</td>
                         <td style="text-align: center;">{{ $loloOut }}</td>
+                        @endif
 
                         <!-- Penumpukan IN/OUT -->
+                        @if($showPenumpukan)
                         <td style="text-align: center;">{{ $penumpukanIn }}</td>
                         <td style="text-align: center;">{{ $penumpukanOut }}</td>
+                        @endif
 
                         <!-- TKBM IN/OUT -->
+                        @if($showTkbm)
                         <td style="text-align: center;">
                             {{ $tkbmIn }}
                             @if($tkbmBadge && $tkbmIn != '-')
@@ -290,6 +300,7 @@
                                 <div style="font-size: 5.5px; color: #b45309; font-weight: bold;">{{ $tkbmBadge }}</div>
                             @endif
                         </td>
+                        @endif
 
                         <!-- Catatan (Flexible Wrapping) -->
                         <td style="line-height: 1.2;">{{ $notes ?: '-' }}</td>
@@ -332,7 +343,7 @@
                 @endforeach
             @empty
                 <tr>
-                    <td colspan="17" class="no-data">Tidak ada order kontainer yang berstatus Done pada periode ini.</td>
+                    <td colspan="{{ 9 + $colspanLayanan }}" class="no-data">Tidak ada order kontainer yang berstatus Done pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>

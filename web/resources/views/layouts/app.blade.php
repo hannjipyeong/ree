@@ -280,6 +280,7 @@
             </div>
 
             <form id="exportDoneForm" method="GET" target="_blank" class="p-6 space-y-5">
+                <input type="hidden" name="layanan" id="export_layanan">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -344,6 +345,12 @@
 
     function openGlobalExportDoneModal() {
         document.getElementById('globalExportDoneModal').classList.remove('hidden');
+        const urlParams = new URLSearchParams(window.location.search);
+        const layanan = urlParams.get('layanan');
+        const exportLayananInput = document.getElementById('export_layanan');
+        if (exportLayananInput) {
+            exportLayananInput.value = layanan || '';
+        }
     }
 
     function closeGlobalExportDoneModal() {
