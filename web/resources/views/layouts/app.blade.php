@@ -280,7 +280,6 @@
             </div>
 
             <form id="exportDoneForm" method="GET" target="_blank" class="p-6 space-y-5">
-                <input type="hidden" name="layanan" id="export_layanan">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -292,15 +291,27 @@
                             <input type="date" id="export_end_date" name="end_date" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         </div>
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Filter Modul / Source</label>
-                        <select id="export_source" name="source" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            <option value="">Semua Modul (ALL IN, Koperasi, PBM Lain)</option>
-                            <option value="ALL IN">ALL IN</option>
-                            <option value="Koperasi">Koperasi</option>
-                            <option value="PBM Lain">PBM Lain</option>
-                        </select>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Filter Layanan</label>
+                            <select id="export_layanan" name="layanan" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Layanan</option>
+                                <option value="Haulage">Haulage</option>
+                                <option value="LOLO">LOLO</option>
+                                <option value="Penumpukan">Penumpukan</option>
+                                <option value="TKBM">TKBM</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Filter Modul / Source</label>
+                            <select id="export_source" name="source" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Modul (ALL IN, Koperasi, dll)</option>
+                                <option value="ALL IN">ALL IN</option>
+                                <option value="Koperasi">Koperasi</option>
+                                <option value="PBM Lain">PBM Lain</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-start gap-2.5">
