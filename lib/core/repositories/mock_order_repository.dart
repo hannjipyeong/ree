@@ -39,6 +39,7 @@ class AppContainer {
   final String number;
   final String? sp3kkFileUrl;
   final String? tkbmOption;
+  final String? tkbmOutPhotoPath;
   AppContainerProgress? progress;
 
   AppContainer({
@@ -48,6 +49,7 @@ class AppContainer {
     required this.number,
     this.sp3kkFileUrl,
     this.tkbmOption,
+    this.tkbmOutPhotoPath,
     this.progress,
   });
 }
@@ -72,6 +74,7 @@ class AppOrder {
   String status; // 'Masuk', 'In', 'Out', 'Done'
   String? inNote;
   String? outNote;
+  String? tkbmOutPhotoPath;
   
   // Cargo fields
   final String? jenisBarang;
@@ -102,6 +105,7 @@ class AppOrder {
     this.status = 'Masuk',
     this.inNote,
     this.outNote,
+    this.tkbmOutPhotoPath,
     this.jenisBarang,
     this.jumlahBarang,
     this.jumlahTonase,

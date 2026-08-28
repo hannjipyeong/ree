@@ -179,6 +179,9 @@ class ApiService {
               sortedSubTasks.sort((a, b) => hierarchy.indexOf(a['service_type']).compareTo(hierarchy.indexOf(b['service_type'])));
               
               int currentIndex = sortedSubTasks.indexWhere((st) => st['id'] == task['id']);
+              
+              // Find TKBM subtask for retrieving tkbmOutPhotoPath
+              final tkbmSubTask = sortedSubTasks.firstWhere((st) => st['service_type'] == 'TKBM', orElse: () => null);
 
               // Parse containers and their progress
               List<AppContainer> parsedContainers = [];
@@ -240,6 +243,17 @@ class ApiService {
                     lockedReasonOut: lockedOut,
                   );
                 }
+                String? containerTkbmOutPhoto;
+                if (tkbmSubTask != null) {
+                  final tkbmProgList = tkbmSubTask['container_progress'] ?? tkbmSubTask['containerProgress'] ?? [];
+                  final tkbmProg = tkbmProgList.firstWhere(
+                    (p) => p['order_container_id'] == c['id'],
+                    orElse: () => null,
+                  );
+                  if (tkbmProg != null) {
+                    containerTkbmOutPhoto = tkbmProg['out_photo_path'];
+                  }
+                }
                 
                 parsedContainers.add(AppContainer(
                   id: c['id'] ?? 0,
@@ -248,6 +262,7 @@ class ApiService {
                   number: c['container_number'] ?? '',
                   sp3kkFileUrl: c['sp3kk_file_url'],
                   tkbmOption: c['tkbm_option'] ?? order['tkbm_option'],
+                  tkbmOutPhotoPath: containerTkbmOutPhoto,
                   progress: progObj,
                 ));
               }
@@ -278,6 +293,7 @@ class ApiService {
                 containers: parsedContainers,
                 inNote: task['in_note'],
                 outNote: task['out_note'],
+                tkbmOutPhotoPath: tkbmSubTask != null ? tkbmSubTask['out_photo_path'] : null,
               ));
             }
           } else {

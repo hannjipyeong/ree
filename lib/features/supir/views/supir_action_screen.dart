@@ -372,6 +372,40 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                         ],
                       ),
                       
+                      if (c.tkbmOutPhotoPath != null) ...[
+                        const Divider(height: 24),
+                        InkWell(
+                          onTap: () async {
+                            final urlStr = c.tkbmOutPhotoPath!;
+                            final url = urlStr.startsWith('http') ? Uri.parse(urlStr) : Uri.parse('http://127.0.0.1:8000/storage/$urlStr');
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Tidak dapat membuka foto bukti OUT TKBM.')),
+                                );
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.photo_library, size: 16, color: Colors.blue),
+                                const SizedBox(width: 8),
+                                Text('Lihat Bukti Foto OUT TKBM', style: AppTextStyles.caption.copyWith(color: Colors.blue, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+
                       if (p != null && (p.inPhotoPath != null || p.outPhotoPath != null)) ...[
                         const Divider(height: 24),
                         if (p.inPhotoPath != null) ...[
@@ -402,6 +436,41 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (order.tkbmOutPhotoPath != null) ...[
+          const Text('Dokumentasi TKBM (Koperasi)', style: AppTextStyles.heading3),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () async {
+              final urlStr = order.tkbmOutPhotoPath!;
+              final url = urlStr.startsWith('http') ? Uri.parse(urlStr) : Uri.parse('http://127.0.0.1:8000/storage/$urlStr');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Tidak dapat membuka foto bukti OUT TKBM.')),
+                  );
+                }
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.photo_library, color: Colors.blue),
+                  const SizedBox(width: 12),
+                  Text('Lihat Bukti Foto OUT TKBM', style: AppTextStyles.body2.copyWith(color: Colors.blue, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
         const Text('Dokumentasi Lapangan (Global)', style: AppTextStyles.heading3),
         const SizedBox(height: 16),
         AppMultiFileUploadTile(

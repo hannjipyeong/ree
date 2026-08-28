@@ -44,6 +44,10 @@ class RequestController extends Controller
             });
         }
 
+        if (!$adminSource && $request->filled('source')) {
+            $query->where('source', $request->source);
+        }
+
         if ($request->filled('layanan')) {
             $query->whereHas('subTasks', function ($q) use ($request) {
                 $q->where('service_type', $request->layanan);
