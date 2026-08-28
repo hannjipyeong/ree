@@ -18,7 +18,16 @@ class DashboardController extends Controller
         // ── Base queries ──────────────────────────────────────────────
         $orderBaseQuery = Order::query();
         if ($adminSource) {
-            $orderBaseQuery->where('source', $adminSource);
+            if ($adminSource === 'Koperasi') {
+                $orderBaseQuery->where(function ($q) {
+                    $q->where('source', 'Koperasi')
+                      ->orWhereHas('subTasks', function ($sub) {
+                          $sub->where('service_type', 'TKBM');
+                      });
+                });
+            } else {
+                $orderBaseQuery->where('source', $adminSource);
+            }
         }
 
         $totalOrders    = (clone $orderBaseQuery)->count();
@@ -27,7 +36,14 @@ class DashboardController extends Controller
 
         $subTaskBaseQuery = SubTask::query();
         if ($adminSource) {
-            $subTaskBaseQuery->whereHas('order', fn ($q) => $q->where('source', $adminSource));
+            if ($adminSource === 'Koperasi') {
+                $subTaskBaseQuery->where(function ($q) {
+                    $q->whereHas('order', fn ($oq) => $oq->where('source', 'Koperasi'))
+                      ->orWhere('service_type', 'TKBM');
+                });
+            } else {
+                $subTaskBaseQuery->whereHas('order', fn ($q) => $q->where('source', $adminSource));
+            }
         }
         $totalSubTasks = (clone $subTaskBaseQuery)->count();
 

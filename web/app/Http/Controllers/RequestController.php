@@ -31,7 +31,16 @@ class RequestController extends Controller
         $query = Order::with(['customer', 'containers', 'subTasks.supir']);
 
         if ($adminSource) {
-            $query->where('source', $adminSource);
+            if ($adminSource === 'Koperasi') {
+                $query->where(function ($q) {
+                    $q->where('source', 'Koperasi')
+                      ->orWhereHas('subTasks', function ($sub) {
+                          $sub->where('service_type', 'TKBM');
+                      });
+                });
+            } else {
+                $query->where('source', $adminSource);
+            }
         }
 
         if ($request->filled('search')) {
