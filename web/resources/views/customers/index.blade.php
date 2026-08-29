@@ -143,9 +143,9 @@
                 <label for="asuransiCreate" class="text-sm font-medium text-slate-700">Otomatis Centang Asuransi saat Order</label>
             </div>
 
-            <div class="flex items-center">
+            <div class="flex items-center mt-2">
                 <input type="checkbox" name="has_default_sp3kk" id="sp3kkCreate" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-600">
-                <label for="sp3kkCreate" class="ml-2 text-sm font-medium text-slate-700">Wajib / Centang SPK Khusus Haulage</label>
+                <label for="sp3kkCreate" class="ml-2 text-sm font-medium text-slate-700">Wajib Centang SPK</label>
             </div>
 
             <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
@@ -206,7 +206,7 @@
 
             <div class="flex items-center">
                 <input type="checkbox" id="editHasDefaultSp3kk" name="has_default_sp3kk" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-600">
-                <label for="editHasDefaultSp3kk" class="ml-2 text-sm font-medium text-slate-700">Wajib / Centang SPK Khusus Haulage</label>
+                <label for="editHasDefaultSp3kk" class="ml-2 text-sm font-medium text-slate-700">Wajib Centang SPK</label>
             </div>
 
             <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
