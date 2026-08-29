@@ -57,7 +57,8 @@ class KoperasiViewModel extends ChangeNotifier {
     switch (_wilayah) {
       case AppConstants.wilayahSelatan: return AppConstants.lokasiFasilitasSelatan;
       case AppConstants.wilayahEximen: return AppConstants.lokasiFasilitasEximen;
-      case AppConstants.wilayahUtara: return AppConstants.lokasiFasilitasUtara;
+      case AppConstants.wilayahUtara: 
+        return AppConstants.lokasiFasilitasUtara.where((loc) => loc.toLowerCase() != 'gudang').toList();
       default: return [];
     }
   }
