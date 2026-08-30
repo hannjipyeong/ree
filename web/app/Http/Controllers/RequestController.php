@@ -233,7 +233,13 @@ class RequestController extends Controller
             'containers.*.container_size' => 'nullable|string|max:50',
             'containers.*.container_number' => 'nullable|string|max:50',
             'jenis_barang' => 'nullable|string|max:255',
+            'jumlah_barang' => 'nullable|string|max:255',
             'jumlah_tonase' => 'nullable|numeric',
+            'nomor_bl' => 'nullable|string|max:255',
+            'vessel' => 'nullable|string|max:255',
+            'voyage' => 'nullable|string|max:255',
+            'no_surat_jalan' => 'nullable|string|max:255',
+            'no_bp' => 'nullable|string|max:255',
             'nomor_container_cargo' => 'nullable|string|max:255',
             'cargo_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             
@@ -272,7 +278,13 @@ class RequestController extends Controller
         // Update Step 2
         if (!empty($validated['payload_type'])) $koperasiOrder->payload_type = $validated['payload_type'];
         if (isset($validated['jenis_barang'])) $koperasiOrder->jenis_barang = $validated['jenis_barang'];
+        if (isset($validated['jumlah_barang'])) $koperasiOrder->jumlah_barang = $validated['jumlah_barang'];
         if (isset($validated['jumlah_tonase'])) $koperasiOrder->jumlah_tonase = $validated['jumlah_tonase'];
+        if (isset($validated['nomor_bl'])) $koperasiOrder->nomor_bl = $validated['nomor_bl'];
+        if (isset($validated['vessel'])) $koperasiOrder->vessel = $validated['vessel'];
+        if (isset($validated['voyage'])) $koperasiOrder->voyage = $validated['voyage'];
+        if (isset($validated['no_surat_jalan'])) $koperasiOrder->no_surat_jalan = $validated['no_surat_jalan'];
+        if (isset($validated['no_bp'])) $koperasiOrder->no_bp = $validated['no_bp'];
         if (isset($validated['nomor_container_cargo'])) $koperasiOrder->nomor_container_cargo = $validated['nomor_container_cargo'];
         $koperasiOrder->cargo_file_path = $cargoPath;
 

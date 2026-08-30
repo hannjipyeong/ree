@@ -455,18 +455,14 @@
                     $childOrder = \App\Models\Order::where('parent_order_id', $order->id)->first();
                     $hasTkbmOrChild = $order->subTasks->where('service_type', 'TKBM')->isNotEmpty() || $childOrder;
                 @endphp
-                @if(strtolower($order->source) == 'all in' && $hasTkbmOrChild && auth()->user()->role === 'admin' && in_array(auth()->user()->admin_source, ['ALL IN', null]))
-                    <div>
-                        @if($childOrder)
-                            <a href="{{ route('requests.show', $childOrder->id) }}" class="px-4 py-2 bg-teal-50 text-teal-700 font-bold rounded-xl text-xs flex items-center gap-2 border border-teal-200 hover:bg-teal-100 transition shadow-sm" title="Order Koperasi sudah dibuat untuk tiket TKBM ini">
-                                <i class="fa-solid fa-link"></i> Buka Order Koperasi TKBM
-                            </a>
-                        @else
+                @if(strtolower($order->source) == 'all in' && $hasTkbmOrChild && in_array(auth()->user()->role, ['admin', 'superadmin', 'super_admin']))
+                    @if(!$childOrder)
+                        <div>
                             <button onclick="openKoperasiModal()" class="px-4 py-2 bg-[#1C325B] hover:bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg transition">
                                 <i class="fa-solid fa-code-branch"></i> Buat Order Koperasi (TKBM)
                             </button>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
                 @endif
             </div>
 
@@ -1518,17 +1514,19 @@
             @csrf
             
             @php
-                $tglOrder = $order->tanggal_order ? $order->tanggal_order->format('Y-m-d') : date('Y-m-d');
-                $namaPt = $order->nama_pt ?: ($order->customer->default_nama_pt ?? ($order->customer->name ?? ''));
-                $namaPbm = $order->nama_pbm ?: 'PT Bintang Kepri Jaya';
-                $noTelp = $order->no_telp ?: ($order->customer->no_telp ?? '');
-                $wilayah = $order->wilayah ?: 'Selatan';
-                $lokasiFasilitas = $order->lokasi_fasilitas ?: 'gudang';
-                $jenisKegiatan = $order->jenis_kegiatan ?: 'storage';
-                $payloadType = $order->payload_type ?: 'Container';
-                $tkbmOption = $order->tkbm_option ?: 'Man Power';
-                $hasAsuransi = (bool)$order->has_asuransi;
-                $asuransiValue = $order->asuransi_value;
+                $isBkj = (stripos($order->nama_pbm, 'Bintang Kepri') !== false || stripos($order->nama_pt, 'Bintang Kepri') !== false || stripos($order->customer->name ?? '', 'Bintang Kepri') !== false);
+                
+                $tglOrder = $isBkj ? ($order->tanggal_order ? $order->tanggal_order->format('Y-m-d') : date('Y-m-d')) : date('Y-m-d');
+                $namaPt = $isBkj ? ($order->nama_pt ?: ($order->customer->default_nama_pt ?? ($order->customer->name ?? ''))) : '';
+                $namaPbm = $isBkj ? ($order->nama_pbm ?: '') : '';
+                $noTelp = $isBkj ? ($order->no_telp ?: ($order->customer->no_telp ?? '')) : '';
+                $wilayah = $isBkj ? ($order->wilayah ?: 'Selatan') : 'Selatan';
+                $lokasiFasilitas = $isBkj ? ($order->lokasi_fasilitas ?: 'gudang') : 'gudang';
+                $jenisKegiatan = $isBkj ? ($order->jenis_kegiatan ?: 'storage') : 'storage';
+                $payloadType = $isBkj ? ($order->payload_type ?: 'Container') : 'Container';
+                $tkbmOption = $isBkj ? ($order->tkbm_option ?: 'Man Power') : 'Man Power';
+                $hasAsuransi = $isBkj ? (bool)$order->has_asuransi : false;
+                $asuransiValue = $isBkj ? $order->asuransi_value : '';
             @endphp
 
             <!-- ── STEP 1: INFORMASI DASAR ────────────────────────────────────── -->
@@ -1636,19 +1634,66 @@
 
                 <!-- Container Details Card -->
                 <div id="koperasiContainerBox" class="{{ $payloadType == 'Container' ? '' : 'hidden' }} p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                    <div class="text-xs font-bold text-slate-800 flex items-center justify-between border-b border-slate-200/80 pb-2">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-list-check text-blue-600"></i> Detail Kontainer Terdaftar ({{ $order->containers->count() }})</span>
+                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                        <span class="text-xs font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-list-check text-blue-600"></i> Daftar Container</span>
+                        <span id="koperasiContainerCount" class="px-2 py-0.5 bg-blue-100 text-blue-700 font-bold rounded-xl text-[10px]">{{ $order->containers->count() ?: 1 }} item</span>
                     </div>
-                    <div class="space-y-2.5 max-h-48 overflow-y-auto p-1">
-                        @foreach($order->containers as $idx => $c)
-                            <div class="p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2 text-xs">
-                                <span class="w-6 h-6 rounded-full bg-slate-100 font-bold text-slate-600 flex items-center justify-center text-[10px]">{{ $idx + 1 }}</span>
-                                <input type="text" name="containers[{{ $idx }}][container_number]" value="{{ $c->container_number }}" placeholder="Nomor Kontainer" class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold">
-                                <input type="text" name="containers[{{ $idx }}][container_size]" value="{{ $c->container_size }}" placeholder="20 ft" class="w-20 py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-center">
-                                <input type="text" name="containers[{{ $idx }}][container_type]" value="{{ $c->container_type }}" placeholder="20' GP" class="w-24 py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-center">
+                    
+                    <div id="koperasiContainerList" class="space-y-2.5 max-h-64 overflow-y-auto p-1">
+                        @if($order->containers->count() > 0)
+                            @foreach($order->containers as $idx => $c)
+                                <div class="koperasi-container-item p-3 bg-white border border-slate-200 rounded-xl space-y-3" data-index="{{ $idx }}">
+                                    <div class="flex items-center justify-between">
+                                        <span class="px-2 py-1 bg-blue-50 text-blue-600 font-bold text-[10px] rounded-lg">Container <span class="koperasi-container-num">{{ $idx + 1 }}</span></span>
+                                        <button type="button" onclick="removeKoperasiContainer(this)" class="w-7 h-7 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition" title="Hapus Container">
+                                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Ukuran Container *</label>
+                                            <select name="containers[{{ $idx }}][container_size]" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                                                <option value="20 ft" {{ $c->container_size == '20 ft' ? 'selected' : '' }}>20 ft</option>
+                                                <option value="40 ft" {{ $c->container_size == '40 ft' ? 'selected' : '' }}>40 ft</option>
+                                                <option value="45 ft" {{ $c->container_size == '45 ft' ? 'selected' : '' }}>45 ft</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nomor Container *</label>
+                                            <input type="text" name="containers[{{ $idx }}][container_number]" value="{{ $c->container_number }}" placeholder="Contoh: ABCD 123456 7" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="koperasi-container-item p-3 bg-white border border-slate-200 rounded-xl space-y-3" data-index="0">
+                                <div class="flex items-center justify-between">
+                                    <span class="px-2 py-1 bg-blue-50 text-blue-600 font-bold text-[10px] rounded-lg">Container <span class="koperasi-container-num">1</span></span>
+                                    <button type="button" onclick="removeKoperasiContainer(this)" class="w-7 h-7 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition hidden" title="Hapus Container">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    </button>
+                                </div>
+                                <div class="space-y-2">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Ukuran Container *</label>
+                                        <select name="containers[0][container_size]" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                                            <option value="20 ft">20 ft</option>
+                                            <option value="40 ft">40 ft</option>
+                                            <option value="45 ft">45 ft</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nomor Container *</label>
+                                        <input type="text" name="containers[0][container_number]" placeholder="Contoh: ABCD 123456 7" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                                    </div>
+                                </div>
                             </div>
-                        @endforeach
+                        @endif
                     </div>
+                    
+                    <button type="button" onclick="addKoperasiContainer()" class="w-full py-2.5 mt-2 border border-blue-200 bg-blue-50/50 hover:bg-blue-100 text-blue-600 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Container
+                    </button>
                 </div>
 
                 <!-- Cargo Details Card -->
@@ -1657,17 +1702,41 @@
                         <i class="fa-solid fa-boxes-packing text-amber-600"></i> Dokumen & Rincian Cargo
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jenis Barang</label>
-                            <input type="text" name="jenis_barang" value="{{ $order->jenis_barang }}" placeholder="Contoh: General Cargo / Pakaian Jadi" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah Tonase (Ton)</label>
-                            <input type="number" step="0.1" name="jumlah_tonase" value="{{ $order->jumlah_tonase }}" placeholder="Contoh: 5.2" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
-                        </div>
                         <div class="md:col-span-2">
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">Nomor Container Cargo (Opsional)</label>
-                            <input type="text" name="nomor_container_cargo" value="{{ $order->nomor_container_cargo }}" placeholder="Nomor kontainer jika ada" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                            <input type="text" name="nomor_container_cargo" value="{{ $isBkj ? $order->nomor_container_cargo : '' }}" placeholder="Contoh: TGHU1234567 (isi '-' jika tidak ada)" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jenis Barang *</label>
+                            <input type="text" name="jenis_barang" value="{{ $isBkj ? $order->jenis_barang : '' }}" placeholder="Contoh: Besi / Pallet" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah Barang *</label>
+                            <input type="text" name="jumlah_barang" value="{{ $isBkj ? $order->jumlah_barang : '' }}" placeholder="Contoh: 500 Dus" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah Tonase (Ton) *</label>
+                            <input type="number" step="0.1" name="jumlah_tonase" value="{{ $isBkj ? $order->jumlah_tonase : '' }}" placeholder="Contoh: 10.5" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nomor BL *</label>
+                            <input type="text" name="nomor_bl" value="{{ $isBkj ? $order->nomor_bl : '' }}" placeholder="Masukkan no. BL" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Vessel (Nama Kapal) *</label>
+                            <input type="text" name="vessel" value="{{ $isBkj ? $order->vessel : '' }}" placeholder="Masukkan nama kapal" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Voyage (Kode Keberangkatan) *</label>
+                            <input type="text" name="voyage" value="{{ $isBkj ? $order->voyage : '' }}" placeholder="Contoh: V.024N" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">No. Surat Jalan *</label>
+                            <input type="text" name="no_surat_jalan" value="{{ $isBkj ? $order->no_surat_jalan : '' }}" placeholder="Masukkan no. surat jalan" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">No. BP (Plat Nomor) *</label>
+                            <input type="text" name="no_bp" value="{{ $isBkj ? $order->no_bp : '' }}" placeholder="Contoh: BP 1234 XY" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">Upload File Manifest Cargo (PDF/JPG/PNG)</label>
@@ -1762,6 +1831,8 @@ let currentKoperasiStep = 1;
 function openKoperasiModal() {
     document.getElementById('modalOrderKoperasi').classList.remove('hidden');
     switchKoperasiStep(1);
+    const pType = document.getElementById('koperasiPayloadInput') ? document.getElementById('koperasiPayloadInput').value : 'Container';
+    toggleKoperasiPayload(pType);
 }
 
 function closeKoperasiModal() {
@@ -1830,13 +1901,25 @@ function toggleKoperasiPayload(type) {
     
     if (inputPayload) inputPayload.value = type;
     if (type === 'Cargo') {
-        if (contBox) contBox.classList.add('hidden');
-        if (cargoBox) cargoBox.classList.remove('hidden');
+        if (contBox) {
+            contBox.classList.add('hidden');
+            contBox.querySelectorAll('input, select').forEach(el => el.disabled = true);
+        }
+        if (cargoBox) {
+            cargoBox.classList.remove('hidden');
+            cargoBox.querySelectorAll('input, select').forEach(el => el.disabled = false);
+        }
         if (btnCargo) btnCargo.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-blue-600 bg-blue-50/60 text-blue-700';
         if (btnCont) btnCont.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-slate-200 bg-white text-slate-600';
     } else {
-        if (contBox) contBox.classList.remove('hidden');
-        if (cargoBox) cargoBox.classList.add('hidden');
+        if (contBox) {
+            contBox.classList.remove('hidden');
+            contBox.querySelectorAll('input, select').forEach(el => el.disabled = false);
+        }
+        if (cargoBox) {
+            cargoBox.classList.add('hidden');
+            cargoBox.querySelectorAll('input, select').forEach(el => el.disabled = true);
+        }
         if (btnCont) btnCont.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-blue-600 bg-blue-50/60 text-blue-700';
         if (btnCargo) btnCargo.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-slate-200 bg-white text-slate-600';
     }
@@ -1884,6 +1967,69 @@ function handleKoperasiLokasiChange(lokasi) {
         if (jkInput) jkInput.value = 'Rigger';
     }
 }
+
+    let koperasiContainerIdx = document.querySelectorAll('.koperasi-container-item').length - 1;
+
+    function updateKoperasiContainerNumbers() {
+        const items = document.querySelectorAll('.koperasi-container-item');
+        document.getElementById('koperasiContainerCount').innerText = `${items.length} item`;
+        
+        items.forEach((item, index) => {
+            item.querySelector('.koperasi-container-num').innerText = index + 1;
+            item.querySelector('select').name = `containers[${index}][container_size]`;
+            item.querySelector('input').name = `containers[${index}][container_number]`;
+            
+            const btn = item.querySelector('button');
+            if (items.length > 1) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        });
+    }
+
+    window.addKoperasiContainer = function() {
+        if (document.querySelectorAll('.koperasi-container-item').length >= 60) {
+            alert('Batas maksimal 60 container telah tercapai');
+            return;
+        }
+        
+        koperasiContainerIdx++;
+        const template = `
+            <div class="koperasi-container-item p-3 bg-white border border-slate-200 rounded-xl space-y-3" data-index="${koperasiContainerIdx}">
+                <div class="flex items-center justify-between">
+                    <span class="px-2 py-1 bg-blue-50 text-blue-600 font-bold text-[10px] rounded-lg">Container <span class="koperasi-container-num"></span></span>
+                    <button type="button" onclick="removeKoperasiContainer(this)" class="w-7 h-7 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition" title="Hapus Container">
+                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                    </button>
+                </div>
+                <div class="space-y-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Ukuran Container *</label>
+                        <select name="containers[${koperasiContainerIdx}][container_size]" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                            <option value="20 ft">20 ft</option>
+                            <option value="40 ft">40 ft</option>
+                            <option value="45 ft">45 ft</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nomor Container *</label>
+                        <input type="text" name="containers[${koperasiContainerIdx}][container_number]" placeholder="Contoh: ABCD 123456 7" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" required>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('koperasiContainerList').insertAdjacentHTML('beforeend', template);
+        updateKoperasiContainerNumbers();
+    }
+
+    window.removeKoperasiContainer = function(btn) {
+        if (document.querySelectorAll('.koperasi-container-item').length <= 1) return;
+        btn.closest('.koperasi-container-item').remove();
+        updateKoperasiContainerNumbers();
+    }
+
+    updateKoperasiContainerNumbers(); // Init state
 </script>
 @endif
 @endsection
