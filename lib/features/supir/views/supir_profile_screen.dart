@@ -52,7 +52,7 @@ class SupirProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          (vm.supirType?.toLowerCase() == 'haulage' || vm.supirType?.toLowerCase() == 'houlage')
+          (vm.supirType?.toLowerCase() == 'railing' || vm.supirType?.toLowerCase() == 'houlage')
               ? 'Profil Supir'
               : 'Profil Pelaksana Lapangan',
         ),
@@ -74,8 +74,8 @@ class SupirProfileScreen extends StatelessWidget {
                   Text(vm.fullName, style: AppTextStyles.heading2),
                   const SizedBox(height: 4),
                   Text(
-                    (vm.supirType?.toLowerCase() == 'haulage' || vm.supirType?.toLowerCase() == 'houlage')
-                        ? 'Supir Haulage'
+                    (vm.supirType?.toLowerCase() == 'railing' || vm.supirType?.toLowerCase() == 'houlage')
+                        ? 'Supir Railing'
                         : 'Pelaksana Lapangan ${vm.supirType ?? ''}',
                     style: AppTextStyles.body2,
                   ),

@@ -185,7 +185,7 @@
 
     <!-- 1. REKAPITULASI ORDER KONTAINER (DONE) -->
     <div class="section-title">
-        1. Rekapitulasi Order Kontainer (Haulage, LOLO, Penumpukan, TKBM)
+        1. Rekapitulasi Order Kontainer (Railing, LOLO, Storage, TKBM)
     </div>
 
     <table class="data-table">
@@ -197,11 +197,11 @@
                 <th rowspan="3" style="width: 8.5%;">No Container</th>
                 <th rowspan="3" style="width: 6.5%;">Ukuran / Tipe</th>
                 @php
-                    $showHaulage = empty($filterLayanan) || strcasecmp($filterLayanan, 'Haulage') === 0;
+                    $showRailing = empty($filterLayanan) || strcasecmp($filterLayanan, 'Railing') === 0;
                     $showLolo = empty($filterLayanan) || strcasecmp($filterLayanan, 'LOLO') === 0;
-                    $showPenumpukan = empty($filterLayanan) || strcasecmp($filterLayanan, 'Penumpukan') === 0;
+                    $showStorage = empty($filterLayanan) || strcasecmp($filterLayanan, 'Storage') === 0;
                     $showTkbm = empty($filterLayanan) || strcasecmp($filterLayanan, 'TKBM') === 0;
-                    $colspanLayanan = ($showHaulage ? 2 : 0) + ($showLolo ? 2 : 0) + ($showPenumpukan ? 2 : 0) + ($showTkbm ? 2 : 0);
+                    $colspanLayanan = ($showRailing ? 2 : 0) + ($showLolo ? 2 : 0) + ($showStorage ? 2 : 0) + ($showTkbm ? 2 : 0);
                 @endphp
                 <th colspan="{{ $colspanLayanan }}" style="text-align: center;">Layanan & Progress Waktu Lapangan</th>
                 <th rowspan="3" style="width: 10%;">Catatan</th>
@@ -210,15 +210,15 @@
                 <th rowspan="3" style="width: 6%;">Status PNBP</th>
             </tr>
             <tr>
-                @if($showHaulage) <th colspan="2" style="width: 9%;">Haulage</th> @endif
+                @if($showRailing) <th colspan="2" style="width: 9%;">Railing</th> @endif
                 @if($showLolo) <th colspan="2" style="width: 9%;">LOLO</th> @endif
-                @if($showPenumpukan) <th colspan="2" style="width: 9%;">Penumpukan</th> @endif
+                @if($showStorage) <th colspan="2" style="width: 9%;">Storage</th> @endif
                 @if($showTkbm) <th colspan="2" style="width: 9%;">TKBM</th> @endif
             </tr>
             <tr>
-                @if($showHaulage) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
+                @if($showRailing) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
                 @if($showLolo) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
-                @if($showPenumpukan) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
+                @if($showStorage) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
                 @if($showTkbm) <th style="width: 4.5%;">IN</th> <th style="width: 4.5%;">OUT</th> @endif
             </tr>
         </thead>
@@ -228,19 +228,19 @@
                 @php $containerCount = $ord->containers->count(); @endphp
                 @foreach($ord->containers as $idx => $c)
                     @php
-                        $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
+                        $pRailing = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Railing') === 0);
                         $pLolo = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
-                        $pPenumpukan = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Penumpukan') === 0);
+                        $pStorage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Storage') === 0);
                         $pTkbm = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'TKBM') === 0);
 
-                        $haulageIn = $pHaulage && $pHaulage->in_time ? \Carbon\Carbon::parse($pHaulage->in_time)->format('d/m/y H:i') : ($pHaulage && $pHaulage->in_photo_path ? '✓' : '-');
-                        $haulageOut = $pHaulage && $pHaulage->out_time ? \Carbon\Carbon::parse($pHaulage->out_time)->format('d/m/y H:i') : ($pHaulage && $pHaulage->out_photo_path ? '✓' : '-');
+                        $railingIn = $pRailing && $pRailing->in_time ? \Carbon\Carbon::parse($pRailing->in_time)->format('d/m/y H:i') : ($pRailing && $pRailing->in_photo_path ? '✓' : '-');
+                        $railingOut = $pRailing && $pRailing->out_time ? \Carbon\Carbon::parse($pRailing->out_time)->format('d/m/y H:i') : ($pRailing && $pRailing->out_photo_path ? '✓' : '-');
 
                         $loloIn = $pLolo && $pLolo->in_time ? \Carbon\Carbon::parse($pLolo->in_time)->format('d/m/y H:i') : ($pLolo && $pLolo->in_photo_path ? '✓' : '-');
                         $loloOut = $pLolo && $pLolo->out_time ? \Carbon\Carbon::parse($pLolo->out_time)->format('d/m/y H:i') : ($pLolo && $pLolo->out_photo_path ? '✓' : '-');
 
-                        $penumpukanIn = $pPenumpukan && $pPenumpukan->in_time ? \Carbon\Carbon::parse($pPenumpukan->in_time)->format('d/m/y H:i') : ($pPenumpukan && $pPenumpukan->in_photo_path ? '✓' : '-');
-                        $penumpukanOut = $pPenumpukan && $pPenumpukan->out_time ? \Carbon\Carbon::parse($pPenumpukan->out_time)->format('d/m/y H:i') : ($pPenumpukan && $pPenumpukan->out_photo_path ? '✓' : '-');
+                        $storageIn = $pStorage && $pStorage->in_time ? \Carbon\Carbon::parse($pStorage->in_time)->format('d/m/y H:i') : ($pStorage && $pStorage->in_photo_path ? '✓' : '-');
+                        $storageOut = $pStorage && $pStorage->out_time ? \Carbon\Carbon::parse($pStorage->out_time)->format('d/m/y H:i') : ($pStorage && $pStorage->out_photo_path ? '✓' : '-');
 
                         $tkbmIn = $pTkbm && $pTkbm->in_time ? \Carbon\Carbon::parse($pTkbm->in_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->in_photo_path ? '✓' : '-');
                         $tkbmOut = $pTkbm && $pTkbm->out_time ? \Carbon\Carbon::parse($pTkbm->out_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->out_photo_path ? '✓' : '-');
@@ -268,10 +268,10 @@
                         <td><strong>{{ $c->container_number ?: 'Tanpa No' }}</strong></td>
                         <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
                         
-                        <!-- Haulage IN/OUT -->
-                        @if($showHaulage)
-                        <td style="text-align: center;">{{ $haulageIn }}</td>
-                        <td style="text-align: center;">{{ $haulageOut }}</td>
+                        <!-- Railing IN/OUT -->
+                        @if($showRailing)
+                        <td style="text-align: center;">{{ $railingIn }}</td>
+                        <td style="text-align: center;">{{ $railingOut }}</td>
                         @endif
                         
                         <!-- LOLO IN/OUT -->
@@ -280,10 +280,10 @@
                         <td style="text-align: center;">{{ $loloOut }}</td>
                         @endif
 
-                        <!-- Penumpukan IN/OUT -->
-                        @if($showPenumpukan)
-                        <td style="text-align: center;">{{ $penumpukanIn }}</td>
-                        <td style="text-align: center;">{{ $penumpukanOut }}</td>
+                        <!-- Storage IN/OUT -->
+                        @if($showStorage)
+                        <td style="text-align: center;">{{ $storageIn }}</td>
+                        <td style="text-align: center;">{{ $storageOut }}</td>
                         @endif
 
                         <!-- TKBM IN/OUT -->

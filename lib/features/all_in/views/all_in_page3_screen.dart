@@ -9,7 +9,7 @@ import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/all_in/viewmodels/all_in_viewmodel.dart';
 
 /// ALL IN — Page 3: Multi-select services with conditional sub-options.
-/// Services: Haulage (+ file), LOLO, Penumpukan, TKBM (+ radio), Asuransi (+ value)
+/// Services: Railing (+ file), LOLO, Storage, TKBM (+ radio), Asuransi (+ value)
 class AllInPage3Screen extends StatefulWidget {
   const AllInPage3Screen({super.key});
 
@@ -33,12 +33,12 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
       return;
     }
 
-    // Validate Haulage file if selected
-    if (vm.isServiceSelected(AppConstants.serviceHaulage) &&
-        (vm.haulageFileName == null || vm.haulageFileName!.isEmpty)) {
+    // Validate Railing file if selected
+    if (vm.isServiceSelected(AppConstants.serviceRailing) &&
+        (vm.railingFileName == null || vm.railingFileName!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Upload dokumen Haulage terlebih dahulu.'),
+          content: Text('Upload dokumen Railing terlebih dahulu.'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -131,21 +131,21 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
             icon: Icons.miscellaneous_services_outlined,
             spacing: 0,
             children: [
-              // ── Haulage ────────────────────────────────────────────────────
+              // ── Railing ────────────────────────────────────────────────────
               ServiceCheckboxTile(
-                serviceKey: AppConstants.serviceHaulage,
-                label: 'Haulage',
+                serviceKey: AppConstants.serviceRailing,
+                label: 'Railing',
                 icon: Icons.local_shipping_outlined,
-                isSelected: vm.isServiceSelected(AppConstants.serviceHaulage),
-                onToggle: () => vm.toggleService(AppConstants.serviceHaulage),
+                isSelected: vm.isServiceSelected(AppConstants.serviceRailing),
+                onToggle: () => vm.toggleService(AppConstants.serviceRailing),
                 expandedChild: AppFileUploadTile(
-                  label: 'Dokumen Haulage',
+                  label: 'Dokumen Railing',
                   hint: 'Upload SP2 (PDF / JPG / PNG)',
-                  fileName: vm.haulageFileName,
+                  fileName: vm.railingFileName,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                   onFileSelected: (name, bytes, path) =>
-                      vm.setHaulageFile(name: name, path: path ?? '', bytes: bytes),
-                  onCleared: vm.clearHaulageFile,
+                      vm.setRailingFile(name: name, path: path ?? '', bytes: bytes),
+                  onCleared: vm.clearRailingFile,
                 ),
               ),
 
@@ -158,15 +158,15 @@ class _AllInPage3ScreenState extends State<AllInPage3Screen> {
                 onToggle: () => vm.toggleService(AppConstants.serviceLolo),
               ),
 
-              // ── Penumpukan ─────────────────────────────────────────────────
+              // ── Storage ─────────────────────────────────────────────────
               ServiceCheckboxTile(
-                serviceKey: AppConstants.servicePenumpukan,
-                label: 'Penumpukan',
+                serviceKey: AppConstants.serviceStorage,
+                label: 'Storage',
                 icon: Icons.layers_outlined,
                 isSelected:
-                    vm.isServiceSelected(AppConstants.servicePenumpukan),
+                    vm.isServiceSelected(AppConstants.serviceStorage),
                 onToggle: () =>
-                    vm.toggleService(AppConstants.servicePenumpukan),
+                    vm.toggleService(AppConstants.serviceStorage),
               ),
 
               // ── TKBM ───────────────────────────────────────────────────────

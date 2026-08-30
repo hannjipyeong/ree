@@ -36,9 +36,9 @@ class KoperasiViewModel extends ChangeNotifier {
 
   // Page 3
   final Set<String> _selectedServices = {};
-  String? _haulageFileName;
-  String? _haulageFilePath;
-  Uint8List? _haulageFileBytes;
+  String? _railingFileName;
+  String? _railingFilePath;
+  Uint8List? _railingFileBytes;
   String? _tkbmOption;
 
   bool _isSubmitting = false;
@@ -86,8 +86,8 @@ class KoperasiViewModel extends ChangeNotifier {
 
   Set<String> get selectedServices => Set.unmodifiable(_selectedServices);
   bool isServiceSelected(String service) => _selectedServices.contains(service);
-  String? get haulageFileName => _haulageFileName;
-  String? get haulageFilePath => _haulageFilePath;
+  String? get railingFileName => _railingFileName;
+  String? get railingFilePath => _railingFilePath;
   String? get tkbmOption => _tkbmOption;
 
   bool get isSubmitting => _isSubmitting;
@@ -221,12 +221,12 @@ class KoperasiViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setHaulageFile({required String name, required String path, Uint8List? bytes}) {
-    _haulageFileName = name; _haulageFilePath = path; _haulageFileBytes = bytes; notifyListeners();
+  void setRailingFile({required String name, required String path, Uint8List? bytes}) {
+    _railingFileName = name; _railingFilePath = path; _railingFileBytes = bytes; notifyListeners();
   }
 
-  void clearHaulageFile() {
-    _haulageFileName = null; _haulageFilePath = null; _haulageFileBytes = null; notifyListeners();
+  void clearRailingFile() {
+    _railingFileName = null; _railingFilePath = null; _railingFileBytes = null; notifyListeners();
   }
 
   void setTbkmOption(String? option) { _tkbmOption = option; notifyListeners(); }
@@ -254,9 +254,9 @@ class KoperasiViewModel extends ChangeNotifier {
         services: servicesToSubmit,
         containers: containerList,
         cargos: hasCargo ? _cargos : null,
-        haulageFilePath: _haulageFilePath,
-        haulageFileBytes: _haulageFileBytes,
-        haulageFileName: _haulageFileName,
+        railingFilePath: _railingFilePath,
+        railingFileBytes: _railingFileBytes,
+        railingFileName: _railingFileName,
       );
 
       if (success) {
@@ -279,7 +279,7 @@ class KoperasiViewModel extends ChangeNotifier {
     if (hasDefaultAsuransi) {
       _selectedServices.add('Asuransi');
     }
-    _haulageFileName = null; _haulageFilePath = null; _haulageFileBytes = null; _tkbmOption = null; _errorMessage = null;
+    _railingFileName = null; _railingFilePath = null; _railingFileBytes = null; _tkbmOption = null; _errorMessage = null;
     notifyListeners();
   }
 }

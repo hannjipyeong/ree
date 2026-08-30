@@ -244,7 +244,7 @@
                     <select name="layanan" id="dash-layanan"
                             class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-slate-50">
                         <option value="">Semua Layanan</option>
-                        @foreach(['Haulage', 'LOLO', 'Penumpukan', 'TKBM'] as $layanan)
+                        @foreach(['Railing', 'LOLO', 'Storage', 'TKBM'] as $layanan)
                             <option value="{{ $layanan }}" {{ $activeLayanan == $layanan ? 'selected' : '' }}>{{ $layanan }}</option>
                         @endforeach
                     </select>
@@ -404,7 +404,7 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Layanan</label>
                 <select name="layanan" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
                     <option value="">Semua Layanan</option>
-                    @foreach(['Haulage', 'LOLO', 'Penumpukan', 'TKBM'] as $layanan)
+                    @foreach(['Railing', 'LOLO', 'Storage', 'TKBM'] as $layanan)
                         <option value="{{ $layanan }}" {{ $activeLayanan == $layanan ? 'selected' : '' }}>{{ $layanan }}</option>
                     @endforeach
                 </select>
@@ -585,17 +585,17 @@
 
                                             @foreach($history as $hStatus)
                                                 <div class="inline-flex items-center text-[10px] rounded-lg overflow-hidden border
-                                                    {{ $st->service_type == 'Haulage'    ? 'border-purple-200 bg-purple-50' : '' }}
+                                                    {{ $st->service_type == 'Railing'    ? 'border-purple-200 bg-purple-50' : '' }}
                                                     {{ $st->service_type == 'LOLO'       ? 'border-sky-200 bg-sky-50'       : '' }}
-                                                    {{ $st->service_type == 'Penumpukan' ? 'border-amber-200 bg-amber-50'   : '' }}
+                                                    {{ $st->service_type == 'Storage' ? 'border-amber-200 bg-amber-50'   : '' }}
                                                     {{ $st->service_type == 'TKBM'       ? 'border-teal-200 bg-teal-50'     : '' }}
-                                                    {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'border-slate-200 bg-slate-50' : '' }}">
+                                                    {{ !in_array($st->service_type, ['Railing','LOLO','Storage','TKBM']) ? 'border-slate-200 bg-slate-50' : '' }}">
                                                     <span class="px-2 py-0.5 font-extrabold uppercase
-                                                        {{ $st->service_type == 'Haulage'    ? 'text-purple-700' : '' }}
+                                                        {{ $st->service_type == 'Railing'    ? 'text-purple-700' : '' }}
                                                         {{ $st->service_type == 'LOLO'       ? 'text-sky-700'    : '' }}
-                                                        {{ $st->service_type == 'Penumpukan' ? 'text-amber-700'  : '' }}
+                                                        {{ $st->service_type == 'Storage' ? 'text-amber-700'  : '' }}
                                                         {{ $st->service_type == 'TKBM'       ? 'text-teal-700'   : '' }}
-                                                        {{ !in_array($st->service_type, ['Haulage','LOLO','Penumpukan','TKBM']) ? 'text-slate-700' : '' }}">
+                                                        {{ !in_array($st->service_type, ['Railing','LOLO','Storage','TKBM']) ? 'text-slate-700' : '' }}">
                                                         {{ $st->service_type }}
                                                     </span>
                                                     <span class="px-1.5 py-0.5 font-bold uppercase

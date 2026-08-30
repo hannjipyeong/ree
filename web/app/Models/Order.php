@@ -33,7 +33,7 @@ class Order extends Model
         'no_bp',
         'nomor_container_cargo',
         'cargo_file_path',
-        'haulage_file_path',
+        'railing_file_path',
         'tkbm_option',
         'has_asuransi',
         'asuransi_value',

@@ -87,7 +87,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-2">Jenis Kegiatan *</label>
-                        <input type="text" name="jenis_kegiatan" value="penumpukan" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <input type="text" name="jenis_kegiatan" value="storage" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
                     </div>
                 </div>
             </div>
@@ -157,8 +157,8 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <label class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="services[]" value="Haulage" checked class="w-4 h-4 text-blue-600 rounded">
-                        <span class="text-sm font-semibold text-slate-800">Haulage</span>
+                        <input type="checkbox" name="services[]" value="Railing" checked class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm font-semibold text-slate-800">Railing</span>
                     </label>
 
                     <label class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition">
@@ -167,8 +167,8 @@
                     </label>
 
                     <label class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="services[]" value="Penumpukan" class="w-4 h-4 text-blue-600 rounded">
-                        <span class="text-sm font-semibold text-slate-800">Penumpukan</span>
+                        <input type="checkbox" name="services[]" value="Storage" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm font-semibold text-slate-800">Storage</span>
                     </label>
 
                     <label class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition">

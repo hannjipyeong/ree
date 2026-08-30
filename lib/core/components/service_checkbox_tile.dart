@@ -9,12 +9,12 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 /// Usage:
 /// ```dart
 /// ServiceCheckboxTile(
-///   serviceKey: AppConstants.serviceHaulage,
-///   label: 'Haulage',
+///   serviceKey: AppConstants.serviceRailing,
+///   label: 'Railing',
 ///   description: 'Angkutan container dari/ke pelabuhan',
 ///   icon: Icons.local_shipping_outlined,
-///   isSelected: vm.isServiceSelected(AppConstants.serviceHaulage),
-///   onToggle: () => vm.toggleService(AppConstants.serviceHaulage),
+///   isSelected: vm.isServiceSelected(AppConstants.serviceRailing),
+///   onToggle: () => vm.toggleService(AppConstants.serviceRailing),
 ///   expandedChild: AppFileUploadTile(...)
 /// )
 /// ```

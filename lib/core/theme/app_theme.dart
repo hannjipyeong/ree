@@ -27,12 +27,12 @@ class AppColors {
   static const Color disabled = Color(0xFFBDC3C7);
 
   // Service Tag Colors (Distinct per service type)
-  static const Color serviceHaulage = Color(0xFF7C3AED); // Purple
-  static const Color serviceHaulageBg = Color(0xFFF3E8FF);
+  static const Color serviceRailing = Color(0xFF7C3AED); // Purple
+  static const Color serviceRailingBg = Color(0xFFF3E8FF);
   static const Color serviceLolo = Color(0xFF0284C7); // Sky Blue
   static const Color serviceLoloBg = Color(0xFFE0F2FE);
-  static const Color servicePenumpukan = Color(0xFFD97706); // Amber / Orange
-  static const Color servicePenumpukanBg = Color(0xFFFEF3C7);
+  static const Color serviceStorage = Color(0xFFD97706); // Amber / Orange
+  static const Color serviceStorageBg = Color(0xFFFEF3C7);
   static const Color serviceTkbm = Color(0xFF0D9488); // Teal
   static const Color serviceTkbmBg = Color(0xFFCCFBF1);
   static const Color serviceAsuransi = Color(0xFFE11D48); // Rose / Pink
@@ -40,12 +40,12 @@ class AppColors {
 
   static Color getServiceColor(String service) {
     switch (service.toLowerCase().trim()) {
-      case 'haulage':
-        return serviceHaulage;
+      case 'railing':
+        return serviceRailing;
       case 'lolo':
         return serviceLolo;
-      case 'penumpukan':
-        return servicePenumpukan;
+      case 'storage':
+        return serviceStorage;
       case 'tkbm':
         return serviceTkbm;
       case 'asuransi':
@@ -58,12 +58,12 @@ class AppColors {
 
   static Color getServiceBgColor(String service) {
     switch (service.toLowerCase().trim()) {
-      case 'haulage':
-        return serviceHaulageBg;
+      case 'railing':
+        return serviceRailingBg;
       case 'lolo':
         return serviceLoloBg;
-      case 'penumpukan':
-        return servicePenumpukanBg;
+      case 'storage':
+        return serviceStorageBg;
       case 'tkbm':
         return serviceTkbmBg;
       case 'asuransi':

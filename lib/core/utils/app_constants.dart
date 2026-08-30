@@ -74,9 +74,9 @@ class AppConstants {
     'TPFT': 'cek fisik',
     'CFS': 'stripping / staffing',
     'cfs': 'stripping / staffing',
-    'loss cargo': 'penumpukan',
-    'gudang': 'penumpukan',
-    'tps': 'penumpukan',
+    'loss cargo': 'storage',
+    'gudang': 'storage',
+    'tps': 'storage',
   };
 
   // ─── Payload Types ──────────────────────────────────────────────────────────
@@ -104,16 +104,16 @@ class AppConstants {
   static const int maxContainers = 99999;
 
   // ─── Layanan / Services ─────────────────────────────────────────────────────
-  static const String serviceHaulage = 'Haulage';
+  static const String serviceRailing = 'Railing';
   static const String serviceLolo = 'LOLO';
-  static const String servicePenumpukan = 'Penumpukan';
+  static const String serviceStorage = 'Storage';
   static const String serviceTKBM = 'TKBM';
   static const String serviceAsuransi = 'Asuransi';
 
   static const List<String> servicesAllIn = [
-    serviceHaulage,
+    serviceRailing,
     serviceLolo,
-    servicePenumpukan,
+    serviceStorage,
     serviceTKBM,
     serviceAsuransi,
   ];

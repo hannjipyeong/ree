@@ -8,7 +8,7 @@ import 'package:bkj_app/core/utils/app_constants.dart';
 import 'package:bkj_app/core/utils/app_formatters.dart';
 import 'package:bkj_app/features/koperasi/viewmodels/koperasi_viewmodel.dart';
 
-/// Koperasi — Page 3: Additional services (Haulage, LOLO, dll)
+/// Koperasi — Page 3: Additional services (Railing, LOLO, dll)
 class KoperasiPage3Screen extends StatefulWidget {
   const KoperasiPage3Screen({super.key});
 
@@ -32,7 +32,7 @@ class _KoperasiPage3ScreenState extends State<KoperasiPage3Screen> {
       return;
     }
 
-    // Koperasi only has TKBM and Asuransi, so we removed Haulage check.
+    // Koperasi only has TKBM and Asuransi, so we removed Railing check.
 
     if (vm.isServiceSelected(AppConstants.serviceTKBM) &&
         vm.tkbmOption == null) {

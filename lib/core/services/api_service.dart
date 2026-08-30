@@ -172,7 +172,7 @@ class ApiService {
               
               // Calculate hierarchy logic
               final rawSubTasks = order['sub_tasks'] ?? [];
-              final hierarchy = ['Haulage', 'Lolo', 'Penumpukan', 'TKBM'];
+              final hierarchy = ['Railing', 'Lolo', 'Storage', 'TKBM'];
               final sortedSubTasks = (rawSubTasks as List)
                   .where((st) => hierarchy.contains(st['service_type']))
                   .toList();
@@ -280,7 +280,7 @@ class ApiService {
                 lokasiFasilitas: order['lokasi_fasilitas'],
                 namaPbm: order['nama_pbm'],
                 noTelp: order['no_telp'],
-                haulageFilePath: order['haulage_file_path'],
+                railingFilePath: order['railing_file_path'],
                 jenisBarang: order['jenis_barang'],
                 jumlahBarang: order['jumlah_barang'],
                 jumlahTonase: order['jumlah_tonase']?.toString(),
@@ -328,7 +328,7 @@ class ApiService {
                   lokasiFasilitas: order['lokasi_fasilitas'],
                   namaPbm: order['nama_pbm'],
                   noTelp: order['no_telp'],
-                  haulageFilePath: order['haulage_file_path'],
+                  railingFilePath: order['railing_file_path'],
                   subTasksList: rawSubTasks,
                   containers: parsedCustContainers,
                   jenisBarang: order['jenis_barang'],
@@ -373,9 +373,9 @@ class ApiService {
     required Set<String> services,
     List<Map<String, dynamic>>? containers,
     List<CargoEntry>? cargos,
-    String? haulageFilePath,
-    Uint8List? haulageFileBytes,
-    String? haulageFileName,
+    String? railingFilePath,
+    Uint8List? railingFileBytes,
+    String? railingFileName,
   }) async {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/orders'));
@@ -428,10 +428,10 @@ class ApiService {
         request.fields['containers'] = jsonEncode(containers);
       }
       
-      if (haulageFileBytes != null && haulageFileName != null) {
-        request.files.add(http.MultipartFile.fromBytes('haulage_file', haulageFileBytes, filename: haulageFileName));
-      } else if (haulageFilePath != null && haulageFilePath.isNotEmpty) {
-        debugPrint('Warning: Missing haulage bytes on native. Cannot upload via path on Web.');
+      if (railingFileBytes != null && railingFileName != null) {
+        request.files.add(http.MultipartFile.fromBytes('railing_file', railingFileBytes, filename: railingFileName));
+      } else if (railingFilePath != null && railingFilePath.isNotEmpty) {
+        debugPrint('Warning: Missing railing bytes on native. Cannot upload via path on Web.');
       }
 
       final streamedResponse = await request.send();

@@ -58,7 +58,7 @@ class AppContainer {
 class AppOrder {
   final String id;
   final String customerName;
-  final String serviceType; // e.g., 'Haulage', 'LOLO', 'Penumpukan', 'TKBM'
+  final String serviceType; // e.g., 'Railing', 'LOLO', 'Storage', 'TKBM'
   final String source; // e.g., 'ALL IN', 'Koperasi', 'PBM Lain'
   final DateTime date;
   final String? payloadType; // 'Container' or 'Cargo'
@@ -68,7 +68,7 @@ class AppOrder {
   final String? lokasiFasilitas;
   final String? namaPbm;
   final String? noTelp;
-  final String? haulageFilePath;
+  final String? railingFilePath;
   final List<Map<String, dynamic>> subTasksList;
   
   String status; // 'Masuk', 'In', 'Out', 'Done'
@@ -100,7 +100,7 @@ class AppOrder {
     this.lokasiFasilitas,
     this.namaPbm,
     this.noTelp,
-    this.haulageFilePath,
+    this.railingFilePath,
     this.subTasksList = const [],
     this.status = 'Masuk',
     this.inNote,
@@ -127,15 +127,15 @@ class MockOrderRepository extends ChangeNotifier {
     AppOrder(id: 'REQ-1002-LOL', customerName: 'PT Bumi Makmur', serviceType: 'LOLO', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 2)), status: 'In'),
     AppOrder(id: 'REQ-1003-LOL', customerName: 'PT Samudra Biru', serviceType: 'LOLO', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
     
-    // --- Haulage Mock Data ---
-    AppOrder(id: 'REQ-2001-HAU', customerName: 'PT Trans Logistik', serviceType: 'Haulage', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
-    AppOrder(id: 'REQ-2002-HAU', customerName: 'PT Bumi Makmur', serviceType: 'Haulage', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 1)), status: 'In'),
-    AppOrder(id: 'REQ-2003-HAU', customerName: 'PT Cargo Makmur', serviceType: 'Haulage', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 2)), status: 'Out'),
+    // --- Railing Mock Data ---
+    AppOrder(id: 'REQ-2001-HAU', customerName: 'PT Trans Logistik', serviceType: 'Railing', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-2002-HAU', customerName: 'PT Bumi Makmur', serviceType: 'Railing', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 1)), status: 'In'),
+    AppOrder(id: 'REQ-2003-HAU', customerName: 'PT Cargo Makmur', serviceType: 'Railing', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 2)), status: 'Out'),
     
-    // --- Penumpukan Mock Data ---
-    AppOrder(id: 'REQ-3001-PEN', customerName: 'PT Gudang Bersama', serviceType: 'Penumpukan', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
-    AppOrder(id: 'REQ-3002-PEN', customerName: 'PT Lintas Samudra', serviceType: 'Penumpukan', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 3)), status: 'In'),
-    AppOrder(id: 'REQ-3003-PEN', customerName: 'PT Logistik Utama', serviceType: 'Penumpukan', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
+    // --- Storage Mock Data ---
+    AppOrder(id: 'REQ-3001-PEN', customerName: 'PT Gudang Bersama', serviceType: 'Storage', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
+    AppOrder(id: 'REQ-3002-PEN', customerName: 'PT Lintas Samudra', serviceType: 'Storage', source: 'Koperasi', date: DateTime.now().subtract(const Duration(hours: 3)), status: 'In'),
+    AppOrder(id: 'REQ-3003-PEN', customerName: 'PT Logistik Utama', serviceType: 'Storage', source: 'PBM Lain', date: DateTime.now().subtract(const Duration(days: 1)), status: 'Out'),
     
     // --- TKBM Mock Data ---
     AppOrder(id: 'REQ-4001-TBK', customerName: 'PT Samudra Jaya', serviceType: 'TKBM', source: 'ALL IN', date: DateTime.now(), status: 'Masuk'),
@@ -146,7 +146,7 @@ class MockOrderRepository extends ChangeNotifier {
   List<AppOrder> get orders => List.unmodifiable(_orders);
 
   /// Called by Customer ViewModels when an order is submitted.
-  /// If a customer requests multiple services (e.g., Haulage and LOLO),
+  /// If a customer requests multiple services (e.g., Railing and LOLO),
   /// this method creates separate [AppOrder]s for each service so they
   /// can be picked up by the respective Supir. Also syncs with Laravel API.
   void addOrderFromCustomer({
@@ -155,7 +155,7 @@ class MockOrderRepository extends ChangeNotifier {
     required Set<String> selectedServices,
   }) {
     final now = DateTime.now();
-    final servicesToSubmit = selectedServices.isEmpty ? {'Haulage'} : selectedServices;
+    final servicesToSubmit = selectedServices.isEmpty ? {'Railing'} : selectedServices;
     for (final service in servicesToSubmit) {
       // Create a unique ID for each sub-task
       final id = 'REQ-${now.millisecondsSinceEpoch.toString().substring(7)}-${service.substring(0, 3).toUpperCase()}';

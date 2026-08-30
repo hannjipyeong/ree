@@ -95,7 +95,7 @@ class RequestController extends Controller
             'services' => 'required|array',
             'containers' => 'nullable|array',
             'cargo_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'haulage_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'railing_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'tkbm_option' => 'nullable|string',
             'jenis_barang' => 'nullable|string',
             'jumlah_tonase' => 'nullable|numeric',
@@ -112,9 +112,9 @@ class RequestController extends Controller
             $cargoPath = $request->file('cargo_file')->store('uploads/cargo', 'public');
         }
 
-        $haulagePath = null;
-        if ($request->hasFile('haulage_file')) {
-            $haulagePath = $request->file('haulage_file')->store('uploads/haulage', 'public');
+        $railingPath = null;
+        if ($request->hasFile('railing_file')) {
+            $railingPath = $request->file('railing_file')->store('uploads/haulage', 'public');
         }
         $orderNumber = Order::generateNextOrderNumber();
 
@@ -136,7 +136,7 @@ class RequestController extends Controller
             'jumlah_tonase' => $request->jumlah_tonase,
             'nomor_container_cargo' => $request->nomor_container_cargo,
             'cargo_file_path' => $cargoPath,
-            'haulage_file_path' => $haulagePath,
+            'railing_file_path' => $railingPath,
             'tkbm_option' => $request->tkbm_option,
             'has_asuransi' => $hasAsuransi,
             'asuransi_value' => $asuransiValue,
@@ -157,7 +157,7 @@ class RequestController extends Controller
             }
         }
 
-        // Sub Tasks per selected supir service ONLY (Haulage, LOLO, Penumpukan, TKBM)
+        // Sub Tasks per selected supir service ONLY (Railing, LOLO, Storage, TKBM)
         $supirServices = array_filter($validated['services'], fn($s) => $s !== 'Asuransi');
         foreach ($supirServices as $service) {
             $taskCode = strtoupper(substr($service, 0, 3));
@@ -289,7 +289,7 @@ class RequestController extends Controller
 
         if ($httpRequest->hasFile('spk_file')) {
             $spkPath = $httpRequest->file('spk_file')->store('uploads/spk', 'public');
-            $order->haulage_file_path = 'storage/' . $spkPath;
+            $order->railing_file_path = 'storage/' . $spkPath;
             if (!$docPath) $docPath = 'storage/' . $spkPath;
             $order->save();
         }
@@ -751,9 +751,9 @@ class RequestController extends Controller
         // Perihal
         if ($isCargo) {
             $lokasi = $order->lokasi_fasilitas ? ucwords($order->lokasi_fasilitas) : 'Gudang';
-            $perihal = 'Permohonan ' . ucwords($order->jenis_kegiatan ?: 'Penumpukan') . ' ' . $lokasi;
+            $perihal = 'Permohonan ' . ucwords($order->jenis_kegiatan ?: 'Storage') . ' ' . $lokasi;
         } else {
-            $perihal = 'PERMOHONAN ' . strtoupper($order->jenis_kegiatan ?: 'PENUMPUKAN');
+            $perihal = 'PERMOHONAN ' . strtoupper($order->jenis_kegiatan ?: 'STORAGE');
         }
 
         // Tanggal export (tanggal dibuat saat diexport/enter)

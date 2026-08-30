@@ -20,9 +20,9 @@
 
             <select name="supir_type" onchange="this.form.submit()" class="py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none shrink-0">
                 <option value="">-- Semua Spesialisasi --</option>
-                <option value="Haulage" {{ request('supir_type') == 'Haulage' ? 'selected' : '' }}>Haulage</option>
+                <option value="Railing" {{ request('supir_type') == 'Railing' ? 'selected' : '' }}>Railing</option>
                 <option value="LOLO" {{ request('supir_type') == 'LOLO' ? 'selected' : '' }}>LOLO</option>
-                <option value="Penumpukan" {{ request('supir_type') == 'Penumpukan' ? 'selected' : '' }}>Penumpukan</option>
+                <option value="Storage" {{ request('supir_type') == 'Storage' ? 'selected' : '' }}>Storage</option>
                 <option value="TKBM" {{ request('supir_type') == 'TKBM' ? 'selected' : '' }}>TKBM</option>
             </select>
 
@@ -66,9 +66,9 @@
                             <td class="py-4 px-6 font-mono text-xs text-blue-600 font-semibold">{{ $s->email }}</td>
                             <td class="py-4 px-6">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase
-                                    {{ $s->supir_type == 'Haulage' ? 'bg-purple-100 text-purple-700 border border-purple-200' : '' }}
+                                    {{ $s->supir_type == 'Railing' ? 'bg-purple-100 text-purple-700 border border-purple-200' : '' }}
                                     {{ $s->supir_type == 'LOLO' ? 'bg-sky-100 text-sky-700 border border-sky-200' : '' }}
-                                    {{ $s->supir_type == 'Penumpukan' ? 'bg-amber-100 text-amber-700 border border-amber-200' : '' }}
+                                    {{ $s->supir_type == 'Storage' ? 'bg-amber-100 text-amber-700 border border-amber-200' : '' }}
                                     {{ $s->supir_type == 'TKBM' ? 'bg-teal-100 text-teal-700 border border-teal-200' : '' }}">
                                     {{ $s->supir_type }}
                                 </span>
@@ -139,9 +139,9 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Spesialisasi / Tipe Pelaksana Lapangan *</label>
                 <select name="supir_type" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    <option value="Haulage">Haulage</option>
+                    <option value="Railing">Railing</option>
                     <option value="LOLO">LOLO</option>
-                    <option value="Penumpukan">Penumpukan</option>
+                    <option value="Storage">Storage</option>
                     <option value="TKBM">TKBM</option>
                 </select>
             </div>
@@ -205,9 +205,9 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Spesialisasi / Tipe Pelaksana Lapangan *</label>
                 <select id="editSupirType" name="supir_type" required class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    <option value="Haulage">Haulage</option>
+                    <option value="Railing">Railing</option>
                     <option value="LOLO">LOLO</option>
-                    <option value="Penumpukan">Penumpukan</option>
+                    <option value="Storage">Storage</option>
                     <option value="TKBM">TKBM</option>
                 </select>
             </div>

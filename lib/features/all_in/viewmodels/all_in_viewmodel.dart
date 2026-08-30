@@ -38,10 +38,10 @@ class AllInViewModel extends ChangeNotifier {
 
   // ─── Page 3 State ────────────────────────────────────────────────────────────
   final Set<String> _selectedServices = {};
-  // Haulage
-  String? _haulageFileName;
-  String? _haulageFilePath;
-  Uint8List? _haulageFileBytes;
+  // Railing
+  String? _railingFileName;
+  String? _railingFilePath;
+  Uint8List? _railingFileBytes;
   // TKBM
   String? _tkbmOption;
 
@@ -96,8 +96,8 @@ class AllInViewModel extends ChangeNotifier {
   // ─── Page 3 Getters ──────────────────────────────────────────────────────────
   Set<String> get selectedServices => Set.unmodifiable(_selectedServices);
   bool isServiceSelected(String service) => _selectedServices.contains(service);
-  String? get haulageFileName => _haulageFileName;
-  String? get haulageFilePath => _haulageFilePath;
+  String? get railingFileName => _railingFileName;
+  String? get railingFilePath => _railingFilePath;
   String? get tkbmOption => _tkbmOption;
 
   // ─── Shared Getters ──────────────────────────────────────────────────────────
@@ -226,17 +226,17 @@ class AllInViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setHaulageFile({required String name, required String path, Uint8List? bytes}) {
-    _haulageFileName = name;
-    _haulageFilePath = path;
-    _haulageFileBytes = bytes;
+  void setRailingFile({required String name, required String path, Uint8List? bytes}) {
+    _railingFileName = name;
+    _railingFilePath = path;
+    _railingFileBytes = bytes;
     notifyListeners();
   }
 
-  void clearHaulageFile() {
-    _haulageFileName = null;
-    _haulageFilePath = null;
-    _haulageFileBytes = null;
+  void clearRailingFile() {
+    _railingFileName = null;
+    _railingFilePath = null;
+    _railingFileBytes = null;
     notifyListeners();
   }
 
@@ -252,7 +252,7 @@ class AllInViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final servicesToSubmit = _selectedServices.isEmpty ? {'Haulage'} : _selectedServices;
+      final servicesToSubmit = _selectedServices.isEmpty ? {'Railing'} : _selectedServices;
       
       // Convert containers to a list of maps for the API
       final containerList = hasContainer 
@@ -271,9 +271,9 @@ class AllInViewModel extends ChangeNotifier {
         services: servicesToSubmit,
         containers: containerList,
         cargos: hasCargo ? _cargos : null,
-        haulageFilePath: _haulageFilePath,
-        haulageFileBytes: _haulageFileBytes,
-        haulageFileName: _haulageFileName,
+        railingFilePath: _railingFilePath,
+        railingFileBytes: _railingFileBytes,
+        railingFileName: _railingFileName,
       );
 
       if (success) {
@@ -324,9 +324,9 @@ class AllInViewModel extends ChangeNotifier {
     if (hasDefaultAsuransi) {
       _selectedServices.add('Asuransi');
     }
-    _haulageFileName = null;
-    _haulageFilePath = null;
-    _haulageFileBytes = null;
+    _railingFileName = null;
+    _railingFilePath = null;
+    _railingFileBytes = null;
     _tkbmOption = null;
     _errorMessage = null;
     notifyListeners();

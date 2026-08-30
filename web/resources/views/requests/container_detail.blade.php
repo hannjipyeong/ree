@@ -165,11 +165,11 @@
                                 <div class="flex items-center gap-3">
                                     <span class="font-extrabold text-slate-800 text-base">{{ $st->task_number }}</span>
                                     <span class="px-2.5 py-0.5 rounded text-xs font-extrabold uppercase border
-                                        {{ $st->service_type == 'Haulage' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                        {{ $st->service_type == 'Railing' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
                                         {{ $st->service_type == 'LOLO' ? 'bg-sky-100 text-sky-800 border-sky-200' : '' }}
-                                        {{ $st->service_type == 'Penumpukan' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
+                                        {{ $st->service_type == 'Storage' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
                                         {{ $st->service_type == 'TKBM' ? 'bg-teal-100 text-teal-800 border-teal-200' : '' }}
-                                        {{ !in_array($st->service_type, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'bg-slate-800 text-white' : '' }}">
+                                        {{ !in_array($st->service_type, ['Railing', 'LOLO', 'Storage', 'TKBM']) ? 'bg-slate-800 text-white' : '' }}">
                                         {{ $st->service_type }}
                                     </span>
                                 </div>
@@ -334,9 +334,9 @@
                                 <p class="text-[9px] text-slate-400 mt-0.5">Bisa pilih banyak foto sekaligus</p>
                             </div>
 
-                            @if($st->service_type === 'Haulage')
+                            @if($st->service_type === 'Railing')
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">SP3KK (Khusus Haulage)</label>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">SP3KK (Khusus Railing)</label>
                                     <input type="file" name="sp3kk_file" accept=".pdf,.jpg,.jpeg,.png" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-50 file:text-emerald-700">
                                     @if($container->sp3kk_file_path)
                                         <a href="{{ $container->sp3kk_file_url }}" target="_blank" class="text-[9px] text-emerald-600 font-bold mt-1 inline-block hover:underline"><i class="fa-solid fa-eye"></i> Lihat SP3KK Terupload</a>
@@ -344,7 +344,7 @@
                                 </div>
                             @endif
 
-                            <div class="flex items-end {{ $st->service_type === 'Haulage' ? 'md:col-span-4' : '' }}">
+                            <div class="flex items-end {{ $st->service_type === 'Railing' ? 'md:col-span-4' : '' }}">
                                 <button type="submit" id="submitBtn-{{ $st->id }}" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow transition flex items-center justify-center gap-2">
                                     <span class="btn-text">Simpan Perubahan</span>
                                     <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
@@ -385,9 +385,9 @@
             @php
                 $containerServices = $container->additional_services ?: [];
                 $orderServices = $order->subTasks->pluck('service_type')->toArray();
-                $hasHaulage = in_array('Haulage', $containerServices) || in_array('Haulage', $orderServices);
+                $hasRailing = in_array('Railing', $containerServices) || in_array('Railing', $orderServices);
                 $hasLolo = in_array('LOLO', $containerServices) || in_array('LOLO', $orderServices);
-                $hasPenumpukan = in_array('Penumpukan', $containerServices) || in_array('Penumpukan', $orderServices);
+                $hasStorage = in_array('Storage', $containerServices) || in_array('Storage', $orderServices);
                 $hasTkbm = in_array('TKBM', $containerServices) || in_array('TKBM', $orderServices) || !empty($container->tkbm_option) || !empty($order->tkbm_option);
                 $currentTkbm = $container->tkbm_option ?: ($order->tkbm_option ?? 'Man Power');
             @endphp
@@ -400,32 +400,32 @@
                             <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-[#1C325B] flex items-center justify-center">
                                 <i class="fa-solid fa-truck-front text-lg"></i>
                             </div>
-                            <span class="font-bold text-slate-800 text-sm">Haulage</span>
+                            <span class="font-bold text-slate-800 text-sm">Railing</span>
                         </div>
-                        @if($hasHaulage)
+                        @if($hasRailing)
                             <div class="w-6 h-6 bg-[#1C325B] text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Layanan sudah ada (Terkunci)">
                                 <i class="fa-solid fa-check text-xs font-black"></i>
                             </div>
-                            <input type="hidden" name="existing_services[]" value="Haulage">
+                            <input type="hidden" name="existing_services[]" value="Railing">
                         @else
                             <label class="cursor-pointer">
-                                <input type="checkbox" name="added_services[]" value="Haulage" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
+                                <input type="checkbox" name="added_services[]" value="Railing" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
                             </label>
                         @endif
                     </div>
 
-                    <!-- Dokumen Haulage -->
+                    <!-- Dokumen Railing -->
                     <div class="pt-2 border-t border-slate-300/60 flex flex-col gap-3">
-                        <div class="text-xs font-semibold text-slate-600">Dokumen Haulage</div>
+                        <div class="text-xs font-semibold text-slate-600">Dokumen Railing</div>
                         
-                        <input type="file" id="container_haulage_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_haulage_label')">
-                        <div onclick="triggerFileInput('container_haulage_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm">
+                        <input type="file" id="container_railing_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_railing_label')">
+                        <div onclick="triggerFileInput('container_railing_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-sm">
                                     <i class="fa-solid fa-file-arrow-up"></i>
                                 </div>
                                 <div>
-                                    <div id="container_haulage_label" class="text-xs font-bold text-slate-800">Upload SP2 (PDF / JPG / PNG)</div>
+                                    <div id="container_railing_label" class="text-xs font-bold text-slate-800">Upload SP2 (PDF / JPG / PNG)</div>
                                     <div class="text-[10px] text-slate-400 font-medium">Format: PDF, JPG, JPEG, PNG</div>
                                 </div>
                             </div>
@@ -440,7 +440,7 @@
                                 </div>
                                 <div>
                                     <div id="container_sp3kk_label" class="text-xs font-bold text-slate-800">Upload SP3KK (PDF / JPG / PNG)</div>
-                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Haulage</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Railing</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -479,16 +479,16 @@
                         <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-[#1C325B] flex items-center justify-center">
                             <i class="fa-solid fa-layer-group text-lg"></i>
                         </div>
-                        <span class="font-bold text-slate-800 text-sm">Penumpukan</span>
+                        <span class="font-bold text-slate-800 text-sm">Storage</span>
                     </div>
-                    @if($hasPenumpukan)
+                    @if($hasStorage)
                         <div class="w-6 h-6 bg-[#1C325B] text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Layanan sudah ada (Terkunci)">
                             <i class="fa-solid fa-check text-xs font-black"></i>
                         </div>
-                        <input type="hidden" name="existing_services[]" value="Penumpukan">
+                        <input type="hidden" name="existing_services[]" value="Storage">
                     @else
                         <label class="cursor-pointer">
-                            <input type="checkbox" name="added_services[]" value="Penumpukan" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
+                            <input type="checkbox" name="added_services[]" value="Storage" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
                         </label>
                     @endif
                 </div>

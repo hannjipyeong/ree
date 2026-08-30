@@ -116,7 +116,7 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
           final order = orders[index];
           final formattedDate = "${order.date.day.toString().padLeft(2, '0')}/${order.date.month.toString().padLeft(2, '0')}/${order.date.year} ${order.date.hour.toString().padLeft(2, '0')}:${order.date.minute.toString().padLeft(2, '0')}";
           
-          final sp3kkContainers = order.serviceType == 'Haulage' 
+          final sp3kkContainers = order.serviceType == 'Railing' 
               ? order.containers
                   .where((c) => c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
                   .toList()
@@ -323,7 +323,7 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
                         spacing: 8,
                         runSpacing: 4,
                         children: order.containers.map((c) {
-                          final hasSp3kk = order.serviceType == 'Haulage' && c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty;
+                          final hasSp3kk = order.serviceType == 'Railing' && c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty;
                           return Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
@@ -370,8 +370,8 @@ class _SupirHomeScreenState extends State<SupirHomeScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          (authVm.supirType?.toLowerCase() == 'haulage' || authVm.supirType?.toLowerCase() == 'houlage')
-              ? 'Dashboard Supir Haulage'
+          (authVm.supirType?.toLowerCase() == 'railing' || authVm.supirType?.toLowerCase() == 'houlage')
+              ? 'Dashboard Supir Railing'
               : authVm.supirType?.toUpperCase() == 'TKBM'
                   ? 'Koordinator TKBM ${authVm.supirWilayah != null && authVm.supirWilayah!.isNotEmpty ? "(${authVm.supirWilayah})" : ""}'.trim()
                   : 'Dashboard Pelaksana Lapangan ${authVm.supirType ?? ''}',

@@ -112,7 +112,7 @@
 
     <!-- 1. REKAPITULASI LAYANAN KONTAINER -->
     <div class="section-title">
-        1. Rekapitulasi Layanan Kontainer (Haulage, LOLO, Penumpukan, TKBM)
+        1. Rekapitulasi Layanan Kontainer (Railing, LOLO, Storage, TKBM)
     </div>
 
     <table class="data-table">
@@ -130,9 +130,9 @@
                 <th rowspan="3" style="width: 6%;">Status PNBP</th>
             </tr>
             <tr>
-                <th colspan="2" style="width: 9%;">Haulage</th>
+                <th colspan="2" style="width: 9%;">Railing</th>
                 <th colspan="2" style="width: 9%;">LOLO</th>
-                <th colspan="2" style="width: 9%;">Penumpukan</th>
+                <th colspan="2" style="width: 9%;">Storage</th>
                 <th colspan="2" style="width: 9%;">TKBM</th>
             </tr>
             <tr>
@@ -153,19 +153,19 @@
                 @foreach($ord->containers as $idx => $c)
                     @php
                         // Fetch progresses per service for this container
-                        $pHaulage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Haulage') === 0);
+                        $pRailing = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Railing') === 0);
                         $pLolo = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'LOLO') === 0);
-                        $pPenumpukan = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Penumpukan') === 0);
+                        $pStorage = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'Storage') === 0);
                         $pTkbm = $c->progresses->first(fn($p) => $p->subTask && strcasecmp($p->subTask->service_type, 'TKBM') === 0);
 
-                        $haulageIn = $pHaulage && $pHaulage->in_time ? \Carbon\Carbon::parse($pHaulage->in_time)->format('d/m/y H:i') : ($pHaulage && $pHaulage->in_photo_path ? '✓' : '-');
-                        $haulageOut = $pHaulage && $pHaulage->out_time ? \Carbon\Carbon::parse($pHaulage->out_time)->format('d/m/y H:i') : ($pHaulage && $pHaulage->out_photo_path ? '✓' : '-');
+                        $railingIn = $pRailing && $pRailing->in_time ? \Carbon\Carbon::parse($pRailing->in_time)->format('d/m/y H:i') : ($pRailing && $pRailing->in_photo_path ? '✓' : '-');
+                        $railingOut = $pRailing && $pRailing->out_time ? \Carbon\Carbon::parse($pRailing->out_time)->format('d/m/y H:i') : ($pRailing && $pRailing->out_photo_path ? '✓' : '-');
 
                         $loloIn = $pLolo && $pLolo->in_time ? \Carbon\Carbon::parse($pLolo->in_time)->format('d/m/y H:i') : ($pLolo && $pLolo->in_photo_path ? '✓' : '-');
                         $loloOut = $pLolo && $pLolo->out_time ? \Carbon\Carbon::parse($pLolo->out_time)->format('d/m/y H:i') : ($pLolo && $pLolo->out_photo_path ? '✓' : '-');
 
-                        $penumpukanIn = $pPenumpukan && $pPenumpukan->in_time ? \Carbon\Carbon::parse($pPenumpukan->in_time)->format('d/m/y H:i') : ($pPenumpukan && $pPenumpukan->in_photo_path ? '✓' : '-');
-                        $penumpukanOut = $pPenumpukan && $pPenumpukan->out_time ? \Carbon\Carbon::parse($pPenumpukan->out_time)->format('d/m/y H:i') : ($pPenumpukan && $pPenumpukan->out_photo_path ? '✓' : '-');
+                        $storageIn = $pStorage && $pStorage->in_time ? \Carbon\Carbon::parse($pStorage->in_time)->format('d/m/y H:i') : ($pStorage && $pStorage->in_photo_path ? '✓' : '-');
+                        $storageOut = $pStorage && $pStorage->out_time ? \Carbon\Carbon::parse($pStorage->out_time)->format('d/m/y H:i') : ($pStorage && $pStorage->out_photo_path ? '✓' : '-');
 
                         $tkbmIn = $pTkbm && $pTkbm->in_time ? \Carbon\Carbon::parse($pTkbm->in_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->in_photo_path ? '✓' : '-');
                         $tkbmOut = $pTkbm && $pTkbm->out_time ? \Carbon\Carbon::parse($pTkbm->out_time)->format('d/m/y H:i') : ($pTkbm && $pTkbm->out_photo_path ? '✓' : '-');
@@ -193,17 +193,17 @@
                         <td><strong>{{ $c->container_number ?: 'Tanpa No' }}</strong></td>
                         <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
                         
-                        <!-- Haulage IN/OUT -->
-                        <td style="text-align: center;">{{ $haulageIn }}</td>
-                        <td style="text-align: center;">{{ $haulageOut }}</td>
+                        <!-- Railing IN/OUT -->
+                        <td style="text-align: center;">{{ $railingIn }}</td>
+                        <td style="text-align: center;">{{ $railingOut }}</td>
                         
                         <!-- LOLO IN/OUT -->
                         <td style="text-align: center;">{{ $loloIn }}</td>
                         <td style="text-align: center;">{{ $loloOut }}</td>
 
-                        <!-- Penumpukan IN/OUT -->
-                        <td style="text-align: center;">{{ $penumpukanIn }}</td>
-                        <td style="text-align: center;">{{ $penumpukanOut }}</td>
+                        <!-- Storage IN/OUT -->
+                        <td style="text-align: center;">{{ $storageIn }}</td>
+                        <td style="text-align: center;">{{ $storageOut }}</td>
 
                         <!-- TKBM IN/OUT -->
                         <td style="text-align: center;">

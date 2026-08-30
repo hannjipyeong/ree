@@ -339,7 +339,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                               style: AppTextStyles.body2,
                             ),
                           ),
-                          if (currentOrder.serviceType == 'Haulage' && c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
+                          if (currentOrder.serviceType == 'Railing' && c.sp3kkFileUrl != null && c.sp3kkFileUrl!.isNotEmpty)
                             InkWell(
                               onTap: () async {
                                 final url = Uri.parse(c.sp3kkFileUrl!);

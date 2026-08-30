@@ -184,9 +184,9 @@ class ApiController extends Controller
         }
         $cargoPathsJson = !empty($cargoPaths) ? json_encode($cargoPaths) : null;
 
-        $haulagePath = null;
-        if ($request->hasFile('haulage_file')) {
-            $haulagePath = $request->file('haulage_file')->store('uploads/haulage', 'public');
+        $railingPath = null;
+        if ($request->hasFile('railing_file')) {
+            $railingPath = $request->file('railing_file')->store('uploads/haulage', 'public');
         }
 
         $services = is_string($validated['services']) ? json_decode($validated['services'], true) : $validated['services'];
@@ -210,7 +210,7 @@ class ApiController extends Controller
             'jenis_kegiatan' => $validated['jenis_kegiatan'],
             'payload_type' => $validated['payload_type'],
             'cargo_file_path' => $cargoPathsJson,
-            'haulage_file_path' => $haulagePath ? Storage::url($haulagePath) : null,
+            'railing_file_path' => $railingPath ? Storage::url($railingPath) : null,
             'tkbm_option' => $request->tkbm_option,
             'jenis_barang' => $request->jenis_barang,
             'jumlah_barang' => $request->jumlah_barang,
@@ -404,7 +404,7 @@ class ApiController extends Controller
 
     private function checkHierarchyAllowed($currentSubTask, $containerId, $actionType)
     {
-        $hierarchy = ['Haulage', 'Lolo', 'Penumpukan', 'TKBM'];
+        $hierarchy = ['Railing', 'Lolo', 'Storage', 'TKBM'];
 
         $order = $currentSubTask->order;
         $subTasksInHierarchy = $order->subTasks->filter(function($st) use ($hierarchy) {
@@ -482,12 +482,12 @@ class ApiController extends Controller
 
         $buildActionLabel = function ($serviceType, $mode) {
             $map = [
-                'Haulage'    => ['IN'  => 'Truk tiba di gerbang TPFT dan siap muat.',
+                'Railing'    => ['IN'  => 'Truk tiba di gerbang TPFT dan siap muat.',
                                  'OUT' => 'Kontainer selesai dibongkar dan keluar area.'],
                 'LOLO'       => ['IN'  => 'Kontainer selesai dimuat dari dermaga ke kapal.',
                                  'OUT' => 'Kontainer selesai dibongkar dari kapal ke dermaga.'],
-                'Penumpukan' => ['IN'  => 'Kontainer masuk ke area penumpukan CFS.',
-                                 'OUT' => 'Kontainer keluar dari area penumpukan.'],
+                'Storage' => ['IN'  => 'Kontainer masuk ke area storage CFS.',
+                                 'OUT' => 'Kontainer keluar dari area storage.'],
                 'TKBM'       => ['IN'  => 'Buruh TKBM mulai bekerja di area muat.',
                                  'OUT' => 'Pekerjaan TKBM selesai dan diverifikasi.'],
             ];
@@ -537,15 +537,15 @@ class ApiController extends Controller
                 });
             $notifications = $notifications->merge($newTasks);
 
-            // 1.b Notifikasi khusus Supir Haulage jika TKBM sudah OUT pada kontainer di order yang sama
-            if (in_array(strtolower((string)$user?->supir_type), ['haulage', 'houlage', '']) || $user?->role === 'admin') {
+            // 1.b Notifikasi khusus Supir Railing jika TKBM sudah OUT pada kontainer di order yang sama
+            if (in_array(strtolower((string)$user?->supir_type), ['railing', '']) || $user?->role === 'admin') {
                 $tkbmOutProgress = ContainerProgress::with(['orderContainer', 'subTask.order'])
                     ->whereHas('subTask', function ($q) {
                         $q->where('service_type', 'TKBM');
                     })
                     ->where('status', 'Out')
                     ->whereHas('orderContainer.order.subTasks', function ($q) {
-                        $q->where('service_type', 'Haulage');
+                        $q->where('service_type', 'Railing');
                     })
                     ->where('out_time', '>=', now()->subHours(48))
                     ->latest('out_time')
@@ -561,9 +561,9 @@ class ApiController extends Controller
                             'time'          => $cp->out_time ?? $cp->updated_at,
                             'is_read'       => false,
                             'title'         => "⚡ TKBM Selesai (OUT) — Kontainer " . ($c?->container_number ?: 'Tanpa No'),
-                            'message'       => "Pekerjaan TKBM telah selesai untuk Order " . ($order?->order_number ?? '') . " ({$order?->nama_pt}). Supir Haulage siap melakukan penarikan.",
+                            'message'       => "Pekerjaan TKBM telah selesai untuk Order " . ($order?->order_number ?? '') . " ({$order?->nama_pt}). Supir Railing siap melakukan penarikan.",
                             'photo'         => $cp->out_photo_path,
-                            'service_type'  => 'Haulage',
+                            'service_type'  => 'Railing',
                             'container_num' => $c?->container_number,
                             'order_id'      => optional($order)->id,
                             'order_number'  => optional($order)->order_number,

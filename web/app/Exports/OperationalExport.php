@@ -99,7 +99,7 @@ class OperationalExport
 
         // Row 2: service groups
         foreach(['F','G','H','I','J','K','L','M'] as $i=>$col) {
-            $groups = ['F'=>'Haulage','H'=>'LOLO','J'=>'Penumpukan','L'=>'TKBM'];
+            $groups = ['F'=>'Railing','H'=>'LOLO','J'=>'Storage','L'=>'TKBM'];
             if(isset($groups[$col])) {
                 $endCol = chr(ord($col)+1);
                 $this->sheet->mergeCells("{$col}{$r2}:{$endCol}{$r2}");
@@ -125,9 +125,9 @@ class OperationalExport
             $containerCount = $ord->containers->count();
 
             foreach ($ord->containers as $c) {
-                $pH = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'Haulage')===0);
+                $pH = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'Railing')===0);
                 $pL = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'LOLO')===0);
-                $pP = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'Penumpukan')===0);
+                $pP = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'Storage')===0);
                 $pT = $c->progresses->first(fn($p)=>$p->subTask&&strcasecmp($p->subTask->service_type,'TKBM')===0);
 
                 $tkbmOpt = $c->tkbm_option ?: ($ord->tkbm_option ?? '');

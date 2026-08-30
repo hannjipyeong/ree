@@ -198,16 +198,16 @@
         <!-- PEMBUKA SURAT -->
         <div class="content-paragraph">
             Dengan Hormat,<br><br>
-            Bersama ini kami beritahukan permohonan {{ strtolower($order->jenis_kegiatan ?: 'penumpukan') }} atas barang yang kami tumpuk di Pelabuhan {{ $order->wilayah ?: 'Batu Ampar' }}.<br>
+            Bersama ini kami beritahukan permohonan {{ strtolower($order->jenis_kegiatan ?: 'storage') }} atas barang yang kami tumpuk di Pelabuhan {{ $order->wilayah ?: 'Batu Ampar' }}.<br>
             Adapun jenis barang yang kami tumpuk adalah
         </div>
 
         <!-- TABEL RINCIAN DATA CARGO -->
         <table class="detail-table">
             <tr>
-                <td class="detail-label">Tanggal Penumpukan</td>
+                <td class="detail-label">Tanggal Storage</td>
                 <td class="detail-separator">:</td>
-                <td class="detail-value"><strong>{{ $tanggalPenumpukan }}</strong></td>
+                <td class="detail-value"><strong>{{ $tanggalStorage }}</strong></td>
             </tr>
             <tr>
                 <td class="detail-label">Jenis Container</td>
@@ -228,7 +228,7 @@
 
         <!-- PENUTUP SURAT -->
         <div class="content-paragraph" style="margin-top: 14px;">
-            Demikianlah permohonan {{ ucfirst(strtolower($order->jenis_kegiatan ?: 'Penumpukan')) }} ini kami buat atas perhatiannya kami ucapkan terima kasih.
+            Demikianlah permohonan {{ ucfirst(strtolower($order->jenis_kegiatan ?: 'Storage')) }} ini kami buat atas perhatiannya kami ucapkan terima kasih.
         </div>
 
         <!-- TANDA TANGAN -->
@@ -278,7 +278,7 @@
         @endphp
         <div class="content-paragraph">
             Dengan hormat,<br>
-            Sehubungan dengan kelancaran kegiatan operasional pengiriman dan logistik muatan, bersama surat ini kami dari <strong>{{ $entityName }}</strong> mengajukan permohonan <strong>{{ strtolower($order->jenis_kegiatan ?: 'penumpukan') }}</strong> dengan rincian data sebagai berikut:
+            Sehubungan dengan kelancaran kegiatan operasional pengiriman dan logistik muatan, bersama surat ini kami dari <strong>{{ $entityName }}</strong> mengajukan permohonan <strong>{{ strtolower($order->jenis_kegiatan ?: 'storage') }}</strong> dengan rincian data sebagai berikut:
         </div>
 
         <!-- TABEL RINCIAN PERMOHONAN CONTAINER -->
@@ -299,9 +299,9 @@
                 <td class="detail-value"><strong>{{ strtoupper($order->jenis_kegiatan ?: 'PENUMPUKAN') }}</strong></td>
             </tr>
             <tr>
-                <td class="detail-label">Tanggal Penumpukan</td>
+                <td class="detail-label">Tanggal Storage</td>
                 <td class="detail-separator">:</td>
-                <td class="detail-value"><strong>{{ $tanggalPenumpukan }}</strong></td>
+                <td class="detail-value"><strong>{{ $tanggalStorage }}</strong></td>
             </tr>
             <tr>
                 <td class="detail-label">Lokasi / Fasilitas</td>

@@ -185,7 +185,7 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                         );
                         if (result != null && result.files.isNotEmpty) {
                           final file = result.files.first;
-                          vm.setHaulageFile(
+                          vm.setRailingFile(
                             name: file.name,
                             path: file.path ?? '',
                             bytes: file.bytes,
@@ -196,11 +196,11 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                         decoration: BoxDecoration(
-                          color: vm.haulageFileName != null
+                          color: vm.railingFileName != null
                               ? AppColors.primary.withValues(alpha: 0.1)
                               : AppColors.background,
                           border: Border.all(
-                            color: vm.haulageFileName != null
+                            color: vm.railingFileName != null
                                 ? AppColors.primary
                                 : AppColors.divider,
                           ),
@@ -211,24 +211,24 @@ class _KoperasiPage1ScreenState extends State<KoperasiPage1Screen> {
                             Icon(
                               Icons.upload_file_outlined,
                               size: 18,
-                              color: vm.haulageFileName != null ? AppColors.primary : AppColors.textSecondary,
+                              color: vm.railingFileName != null ? AppColors.primary : AppColors.textSecondary,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
-                                vm.haulageFileName ?? 'Upload SPK',
+                                vm.railingFileName ?? 'Upload SPK',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: vm.haulageFileName != null ? AppColors.primary : AppColors.textSecondary,
+                                  color: vm.railingFileName != null ? AppColors.primary : AppColors.textSecondary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            if (vm.haulageFileName != null)
+                            if (vm.railingFileName != null)
                               GestureDetector(
-                                onTap: vm.clearHaulageFile,
+                                onTap: vm.clearRailingFile,
                                 child: const Icon(Icons.close, size: 14, color: AppColors.error),
                               ),
                           ],

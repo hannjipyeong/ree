@@ -297,9 +297,9 @@
                             <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Filter Layanan</label>
                             <select id="export_layanan" name="layanan" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Semua Layanan</option>
-                                <option value="Haulage">Haulage</option>
+                                <option value="Railing">Railing</option>
                                 <option value="LOLO">LOLO</option>
-                                <option value="Penumpukan">Penumpukan</option>
+                                <option value="Storage">Storage</option>
                                 <option value="TKBM">TKBM</option>
                             </select>
                         </div>

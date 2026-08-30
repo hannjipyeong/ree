@@ -260,11 +260,11 @@
                                     <div class="flex items-center gap-3">
                                         <span class="font-extrabold text-slate-800 text-base">{{ $st->task_number }}</span>
                                         <span class="px-2.5 py-0.5 rounded text-xs font-extrabold uppercase border
-                                            {{ $st->service_type == 'Haulage' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                            {{ $st->service_type == 'Railing' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
                                             {{ $st->service_type == 'LOLO' ? 'bg-sky-100 text-sky-800 border-sky-200' : '' }}
-                                            {{ $st->service_type == 'Penumpukan' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
+                                            {{ $st->service_type == 'Storage' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
                                             {{ $st->service_type == 'TKBM' ? 'bg-teal-100 text-teal-800 border-teal-200' : '' }}
-                                            {{ !in_array($st->service_type, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'bg-slate-800 text-white' : '' }}">
+                                            {{ !in_array($st->service_type, ['Railing', 'LOLO', 'Storage', 'TKBM']) ? 'bg-slate-800 text-white' : '' }}">
                                             {{ $st->service_type }}
                                         </span>
                                     </div>
@@ -498,11 +498,11 @@
                                 @if(!empty($c->additional_services))
                                     @foreach($c->additional_services as $as)
                                         <span class="px-2 py-0.5 rounded text-xs font-bold border
-                                            {{ $as == 'Haulage' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                            {{ $as == 'Railing' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
                                             {{ $as == 'LOLO' ? 'bg-sky-100 text-sky-800 border-sky-200' : '' }}
-                                            {{ $as == 'Penumpukan' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
+                                            {{ $as == 'Storage' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
                                             {{ $as == 'TKBM' ? 'bg-teal-100 text-teal-800 border-teal-200' : '' }}
-                                            {{ !in_array($as, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : '' }}">
+                                            {{ !in_array($as, ['Railing', 'LOLO', 'Storage', 'TKBM']) ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : '' }}">
                                             +{{ $as }}
                                         </span>
                                     @endforeach
@@ -624,11 +624,11 @@
                                 @if(!empty($sc->added_services))
                                     @foreach($sc->added_services as $as)
                                         <span class="px-2 py-0.5 rounded text-[11px] font-bold border
-                                            {{ $as == 'Haulage' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                            {{ $as == 'Railing' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
                                             {{ $as == 'LOLO' ? 'bg-sky-100 text-sky-800 border-sky-200' : '' }}
-                                            {{ $as == 'Penumpukan' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
+                                            {{ $as == 'Storage' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}
                                             {{ $as == 'TKBM' ? 'bg-teal-100 text-teal-800 border-teal-200' : '' }}
-                                            {{ !in_array($as, ['Haulage', 'LOLO', 'Penumpukan', 'TKBM']) ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : '' }}">
+                                            {{ !in_array($as, ['Railing', 'LOLO', 'Storage', 'TKBM']) ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : '' }}">
                                             +{{ $as }}
                                         </span>
                                     @endforeach
@@ -674,9 +674,9 @@
             
             @php
                 $existingOrderServices = $order->subTasks->pluck('service_type')->toArray();
-                $hasHaulage = in_array('Haulage', $existingOrderServices);
+                $hasRailing = in_array('Railing', $existingOrderServices);
                 $hasLolo = in_array('LOLO', $existingOrderServices);
-                $hasPenumpukan = in_array('Penumpukan', $existingOrderServices);
+                $hasStorage = in_array('Storage', $existingOrderServices);
                 $hasTkbm = in_array('TKBM', $existingOrderServices) || !empty($order->tkbm_option);
                 $currentTkbm = $order->tkbm_option ?? 'Man Power';
             @endphp
@@ -689,31 +689,31 @@
                             <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-[#1C325B] flex items-center justify-center">
                                 <i class="fa-solid fa-truck-front text-lg"></i>
                             </div>
-                            <span class="font-bold text-slate-800 text-sm">Haulage</span>
+                            <span class="font-bold text-slate-800 text-sm">Railing</span>
                         </div>
-                        @if($hasHaulage)
+                        @if($hasRailing)
                             <div class="w-6 h-6 bg-[#1C325B] text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Layanan sudah ada (Terkunci)">
                                 <i class="fa-solid fa-check text-xs font-black"></i>
                             </div>
-                            <input type="hidden" name="existing_services[]" value="Haulage">
+                            <input type="hidden" name="existing_services[]" value="Railing">
                         @else
                             <label class="cursor-pointer">
-                                <input type="checkbox" name="added_services[]" value="Haulage" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
+                                <input type="checkbox" name="added_services[]" value="Railing" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
                             </label>
                         @endif
                     </div>
 
-                    <!-- Dokumen Haulage -->
+                    <!-- Dokumen Railing -->
                     <div class="pt-2 border-t border-slate-300/60">
-                        <div class="text-xs font-semibold text-slate-600 mb-1.5">Dokumen Haulage</div>
-                        <input type="file" id="order_haulage_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'order_haulage_label')">
-                        <div onclick="triggerFileInput('order_haulage_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm">
+                        <div class="text-xs font-semibold text-slate-600 mb-1.5">Dokumen Railing</div>
+                        <input type="file" id="order_railing_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'order_railing_label')">
+                        <div onclick="triggerFileInput('order_railing_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-sm">
                                     <i class="fa-solid fa-file-arrow-up"></i>
                                 </div>
                                 <div>
-                                    <div id="order_haulage_label" class="text-xs font-bold text-slate-800">Upload SP2 (PDF / JPG / PNG)</div>
+                                    <div id="order_railing_label" class="text-xs font-bold text-slate-800">Upload SP2 (PDF / JPG / PNG)</div>
                                     <div class="text-[10px] text-slate-400 font-medium">Format: PDF, JPG, JPEG, PNG</div>
                                 </div>
                             </div>
@@ -748,16 +748,16 @@
                         <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-[#1C325B] flex items-center justify-center">
                             <i class="fa-solid fa-layer-group text-lg"></i>
                         </div>
-                        <span class="font-bold text-slate-800 text-sm">Penumpukan</span>
+                        <span class="font-bold text-slate-800 text-sm">Storage</span>
                     </div>
-                    @if($hasPenumpukan)
+                    @if($hasStorage)
                         <div class="w-6 h-6 bg-[#1C325B] text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Layanan sudah ada (Terkunci)">
                             <i class="fa-solid fa-check text-xs font-black"></i>
                         </div>
-                        <input type="hidden" name="existing_services[]" value="Penumpukan">
+                        <input type="hidden" name="existing_services[]" value="Storage">
                     @else
                         <label class="cursor-pointer">
-                            <input type="checkbox" name="added_services[]" value="Penumpukan" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
+                            <input type="checkbox" name="added_services[]" value="Storage" class="w-5 h-5 text-blue-900 rounded border-slate-300 focus:ring-blue-600">
                         </label>
                     @endif
                 </div>
@@ -863,9 +863,9 @@
                                 <div class="text-[10px] text-slate-500 mt-0.5">Surat Perintah Kerja / Berkas Permohonan</div>
                             </div>
                         </div>
-                        @if($order->haulage_file_path || (is_array($order->cargo_file_path) && !empty($order->cargo_file_path)))
+                        @if($order->railing_file_path || (is_array($order->cargo_file_path) && !empty($order->cargo_file_path)))
                             @php
-                                $spkUrl = $order->haulage_file_path ? asset($order->haulage_file_path) : asset($order->cargo_file_path[0]);
+                                $spkUrl = $order->railing_file_path ? asset($order->railing_file_path) : asset($order->cargo_file_path[0]);
                             @endphp
                             <a href="{{ $spkUrl }}" target="_blank" class="px-2.5 py-1 bg-sky-600 text-white hover:bg-sky-700 font-bold rounded-lg text-xs flex items-center gap-1 shadow-sm transition">
                                 <i class="fa-solid fa-eye"></i> Lihat SPK
@@ -925,24 +925,24 @@
                             <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-[#1C325B] flex items-center justify-center">
                                 <i class="fa-solid fa-truck-front text-lg"></i>
                             </div>
-                            <span class="font-bold text-slate-800 text-sm">Haulage</span>
+                            <span class="font-bold text-slate-800 text-sm">Railing</span>
                         </div>
                         <div class="w-6 h-6 bg-[#1C325B] text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Layanan sudah ada (Terkunci)">
                             <i class="fa-solid fa-check text-xs font-black"></i>
                         </div>
                     </div>
 
-                    <!-- Dokumen Haulage -->
+                    <!-- Dokumen Railing -->
                     <div class="pt-2 border-t border-slate-300/60">
-                        <div class="text-xs font-semibold text-slate-600 mb-1.5">Dokumen Haulage</div>
-                        <input type="file" id="container_haulage_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_haulage_label')">
-                        <div onclick="triggerFileInput('container_haulage_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm mb-3">
+                        <div class="text-xs font-semibold text-slate-600 mb-1.5">Dokumen Railing</div>
+                        <input type="file" id="container_railing_file" name="supporting_letter" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelected(this, 'container_railing_label')">
+                        <div onclick="triggerFileInput('container_railing_file')" class="bg-white rounded-xl border border-slate-200 p-3.5 flex items-center justify-between cursor-pointer hover:border-blue-400 transition shadow-sm mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-sm">
                                     <i class="fa-solid fa-file-arrow-up"></i>
                                 </div>
                                 <div>
-                                    <div id="container_haulage_label" class="text-xs font-bold text-slate-800">Upload SP2 (PDF / JPG / PNG)</div>
+                                    <div id="container_railing_label" class="text-xs font-bold text-slate-800">Upload SP2 (PDF / JPG / PNG)</div>
                                     <div class="text-[10px] text-slate-400 font-medium">Format: PDF, JPG, JPEG, PNG</div>
                                 </div>
                             </div>
@@ -957,7 +957,7 @@
                                 </div>
                                 <div>
                                     <div id="container_sp3kk_label" class="text-xs font-bold text-slate-800">Upload SP3KK (PDF / JPG / PNG)</div>
-                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Haulage</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Railing</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -989,7 +989,7 @@
                         <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-[#1C325B] flex items-center justify-center">
                             <i class="fa-solid fa-layer-group text-lg"></i>
                         </div>
-                        <span class="font-bold text-slate-800 text-sm">Penumpukan</span>
+                        <span class="font-bold text-slate-800 text-sm">Storage</span>
                     </div>
                     <div class="w-6 h-6 bg-[#1C325B] text-white rounded-lg flex items-center justify-center shadow-sm cursor-not-allowed" title="Layanan sudah ada (Terkunci)">
                         <i class="fa-solid fa-check text-xs font-black"></i>
