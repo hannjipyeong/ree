@@ -209,8 +209,20 @@
                             </div>
                         </div>
 
-                        <!-- Notes & Photo Proofs per Container (Multi-Photo Gallery) -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-slate-200 text-xs">
+                        @if($st->service_type == 'TKBM' && $order->source == 'ALL IN')
+                            <!-- Khusus TKBM dari ALL IN: Hanya Status -->
+                            <div class="pt-3 border-t border-slate-200">
+                                <div class="px-4 py-3 bg-teal-50 border border-teal-200 rounded-xl flex items-start gap-3">
+                                    <div class="mt-0.5 text-teal-600"><i class="fa-solid fa-circle-info"></i></div>
+                                    <div class="text-xs text-teal-800">
+                                        <strong class="block mb-0.5">Layanan TKBM Internal (ALL IN)</strong>
+                                        Layanan TKBM ini di-order melalui paket ALL IN. Status pengerjaan tidak perlu dilakukan (IN/OUT) secara manual oleh koordinator lapangan TKBM.
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <!-- Notes & Photo Proofs per Container (Multi-Photo Gallery) -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-slate-200 text-xs">
                             
                             <!-- Bukti IN (Multi-Photo) -->
                             <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
@@ -355,6 +367,7 @@
                         <!-- Real-time feedback message -->
                         <div id="statusMsg-{{ $st->id }}" class="hidden text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-2 transition-all duration-300"></div>
                     </form>
+                    @endif
                 </div>
             @empty
                 <div class="p-8 bg-slate-50 rounded-2xl border border-dashed border-slate-300 text-center text-slate-400 text-xs">

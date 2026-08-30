@@ -117,7 +117,8 @@ class ApiController extends Controller
 
             if ($user && $user->role === 'supir' && $user->supir_type === 'TKBM' && $user->supir_wilayah) {
                 $query->whereHas('order', function($q) use ($user) {
-                    $q->where('wilayah', $user->supir_wilayah);
+                    $q->where('wilayah', $user->supir_wilayah)
+                      ->where('source', '!=', 'ALL IN'); // TKBM from ALL IN doesn't go to TKBM app
                 });
             }
 
@@ -453,7 +454,7 @@ class ApiController extends Controller
             if ($user->supir_type) {
                 $query->where('service_type', $user->supir_type);
                 if ($user->supir_type === 'TKBM' && $user->supir_wilayah) {
-                    $query->whereHas($orderRelation, fn($q) => $q->where('wilayah', $user->supir_wilayah));
+                    $query->whereHas($orderRelation, fn($q) => $q->where('wilayah', $user->supir_wilayah)->where('source', '!=', 'ALL IN'));
                 }
             } else {
                 $query->where('supir_id', $user->id);
