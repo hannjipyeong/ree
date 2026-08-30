@@ -215,6 +215,18 @@ class RequestController extends Controller
             return redirect()->back()->with('error', 'Order ini tidak memiliki layanan TKBM!');
         }
 
+        $validated = $request->validate([
+            'vessel' => 'nullable|string|max:255',
+            'voyage' => 'nullable|string|max:255',
+            'no_surat_jalan' => 'nullable|string|max:255',
+            'no_bp' => 'nullable|string|max:255',
+            'nomor_container_cargo' => 'nullable|string|max:255',
+            'jenis_barang' => 'nullable|string|max:255',
+            'jumlah_barang' => 'nullable|string|max:255',
+            'jumlah_tonase' => 'nullable|numeric',
+            'nomor_bl' => 'nullable|string|max:255',
+        ]);
+
         // 1. Create new Order (source = Koperasi)
         $koperasiOrder = $allInOrder->replicate();
         $koperasiOrder->source = 'Koperasi';
@@ -222,6 +234,18 @@ class RequestController extends Controller
         $koperasiOrder->order_number = Order::generateNextOrderNumber();
         $koperasiOrder->tanggal_order = now()->toDateString();
         // nama_pt and customer_id are already cloned via replicate()
+        
+        // Update fields with modal inputs
+        $koperasiOrder->vessel = $validated['vessel'] ?? null;
+        $koperasiOrder->voyage = $validated['voyage'] ?? null;
+        $koperasiOrder->no_surat_jalan = $validated['no_surat_jalan'] ?? null;
+        $koperasiOrder->no_bp = $validated['no_bp'] ?? null;
+        $koperasiOrder->nomor_container_cargo = $validated['nomor_container_cargo'] ?? null;
+        $koperasiOrder->jenis_barang = $validated['jenis_barang'] ?? null;
+        $koperasiOrder->jumlah_barang = $validated['jumlah_barang'] ?? null;
+        $koperasiOrder->jumlah_tonase = $validated['jumlah_tonase'] ?? null;
+        $koperasiOrder->nomor_bl = $validated['nomor_bl'] ?? null;
+        
         $koperasiOrder->status = 'Submitted';
         $koperasiOrder->push(); // Save
 

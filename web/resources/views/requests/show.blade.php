@@ -1492,11 +1492,68 @@
             @csrf
             <div class="p-6 space-y-4">
                 <div class="p-3 bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl leading-relaxed">
-                    Aksi ini akan menduplikasi order ALL IN menjadi Order Koperasi baru dan memindahkan tiket TKBM.
+                    Mohon lengkapi detail order untuk diteruskan ke Koperasi TKBM.
                 </div>
-                <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl font-medium">
-                    Order Koperasi yang dibuat akan otomatis menggunakan Customer dan Nama PT yang sama dengan tiket ALL IN ini.
+                
+                @php
+                    $isBintangKepriJaya = (stripos($order->nama_pt, 'bintang kepri jaya') !== false || stripos($order->customer->name, 'bintang kepri jaya') !== false || stripos($order->customer->default_nama_pt, 'bintang kepri jaya') !== false);
+                    
+                    // Auto fill if PT Bintang Kepri Jaya
+                    $vessel = $isBintangKepriJaya ? $order->vessel : '';
+                    $voyage = $isBintangKepriJaya ? $order->voyage : '';
+                    $no_surat_jalan = $isBintangKepriJaya ? $order->no_surat_jalan : '';
+                    $no_bp = $isBintangKepriJaya ? $order->no_bp : '';
+                    $nomor_container_cargo = $isBintangKepriJaya ? $order->nomor_container_cargo : '';
+                    $jenis_barang = $isBintangKepriJaya ? $order->jenis_barang : '';
+                    $jumlah_barang = $isBintangKepriJaya ? $order->jumlah_barang : '';
+                    $jumlah_tonase = $isBintangKepriJaya ? $order->jumlah_tonase : '';
+                    $nomor_bl = $isBintangKepriJaya ? $order->nomor_bl : '';
+                @endphp
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto p-1">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Vessel</label>
+                        <input type="text" name="vessel" value="{{ $vessel }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Voyage</label>
+                        <input type="text" name="voyage" value="{{ $voyage }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">No. Surat Jalan</label>
+                        <input type="text" name="no_surat_jalan" value="{{ $no_surat_jalan }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">No. BP</label>
+                        <input type="text" name="no_bp" value="{{ $no_bp }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Container / Cargo</label>
+                        <input type="text" name="nomor_container_cargo" value="{{ $nomor_container_cargo }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Barang</label>
+                        <input type="text" name="jenis_barang" value="{{ $jenis_barang }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Barang</label>
+                        <input type="text" name="jumlah_barang" value="{{ $jumlah_barang }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Tonase (Ton)</label>
+                        <input type="number" step="0.1" name="jumlah_tonase" value="{{ $jumlah_tonase }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor BL</label>
+                        <input type="text" name="nomor_bl" value="{{ $nomor_bl }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
                 </div>
+
+                @if(!$isBintangKepriJaya)
+                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] rounded-xl font-medium">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Customer bukan PT Bintang Kepri Jaya, field sengaja dikosongkan untuk Anda isi manual.
+                    </div>
+                @endif
             </div>
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50">
                 <button type="button" onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-bold text-xs hover:bg-slate-200 rounded-xl transition">Batal</button>
