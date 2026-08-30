@@ -216,46 +216,99 @@ class RequestController extends Controller
         }
 
         $validated = $request->validate([
-            'vessel' => 'nullable|string|max:255',
-            'voyage' => 'nullable|string|max:255',
-            'no_surat_jalan' => 'nullable|string|max:255',
-            'no_bp' => 'nullable|string|max:255',
-            'nomor_container_cargo' => 'nullable|string|max:255',
+            // Step 1: Informasi Dasar
+            'tanggal_order' => 'nullable|date',
+            'nama_pt' => 'nullable|string|max:255',
+            'nama_pbm' => 'nullable|string|max:255',
+            'no_telp' => 'nullable|string|max:50',
+            'wilayah' => 'nullable|string|max:100',
+            'lokasi_fasilitas' => 'nullable|string|max:100',
+            'jenis_kegiatan' => 'nullable|string|max:100',
+            'railing_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            
+            // Step 2: Muatan
+            'payload_type' => 'nullable|string|max:50',
+            'containers' => 'nullable|array',
+            'containers.*.container_type' => 'nullable|string|max:50',
+            'containers.*.container_size' => 'nullable|string|max:50',
+            'containers.*.container_number' => 'nullable|string|max:50',
             'jenis_barang' => 'nullable|string|max:255',
-            'jumlah_barang' => 'nullable|string|max:255',
             'jumlah_tonase' => 'nullable|numeric',
-            'nomor_bl' => 'nullable|string|max:255',
+            'nomor_container_cargo' => 'nullable|string|max:255',
+            'cargo_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            
+            // Step 3: Layanan & Opsi
+            'tkbm_option' => 'nullable|string|max:100',
+            'has_asuransi' => 'nullable|boolean',
+            'asuransi_value' => 'nullable|numeric',
         ]);
+
+        $railingPath = $allInOrder->railing_file_path;
+        if ($request->hasFile('railing_file')) {
+            $railingPath = $request->file('railing_file')->store('uploads/haulage', 'public');
+        }
+
+        $cargoPath = $allInOrder->cargo_file_path;
+        if ($request->hasFile('cargo_file')) {
+            $cargoPath = $request->file('cargo_file')->store('uploads/cargo', 'public');
+        }
 
         // 1. Create new Order (source = Koperasi)
         $koperasiOrder = $allInOrder->replicate();
         $koperasiOrder->source = 'Koperasi';
         $koperasiOrder->parent_order_id = $allInOrder->id;
         $koperasiOrder->order_number = Order::generateNextOrderNumber();
-        $koperasiOrder->tanggal_order = now()->toDateString();
-        // nama_pt and customer_id are already cloned via replicate()
+        $koperasiOrder->tanggal_order = $validated['tanggal_order'] ?? now()->toDateString();
         
-        // Update fields with modal inputs
-        $koperasiOrder->vessel = $validated['vessel'] ?? null;
-        $koperasiOrder->voyage = $validated['voyage'] ?? null;
-        $koperasiOrder->no_surat_jalan = $validated['no_surat_jalan'] ?? null;
-        $koperasiOrder->no_bp = $validated['no_bp'] ?? null;
-        $koperasiOrder->nomor_container_cargo = $validated['nomor_container_cargo'] ?? null;
-        $koperasiOrder->jenis_barang = $validated['jenis_barang'] ?? null;
-        $koperasiOrder->jumlah_barang = $validated['jumlah_barang'] ?? null;
-        $koperasiOrder->jumlah_tonase = $validated['jumlah_tonase'] ?? null;
-        $koperasiOrder->nomor_bl = $validated['nomor_bl'] ?? null;
+        // Update Step 1
+        if (!empty($validated['nama_pt'])) $koperasiOrder->nama_pt = $validated['nama_pt'];
+        if (!empty($validated['nama_pbm'])) $koperasiOrder->nama_pbm = $validated['nama_pbm'];
+        if (!empty($validated['no_telp'])) $koperasiOrder->no_telp = $validated['no_telp'];
+        if (!empty($validated['wilayah'])) $koperasiOrder->wilayah = $validated['wilayah'];
+        if (!empty($validated['lokasi_fasilitas'])) $koperasiOrder->lokasi_fasilitas = $validated['lokasi_fasilitas'];
+        if (!empty($validated['jenis_kegiatan'])) $koperasiOrder->jenis_kegiatan = $validated['jenis_kegiatan'];
+        $koperasiOrder->railing_file_path = $railingPath;
+
+        // Update Step 2
+        if (!empty($validated['payload_type'])) $koperasiOrder->payload_type = $validated['payload_type'];
+        if (isset($validated['jenis_barang'])) $koperasiOrder->jenis_barang = $validated['jenis_barang'];
+        if (isset($validated['jumlah_tonase'])) $koperasiOrder->jumlah_tonase = $validated['jumlah_tonase'];
+        if (isset($validated['nomor_container_cargo'])) $koperasiOrder->nomor_container_cargo = $validated['nomor_container_cargo'];
+        $koperasiOrder->cargo_file_path = $cargoPath;
+
+        // Update Step 3
+        if (!empty($validated['tkbm_option'])) $koperasiOrder->tkbm_option = $validated['tkbm_option'];
+        $koperasiOrder->has_asuransi = $request->boolean('has_asuransi');
+        if ($request->filled('asuransi_value')) $koperasiOrder->asuransi_value = $request->asuransi_value;
         
         $koperasiOrder->status = 'Submitted';
         $koperasiOrder->push(); // Save
 
         // 2. Clone OrderContainers
         $containerMapping = []; // old_id => new_id
-        foreach ($allInOrder->containers as $c) {
-            $newContainer = $c->replicate();
-            $newContainer->order_id = $koperasiOrder->id;
-            $newContainer->push();
-            $containerMapping[$c->id] = $newContainer->id;
+        if (!empty($validated['containers']) && is_array($validated['containers'])) {
+            $allInContainers = $allInOrder->containers->values();
+            foreach ($validated['containers'] as $idx => $cData) {
+                if (!empty($cData['container_number'])) {
+                    $origC = $allInContainers->get($idx);
+                    $newContainer = $origC ? $origC->replicate() : new OrderContainer();
+                    $newContainer->order_id = $koperasiOrder->id;
+                    $newContainer->container_type = $cData['container_type'] ?? ($origC->container_type ?? "20' GP");
+                    $newContainer->container_size = $cData['container_size'] ?? ($origC->container_size ?? "20 ft");
+                    $newContainer->container_number = $cData['container_number'];
+                    $newContainer->push();
+                    if ($origC) {
+                        $containerMapping[$origC->id] = $newContainer->id;
+                    }
+                }
+            }
+        } else {
+            foreach ($allInOrder->containers as $c) {
+                $newContainer = $c->replicate();
+                $newContainer->order_id = $koperasiOrder->id;
+                $newContainer->push();
+                $containerMapping[$c->id] = $newContainer->id;
+            }
         }
 
         // 3. Move TKBM SubTasks to the new Order

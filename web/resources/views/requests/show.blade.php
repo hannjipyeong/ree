@@ -462,7 +462,7 @@
                                 <i class="fa-solid fa-link"></i> Buka Order Koperasi TKBM
                             </a>
                         @else
-                            <button onclick="document.getElementById('modalOrderKoperasi').classList.remove('hidden')" class="px-4 py-2 bg-[#1C325B] hover:bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg transition">
+                            <button onclick="openKoperasiModal()" class="px-4 py-2 bg-[#1C325B] hover:bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg transition">
                                 <i class="fa-solid fa-code-branch"></i> Buat Order Koperasi (TKBM)
                             </button>
                         @endif
@@ -1478,90 +1478,420 @@
     setInterval(pollCargoUpdates, 4000);
 </script>
 
-<!-- Modal Order Koperasi -->
+<!-- Modal Order Koperasi (3 Steps Wizard) -->
 @if(strtolower($order->source) == 'all in')
 <div id="modalOrderKoperasi" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')"></div>
-    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <h3 class="text-base font-bold text-slate-800">Buat Order Koperasi (TKBM)</h3>
-            <button onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeKoperasiModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                    <h3 class="text-base font-bold text-slate-800">Order Koperasi</h3>
+                    <span id="koperasiStepNumber" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">1 / 3</span>
+                </div>
+                <p id="koperasiStepTitle" class="text-xs font-semibold text-slate-500 mt-0.5">Informasi Dasar</p>
+            </div>
+            <button type="button" onclick="closeKoperasiModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition">
+                <i class="fa-solid fa-xmark text-base"></i>
             </button>
         </div>
-        <form action="{{ route('requests.createKoperasiFromAllIn', $order->id) }}" method="POST">
+
+        <!-- Step Nav Buttons Tabs -->
+        <div class="px-6 pt-3 pb-1 bg-slate-50/30 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+                <button type="button" id="koperasiTabBtn-1" onclick="switchKoperasiStep(1)" class="flex-1 py-2 text-center text-xs font-bold text-white bg-[#1C325B] rounded-xl shadow transition">
+                    1. Informasi Dasar
+                </button>
+                <button type="button" id="koperasiTabBtn-2" onclick="switchKoperasiStep(2)" class="flex-1 py-2 text-center text-xs font-bold text-slate-400 bg-slate-100 rounded-xl transition">
+                    2. Pilihan Muatan
+                </button>
+                <button type="button" id="koperasiTabBtn-3" onclick="switchKoperasiStep(3)" class="flex-1 py-2 text-center text-xs font-bold text-slate-400 bg-slate-100 rounded-xl transition">
+                    3. Layanan Tambahan
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Body -->
+        <form action="{{ route('requests.createKoperasiFromAllIn', $order->id) }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-4">
             @csrf
-            <div class="p-6 space-y-4">
-                <div class="p-3 bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl leading-relaxed">
-                    Mohon lengkapi detail order untuk diteruskan ke Koperasi TKBM.
-                </div>
-                
-                @php
-                    $isBintangKepriJaya = (stripos($order->nama_pt, 'bintang kepri jaya') !== false || stripos($order->customer->name, 'bintang kepri jaya') !== false || stripos($order->customer->default_nama_pt, 'bintang kepri jaya') !== false);
-                    
-                    // Auto fill if PT Bintang Kepri Jaya
-                    $vessel = $isBintangKepriJaya ? $order->vessel : '';
-                    $voyage = $isBintangKepriJaya ? $order->voyage : '';
-                    $no_surat_jalan = $isBintangKepriJaya ? $order->no_surat_jalan : '';
-                    $no_bp = $isBintangKepriJaya ? $order->no_bp : '';
-                    $nomor_container_cargo = $isBintangKepriJaya ? $order->nomor_container_cargo : '';
-                    $jenis_barang = $isBintangKepriJaya ? $order->jenis_barang : '';
-                    $jumlah_barang = $isBintangKepriJaya ? $order->jumlah_barang : '';
-                    $jumlah_tonase = $isBintangKepriJaya ? $order->jumlah_tonase : '';
-                    $nomor_bl = $isBintangKepriJaya ? $order->nomor_bl : '';
-                @endphp
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto p-1">
+            
+            @php
+                $isBintangKepriJaya = (stripos($order->nama_pt, 'bintang kepri jaya') !== false || stripos($order->customer->name ?? '', 'bintang kepri jaya') !== false || stripos($order->customer->default_nama_pt ?? '', 'bintang kepri jaya') !== false);
+                $tglOrder = $order->tanggal_order ? $order->tanggal_order->format('Y-m-d') : date('Y-m-d');
+                $namaPt = $isBintangKepriJaya ? $order->nama_pt : '';
+                $namaPbm = $isBintangKepriJaya ? ($order->nama_pbm ?: 'PT Bintang Kepri Jaya') : '';
+                $noTelp = $isBintangKepriJaya ? $order->no_telp : '';
+                $wilayah = $isBintangKepriJaya ? $order->wilayah : 'Selatan';
+                $lokasiFasilitas = $isBintangKepriJaya ? $order->lokasi_fasilitas : 'gudang';
+                $jenisKegiatan = $isBintangKepriJaya ? $order->jenis_kegiatan : 'storage';
+                $payloadType = $isBintangKepriJaya ? ($order->payload_type ?: 'Container') : 'Container';
+                $tkbmOption = $isBintangKepriJaya ? ($order->tkbm_option ?: 'Man Power') : 'Man Power';
+                $hasAsuransi = $isBintangKepriJaya ? $order->has_asuransi : false;
+                $asuransiValue = $isBintangKepriJaya ? $order->asuransi_value : '';
+            @endphp
+
+            <!-- ── STEP 1: INFORMASI DASAR ────────────────────────────────────── -->
+            <div id="koperasi-step-1" class="koperasi-step-content space-y-4">
+                <div class="p-3.5 bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Vessel</label>
-                        <input type="text" name="vessel" value="{{ $vessel }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Voyage</label>
-                        <input type="text" name="voyage" value="{{ $voyage }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">No. Surat Jalan</label>
-                        <input type="text" name="no_surat_jalan" value="{{ $no_surat_jalan }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">No. BP</label>
-                        <input type="text" name="no_bp" value="{{ $no_bp }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Container / Cargo</label>
-                        <input type="text" name="nomor_container_cargo" value="{{ $nomor_container_cargo }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Barang</label>
-                        <input type="text" name="jenis_barang" value="{{ $jenis_barang }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Barang</label>
-                        <input type="text" name="jumlah_barang" value="{{ $jumlah_barang }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Tonase (Ton)</label>
-                        <input type="number" step="0.1" name="jumlah_tonase" value="{{ $jumlah_tonase }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor BL</label>
-                        <input type="text" name="nomor_bl" value="{{ $nomor_bl }}" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <strong>Informasi Dasar Order Koperasi</strong>
+                        <p class="mt-0.5 text-blue-700">Pastikan data perusahaan dan lokasi operasional sudah sesuai sebelum melanjutkan.</p>
                     </div>
                 </div>
 
                 @if(!$isBintangKepriJaya)
-                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] rounded-xl font-medium">
-                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Customer bukan PT Bintang Kepri Jaya, field sengaja dikosongkan untuk Anda isi manual.
+                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                        <span>Customer bukan PT Bintang Kepri Jaya, silakan sesuaikan field berikut secara manual.</span>
                     </div>
                 @endif
+
+                <!-- Card: Data Pemesan -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="text-xs font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200/80 pb-2">
+                        <i class="fa-solid fa-building text-blue-600"></i> Data Pemesan
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Tanggal Order *</label>
+                            <input type="date" name="tanggal_order" value="{{ $tglOrder }}" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Perusahaan / PT *</label>
+                            <input type="text" name="nama_pt" value="{{ $namaPt }}" placeholder="Masukkan nama PT" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama PBM *</label>
+                            <input type="text" name="nama_pbm" id="koperasiNamaPbmInput" value="{{ $namaPbm }}" placeholder="Masukkan nama PBM" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nomor Telepon / WhatsApp *</label>
+                            <input type="text" name="no_telp" value="{{ $noTelp }}" placeholder="Contoh: 08123456789" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Lokasi & Fasilitas -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="text-xs font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200/80 pb-2">
+                        <i class="fa-solid fa-location-dot text-blue-600"></i> Lokasi & Fasilitas
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Wilayah Operasional *</label>
+                            <select name="wilayah" id="koperasiWilayahSelect" onchange="handleKoperasiWilayahChange(this.value)" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                                <option value="Selatan" {{ $wilayah == 'Selatan' ? 'selected' : '' }}>Selatan</option>
+                                <option value="Eximen" {{ $wilayah == 'Eximen' ? 'selected' : '' }}>Eximen</option>
+                                <option value="Utara" {{ $wilayah == 'Utara' ? 'selected' : '' }}>Utara</option>
+                                <option value="Batu Ampar" {{ $wilayah == 'Batu Ampar' ? 'selected' : '' }}>Batu Ampar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Lokasi Fasilitas *</label>
+                            <select name="lokasi_fasilitas" id="koperasiLokasiSelect" onchange="handleKoperasiLokasiChange(this.value)" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                                <option value="gudang" {{ strtolower($lokasiFasilitas) == 'gudang' ? 'selected' : '' }}>Gudang</option>
+                                <option value="TPFT" {{ strtolower($lokasiFasilitas) == 'tpft' ? 'selected' : '' }}>TPFT</option>
+                                <option value="CFS" {{ strtolower($lokasiFasilitas) == 'cfs' ? 'selected' : '' }}>CFS</option>
+                                <option value="loss cargo" {{ strtolower($lokasiFasilitas) == 'loss cargo' ? 'selected' : '' }}>Loss Cargo</option>
+                                <option value="tps" {{ strtolower($lokasiFasilitas) == 'tps' ? 'selected' : '' }}>TPS</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jenis Kegiatan *</label>
+                            <input type="text" name="jenis_kegiatan" id="koperasiJenisKegiatanInput" value="{{ $jenisKegiatan }}" required placeholder="Contoh: storage, Inspeksi, Rigger" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Upload SPK (Opsional)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="file" name="railing_file" accept=".pdf,.jpg,.jpeg,.png" class="flex-1 py-1.5 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700">
+                                <a href="/draft_template_spk" target="_blank" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold whitespace-nowrap transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-download"></i> Template SPK
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50">
-                <button type="button" onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-bold text-xs hover:bg-slate-200 rounded-xl transition">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg transition">Buat Order Sekarang</button>
+
+            <!-- ── STEP 2: PILIHAN MUATAN ──────────────────────────────────────── -->
+            <div id="koperasi-step-2" class="koperasi-step-content hidden space-y-4">
+                <div class="p-3.5 bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl flex items-start gap-2.5">
+                    <i class="fa-solid fa-box text-blue-600 mt-0.5"></i>
+                    <div>
+                        <strong>Pilihan & Detail Muatan</strong>
+                        <p class="mt-0.5 text-blue-700">Tentukan tipe muatan dan rincian kontainer atau cargo.</p>
+                    </div>
+                </div>
+
+                <input type="hidden" name="payload_type" id="koperasiPayloadInput" value="{{ $payloadType }}">
+
+                <!-- Selector Tipe Muatan -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="koperasiPayloadBtnCont" onclick="toggleKoperasiPayload('Container')" class="p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 {{ $payloadType == 'Container' ? 'border-blue-600 bg-blue-50/60 text-blue-700' : 'border-slate-200 bg-white text-slate-600' }}">
+                        <i class="fa-solid fa-boxes-stacked text-xl"></i>
+                        <span class="text-xs font-bold">Container</span>
+                        <span class="text-[10px] opacity-75">Satuan Kontainer</span>
+                    </button>
+                    <button type="button" id="koperasiPayloadBtnCargo" onclick="toggleKoperasiPayload('Cargo')" class="p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 {{ $payloadType == 'Cargo' ? 'border-blue-600 bg-blue-50/60 text-blue-700' : 'border-slate-200 bg-white text-slate-600' }}">
+                        <i class="fa-solid fa-boxes-packing text-xl"></i>
+                        <span class="text-xs font-bold">Cargo</span>
+                        <span class="text-[10px] opacity-75">Muatan Curah / Manifest</span>
+                    </button>
+                </div>
+
+                <!-- Container Details Card -->
+                <div id="koperasiContainerBox" class="{{ $payloadType == 'Container' ? '' : 'hidden' }} p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="text-xs font-bold text-slate-800 flex items-center justify-between border-b border-slate-200/80 pb-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-list-check text-blue-600"></i> Detail Kontainer Terdaftar ({{ $order->containers->count() }})</span>
+                    </div>
+                    <div class="space-y-2.5 max-h-48 overflow-y-auto p-1">
+                        @foreach($order->containers as $idx => $c)
+                            <div class="p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2 text-xs">
+                                <span class="w-6 h-6 rounded-full bg-slate-100 font-bold text-slate-600 flex items-center justify-center text-[10px]">{{ $idx + 1 }}</span>
+                                <input type="text" name="containers[{{ $idx }}][container_number]" value="{{ $c->container_number }}" placeholder="Nomor Kontainer" class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold">
+                                <input type="text" name="containers[{{ $idx }}][container_size]" value="{{ $c->container_size }}" placeholder="20 ft" class="w-20 py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-center">
+                                <input type="text" name="containers[{{ $idx }}][container_type]" value="{{ $c->container_type }}" placeholder="20' GP" class="w-24 py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-center">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Cargo Details Card -->
+                <div id="koperasiCargoBox" class="{{ $payloadType == 'Cargo' ? '' : 'hidden' }} p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="text-xs font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200/80 pb-2">
+                        <i class="fa-solid fa-boxes-packing text-amber-600"></i> Dokumen & Rincian Cargo
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jenis Barang</label>
+                            <input type="text" name="jenis_barang" value="{{ $order->jenis_barang }}" placeholder="Contoh: General Cargo / Pakaian Jadi" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah Tonase (Ton)</label>
+                            <input type="number" step="0.1" name="jumlah_tonase" value="{{ $order->jumlah_tonase }}" placeholder="Contoh: 5.2" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nomor Container Cargo (Opsional)</label>
+                            <input type="text" name="nomor_container_cargo" value="{{ $order->nomor_container_cargo }}" placeholder="Nomor kontainer jika ada" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Upload File Manifest Cargo (PDF/JPG/PNG)</label>
+                            <input type="file" name="cargo_file" accept=".pdf,.jpg,.jpeg,.png" class="w-full py-1.5 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-amber-50 file:text-amber-800">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── STEP 3: LAYANAN & KONFIRMASI ──────────────────────────────── -->
+            <div id="koperasi-step-3" class="koperasi-step-content hidden space-y-4">
+                <div class="p-3.5 bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl flex items-start gap-2.5">
+                    <i class="fa-solid fa-clipboard-check text-blue-600 mt-0.5"></i>
+                    <div>
+                        <strong>Layanan Tambahan & Konfirmasi Order</strong>
+                        <p class="mt-0.5 text-blue-700">Layanan TKBM akan diteruskan ke tim Koperasi dan dibuatkan nomor order tersendiri.</p>
+                    </div>
+                </div>
+
+                <!-- TKBM Card -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-800">
+                            <i class="fa-solid fa-people-carry-box text-blue-600"></i> Layanan TKBM (Tenaga Kerja Bongkar Muat)
+                        </div>
+                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold rounded-md uppercase">Wajib / Aktif</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1.5">Pilih Opsi TKBM *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 cursor-pointer hover:border-blue-400 transition">
+                                <input type="radio" name="tkbm_option" value="Man Power" {{ $tkbmOption == 'Man Power' ? 'checked' : '' }} class="w-4 h-4 text-blue-600">
+                                <div>
+                                    <span class="block text-xs font-bold text-slate-800">Man Power</span>
+                                    <span class="text-[10px] text-slate-500">Tenaga manusia</span>
+                                </div>
+                            </label>
+                            <label class="p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 cursor-pointer hover:border-blue-400 transition">
+                                <input type="radio" name="tkbm_option" value="Man Power + Forklift" {{ $tkbmOption == 'Man Power + Forklift' ? 'checked' : '' }} class="w-4 h-4 text-blue-600">
+                                <div>
+                                    <span class="block text-xs font-bold text-slate-800">Man Power + Forklift</span>
+                                    <span class="text-[10px] text-slate-500">Alat berat & tenaga</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asuransi Card -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <label class="flex items-center gap-2.5 cursor-pointer">
+                        <input type="checkbox" name="has_asuransi" value="1" {{ $hasAsuransi ? 'checked' : '' }} onchange="document.getElementById('koperasiAsuransiBox').classList.toggle('hidden', !this.checked)" class="w-4 h-4 text-blue-600 rounded">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-800">Gunakan Layanan Asuransi</span>
+                            <span class="text-[10px] text-slate-500">Perlindungan tambahan untuk kargo / muatan</span>
+                        </div>
+                    </label>
+                    <div id="koperasiAsuransiBox" class="{{ $hasAsuransi ? '' : 'hidden' }} pt-2 border-t border-slate-200">
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nilai Pertanggungan Asuransi (Rp)</label>
+                        <input type="number" name="asuransi_value" value="{{ $asuransiValue }}" placeholder="Contoh: 50000000" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Nav -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between bg-white sticky bottom-0">
+                <div id="koperasiNavLeft">
+                    <button type="button" id="koperasiBtnCancel" onclick="closeKoperasiModal()" class="px-4 py-2.5 text-slate-600 font-bold text-xs hover:bg-slate-100 rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="button" id="koperasiBtnBack" onclick="switchKoperasiStep(currentKoperasiStep - 1)" class="hidden px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-left text-[10px]"></i> Kembali
+                    </button>
+                </div>
+                <div id="koperasiNavRight">
+                    <button type="button" id="koperasiBtnNext" onclick="switchKoperasiStep(currentKoperasiStep + 1)" class="px-5 py-2.5 bg-[#1C325B] hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center gap-1.5">
+                        Lanjut <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                    <button type="submit" id="koperasiBtnSubmit" class="hidden px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> Buat Order Sekarang
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+let currentKoperasiStep = 1;
+
+function openKoperasiModal() {
+    document.getElementById('modalOrderKoperasi').classList.remove('hidden');
+    switchKoperasiStep(1);
+}
+
+function closeKoperasiModal() {
+    document.getElementById('modalOrderKoperasi').classList.add('hidden');
+}
+
+function switchKoperasiStep(step) {
+    if (step < 1 || step > 3) return;
+    currentKoperasiStep = step;
+    
+    document.querySelectorAll('.koperasi-step-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById('koperasi-step-' + step).classList.remove('hidden');
+    
+    // Update step numbers and labels
+    document.getElementById('koperasiStepNumber').innerText = step + ' / 3';
+    
+    const titles = {
+        1: 'Informasi Dasar',
+        2: 'Pilihan Muatan',
+        3: 'Layanan Tambahan'
+    };
+    document.getElementById('koperasiStepTitle').innerText = titles[step];
+    
+    // Update Step Indicator tabs
+    for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById('koperasiTabBtn-' + i);
+        if (i === step) {
+            btn.className = "flex-1 py-2 text-center text-xs font-bold text-white bg-[#1C325B] rounded-xl shadow transition";
+        } else if (i < step) {
+            btn.className = "flex-1 py-2 text-center text-xs font-bold text-[#1C325B] bg-blue-50 border border-blue-200 rounded-xl transition";
+        } else {
+            btn.className = "flex-1 py-2 text-center text-xs font-bold text-slate-400 bg-slate-100 rounded-xl transition";
+        }
+    }
+    
+    // Bottom Buttons
+    const btnCancel = document.getElementById('koperasiBtnCancel');
+    const btnBack = document.getElementById('koperasiBtnBack');
+    const btnNext = document.getElementById('koperasiBtnNext');
+    const btnSubmit = document.getElementById('koperasiBtnSubmit');
+    
+    if (step === 1) {
+        btnCancel.classList.remove('hidden');
+        btnBack.classList.add('hidden');
+        btnNext.classList.remove('hidden');
+        btnSubmit.classList.add('hidden');
+    } else if (step === 2) {
+        btnCancel.classList.add('hidden');
+        btnBack.classList.remove('hidden');
+        btnNext.classList.remove('hidden');
+        btnSubmit.classList.add('hidden');
+    } else if (step === 3) {
+        btnCancel.classList.add('hidden');
+        btnBack.classList.remove('hidden');
+        btnNext.classList.add('hidden');
+        btnSubmit.classList.remove('hidden');
+    }
+}
+
+function toggleKoperasiPayload(type) {
+    const contBox = document.getElementById('koperasiContainerBox');
+    const cargoBox = document.getElementById('koperasiCargoBox');
+    const btnCont = document.getElementById('koperasiPayloadBtnCont');
+    const btnCargo = document.getElementById('koperasiPayloadBtnCargo');
+    const inputPayload = document.getElementById('koperasiPayloadInput');
+    
+    if (inputPayload) inputPayload.value = type;
+    if (type === 'Cargo') {
+        if (contBox) contBox.classList.add('hidden');
+        if (cargoBox) cargoBox.classList.remove('hidden');
+        if (btnCargo) btnCargo.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-blue-600 bg-blue-50/60 text-blue-700';
+        if (btnCont) btnCont.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-slate-200 bg-white text-slate-600';
+    } else {
+        if (contBox) contBox.classList.remove('hidden');
+        if (cargoBox) cargoBox.classList.add('hidden');
+        if (btnCont) btnCont.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-blue-600 bg-blue-50/60 text-blue-700';
+        if (btnCargo) btnCargo.className = 'p-3 rounded-2xl border-2 text-center transition flex flex-col items-center gap-1.5 border-slate-200 bg-white text-slate-600';
+    }
+}
+
+function handleKoperasiWilayahChange(wilayah) {
+    const pbmInput = document.getElementById('koperasiNamaPbmInput');
+    const lokasiSelect = document.getElementById('koperasiLokasiSelect');
+    
+    if (wilayah === 'Utara') {
+        if (pbmInput) {
+            pbmInput.value = 'BACT';
+            pbmInput.readOnly = true;
+        }
+        if (lokasiSelect) {
+            lokasiSelect.innerHTML = `
+                <option value="TPFT">TPFT</option>
+                <option value="CFS">CFS</option>
+                <option value="loss cargo">Loss Cargo</option>
+                <option value="tps">TPS</option>
+            `;
+        }
+    } else {
+        if (pbmInput) {
+            pbmInput.readOnly = false;
+        }
+        if (lokasiSelect) {
+            lokasiSelect.innerHTML = `
+                <option value="gudang">Gudang</option>
+                <option value="TPFT">TPFT</option>
+                <option value="CFS">CFS</option>
+                <option value="loss cargo">Loss Cargo</option>
+                <option value="tps">TPS</option>
+            `;
+        }
+    }
+}
+
+function handleKoperasiLokasiChange(lokasi) {
+    const jkInput = document.getElementById('koperasiJenisKegiatanInput');
+    const locLower = (lokasi || '').toLowerCase();
+    if (locLower === 'tpft') {
+        if (jkInput) jkInput.value = 'Inspeksi';
+    } else if (locLower === 'loss cargo' || locLower === 'los cargo') {
+        if (jkInput) jkInput.value = 'Rigger';
+    }
+}
+</script>
 @endif
 @endsection
