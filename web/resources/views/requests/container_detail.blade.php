@@ -153,10 +153,27 @@
         </div>
 
         <div class="space-y-6">
-            @forelse($order->subTasks as $st)
+            @php
+                $subTasksToShow = clone $order->subTasks;
+                if (strtolower($order->source) == 'all in') {
+                    $koperasiOrder = \App\Models\Order::with(['containers.progresses', 'subTasks'])->where('parent_order_id', $order->id)->first();
+                    if ($koperasiOrder) {
+                        $koperasiContainer = $koperasiOrder->containers->where('container_number', $container->container_number)->first();
+                        $koperasiTasks = $koperasiOrder->subTasks->where('service_type', 'TKBM');
+                        foreach($koperasiTasks as $kt) {
+                            if ($koperasiContainer) {
+                                $kt->custom_progress = $koperasiContainer->progresses->where('sub_task_id', $kt->id)->first();
+                            }
+                            $subTasksToShow->push($kt);
+                        }
+                    }
+                }
+            @endphp
+            @forelse($subTasksToShow as $st)
                 @php
-                    $cp = $container->progresses->where('sub_task_id', $st->id)->first();
+                    $cp = isset($st->custom_progress) ? $st->custom_progress : $container->progresses->where('sub_task_id', $st->id)->first();
                     $currentStatus = $cp ? $cp->status : $st->status;
+                    $isChildTkbm = isset($st->custom_progress);
                 @endphp
                 <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
                     <div id="subtask-display-{{ $st->id }}" class="space-y-4">
@@ -209,18 +226,30 @@
                             </div>
                         </div>
 
-                        @if($st->service_type == 'TKBM' && $order->source == 'ALL IN')
+                        @if(!$isChildTkbm && $st->service_type == 'TKBM' && strtolower($order->source) == 'all in')
                             <!-- Khusus TKBM dari ALL IN: Hanya Status -->
                             <div class="pt-3 border-t border-slate-200">
                                 <div class="px-4 py-3 bg-teal-50 border border-teal-200 rounded-xl flex items-start gap-3">
                                     <div class="mt-0.5 text-teal-600"><i class="fa-solid fa-circle-info"></i></div>
                                     <div class="text-xs text-teal-800">
                                         <strong class="block mb-0.5">Layanan TKBM Internal (ALL IN)</strong>
-                                        Layanan TKBM ini di-order melalui paket ALL IN. Status pengerjaan tidak perlu dilakukan (IN/OUT) secara manual oleh koordinator lapangan TKBM.
+                                        Layanan TKBM ini di-order melalui paket ALL IN. Status pengerjaan tidak perlu dilakukan (IN/OUT) secara manual oleh koordinator lapangan TKBM (masih tertahan). Silakan buat Order Koperasi dari menu detail Request.
                                     </div>
                                 </div>
                             </div>
                         @else
+                            @if($isChildTkbm)
+                                <!-- Info Koperasi TKBM -->
+                                <div class="pt-3 border-t border-slate-200">
+                                    <div class="px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+                                        <div class="mt-0.5 text-blue-600"><i class="fa-solid fa-code-branch"></i></div>
+                                        <div class="text-xs text-blue-800">
+                                            <strong class="block mb-0.5">Layanan TKBM (Koperasi)</strong>
+                                            Layanan ini sedang diproses di <a href="{{ route('requests.show', $st->order_id) }}" class="underline font-bold">Order Koperasi #{{ $st->order->order_number ?? '' }}</a>. Anda hanya dapat melihat progresnya di sini.
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                             <!-- Notes & Photo Proofs per Container (Multi-Photo Gallery) -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-slate-200 text-xs">
                             
@@ -313,6 +342,7 @@
                         </div>
                     </div>
 
+                    @if(!$isChildTkbm)
                     <!-- Form Update Status Admin (AJAX Real-Time) -->
                     <form id="statusForm-{{ $st->id }}" action="{{ route('subtasks.updateStatus', $st->id) }}" method="POST" enctype="multipart/form-data" class="pt-3 border-t border-slate-200 space-y-3" onsubmit="return submitStatusAjax(event, {{ $st->id }})">
                         @csrf

@@ -545,8 +545,13 @@ class ApiController extends Controller
                         $q->where('service_type', 'TKBM');
                     })
                     ->where('status', 'Out')
-                    ->whereHas('orderContainer.order.subTasks', function ($q) {
-                        $q->where('service_type', 'Railing');
+                    ->where(function($query) {
+                        $query->whereHas('orderContainer.order.subTasks', function ($q) {
+                            $q->where('service_type', 'Railing');
+                        })
+                        ->orWhereHas('orderContainer.order.parentOrder.subTasks', function ($q) {
+                            $q->where('service_type', 'Railing');
+                        });
                     })
                     ->where('out_time', '>=', now()->subHours(48))
                     ->latest('out_time')

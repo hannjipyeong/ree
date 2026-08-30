@@ -193,6 +193,76 @@ class RequestController extends Controller
 
         return redirect()->route('requests.index')->with('success', 'Order request berhasil dibuat!');
     }
+    public function createKoperasiFromAllIn(Request $request, $id)
+    {
+        $allInOrder = Order::with(['containers.progresses', 'subTasks'])->findOrFail($id);
+        
+        $this->authorizeOrderAccess($allInOrder);
+        
+        if (strtolower($allInOrder->source) !== 'all in') {
+            return redirect()->back()->with('error', 'Hanya order ALL IN yang bisa dibuatkan Order Koperasi!');
+        }
+
+        // Check if there is already a Koperasi order for this
+        $existingChild = Order::where('parent_order_id', $allInOrder->id)->first();
+        if ($existingChild) {
+            return redirect()->back()->with('error', 'Order Koperasi sudah pernah dibuat untuk order ini!');
+        }
+
+        // Verify TKBM subtask exists
+        $tkbmTasks = $allInOrder->subTasks->where('service_type', 'TKBM');
+        if ($tkbmTasks->isEmpty()) {
+            return redirect()->back()->with('error', 'Order ini tidak memiliki layanan TKBM!');
+        }
+
+        $validated = $request->validate([
+            'nama_pt' => 'required|string|max:255',
+            'customer_id' => 'required|exists:users,id',
+        ]);
+
+        // 1. Create new Order (source = Koperasi)
+        $koperasiOrder = $allInOrder->replicate();
+        $koperasiOrder->source = 'Koperasi';
+        $koperasiOrder->parent_order_id = $allInOrder->id;
+        $koperasiOrder->order_number = Order::generateNextOrderNumber();
+        $koperasiOrder->tanggal_order = now()->toDateString();
+        $koperasiOrder->nama_pt = $validated['nama_pt'];
+        $koperasiOrder->customer_id = $validated['customer_id'];
+        $koperasiOrder->status = 'Submitted';
+        $koperasiOrder->push(); // Save
+
+        // 2. Clone OrderContainers
+        $containerMapping = []; // old_id => new_id
+        foreach ($allInOrder->containers as $c) {
+            $newContainer = $c->replicate();
+            $newContainer->order_id = $koperasiOrder->id;
+            $newContainer->push();
+            $containerMapping[$c->id] = $newContainer->id;
+        }
+
+        // 3. Move TKBM SubTasks to the new Order
+        foreach ($tkbmTasks as $task) {
+            $task->order_id = $koperasiOrder->id;
+            
+            // Generate a new task number for TKBM under Koperasi
+            $taskCode = 'TKB';
+            $task->task_number = 'REQ-' . time() . '-' . rand(10, 99) . '-' . $taskCode;
+            
+            $task->save();
+
+            // Update container references in progress
+            $progresses = \App\Models\SubTaskContainerProgress::where('sub_task_id', $task->id)->get();
+            foreach ($progresses as $prog) {
+                if (isset($containerMapping[$prog->order_container_id])) {
+                    $prog->order_container_id = $containerMapping[$prog->order_container_id];
+                    $prog->save();
+                }
+            }
+        }
+
+        return redirect()->route('requests.show', $koperasiOrder->id)->with('success', 'Order Koperasi berhasil dibuat dan TKBM dipindahkan!');
+    }
+
 
     public function show(Order $request)
     {

@@ -12,6 +12,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
+        'parent_order_id',
         'order_number',
         'customer_id',
         'source',
@@ -62,6 +63,16 @@ class Order extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
+    }
+
+    public function parentOrder(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'parent_order_id');
+    }
+
+    public function childOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'parent_order_id');
     }
 
     public function containers(): HasMany

@@ -450,6 +450,23 @@
                     </h3>
                     <p class="text-xs text-slate-500 mt-0.5">Setiap kontainer dapat memiliki opsi TKBM & layanan tersendiri. Pilih kontainer di bawah untuk mengedit atau melihat detailnya.</p>
                 </div>
+                
+                @if(strtolower($order->source) == 'all in' && $order->subTasks->where('service_type', 'TKBM')->isNotEmpty() && auth()->user()->role === 'admin' && in_array(auth()->user()->admin_source, ['ALL IN', null]))
+                    @php
+                        $childOrder = \App\Models\Order::where('parent_order_id', $order->id)->first();
+                    @endphp
+                    <div>
+                        @if($childOrder)
+                            <a href="{{ route('requests.show', $childOrder->id) }}" class="px-4 py-2 bg-teal-50 text-teal-700 font-bold rounded-xl text-xs flex items-center gap-2 border border-teal-200 hover:bg-teal-100 transition shadow-sm" title="Order Koperasi sudah dibuat untuk tiket TKBM ini">
+                                <i class="fa-solid fa-link"></i> Buka Order Koperasi TKBM
+                            </a>
+                        @else
+                            <button onclick="document.getElementById('modalOrderKoperasi').classList.remove('hidden')" class="px-4 py-2 bg-[#1C325B] hover:bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg transition">
+                                <i class="fa-solid fa-code-branch"></i> Buat Order Koperasi (TKBM)
+                            </button>
+                        @endif
+                    </div>
+                @endif
             </div>
 
             <div class="space-y-4">
@@ -1459,4 +1476,57 @@
     // Set polling every 4 seconds for cargo progress
     setInterval(pollCargoUpdates, 4000);
 </script>
+
+<!-- Modal Order Koperasi -->
+@if(strtolower($order->source) == 'all in')
+<div id="modalOrderKoperasi" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-800">Buat Order Koperasi (TKBM)</h3>
+            <button onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <form action="{{ route('requests.createKoperasiFromAllIn', $order->id) }}" method="POST">
+            @csrf
+            <div class="p-6 space-y-4">
+                <div class="p-3 bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl leading-relaxed">
+                    Aksi ini akan menduplikasi order ALL IN menjadi Order Koperasi baru dan memindahkan tiket TKBM.
+                </div>
+                
+                @php
+                    $isBintangKepriJaya = (stripos($order->nama_pt, 'bintang kepri jaya') !== false || stripos($order->customer->name, 'bintang kepri jaya') !== false || stripos($order->customer->default_nama_pt, 'bintang kepri jaya') !== false);
+                    $defaultPt = $isBintangKepriJaya ? $order->nama_pt : '';
+                    $defaultCustomer = $isBintangKepriJaya ? $order->customer_id : '';
+                @endphp
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Customer / Akun Pemesan</label>
+                    <select name="customer_id" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <option value="">-- Pilih Customer --</option>
+                        @foreach(\App\Models\User::where('role', 'customer')->get() as $cust)
+                            <option value="{{ $cust->id }}" {{ $defaultCustomer == $cust->id ? 'selected' : '' }}>{{ $cust->name }} ({{ $cust->default_nama_pt ?? 'No PT' }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama PT</label>
+                    <input type="text" name="nama_pt" value="{{ $defaultPt }}" required placeholder="Contoh: PT Bintang Kepri Jaya" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                
+                @if(!$isBintangKepriJaya)
+                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] rounded-xl font-medium">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Karena customer bukan PT Bintang Kepri Jaya, pastikan data yang diisi sudah benar.
+                    </div>
+                @endif
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50">
+                <button type="button" onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-bold text-xs hover:bg-slate-200 rounded-xl transition">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg transition">Buat Order Sekarang</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
 @endsection
