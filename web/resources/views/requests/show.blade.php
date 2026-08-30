@@ -1494,32 +1494,9 @@
                 <div class="p-3 bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl leading-relaxed">
                     Aksi ini akan menduplikasi order ALL IN menjadi Order Koperasi baru dan memindahkan tiket TKBM.
                 </div>
-                
-                @php
-                    $isBintangKepriJaya = (stripos($order->nama_pt, 'bintang kepri jaya') !== false || stripos($order->customer->name, 'bintang kepri jaya') !== false || stripos($order->customer->default_nama_pt, 'bintang kepri jaya') !== false);
-                    $defaultPt = $isBintangKepriJaya ? $order->nama_pt : '';
-                    $defaultCustomer = $isBintangKepriJaya ? $order->customer_id : '';
-                @endphp
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Customer / Akun Pemesan</label>
-                    <select name="customer_id" required class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                        <option value="">-- Pilih Customer --</option>
-                        @foreach(\App\Models\User::where('role', 'customer')->get() as $cust)
-                            <option value="{{ $cust->id }}" {{ $defaultCustomer == $cust->id ? 'selected' : '' }}>{{ $cust->name }} ({{ $cust->default_nama_pt ?? 'No PT' }})</option>
-                        @endforeach
-                    </select>
+                <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl font-medium">
+                    Order Koperasi yang dibuat akan otomatis menggunakan Customer dan Nama PT yang sama dengan tiket ALL IN ini.
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama PT</label>
-                    <input type="text" name="nama_pt" value="{{ $defaultPt }}" required placeholder="Contoh: PT Bintang Kepri Jaya" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                </div>
-                
-                @if(!$isBintangKepriJaya)
-                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] rounded-xl font-medium">
-                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Karena customer bukan PT Bintang Kepri Jaya, pastikan data yang diisi sudah benar.
-                    </div>
-                @endif
             </div>
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50">
                 <button type="button" onclick="document.getElementById('modalOrderKoperasi').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-bold text-xs hover:bg-slate-200 rounded-xl transition">Batal</button>

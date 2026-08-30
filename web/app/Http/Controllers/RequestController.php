@@ -215,19 +215,13 @@ class RequestController extends Controller
             return redirect()->back()->with('error', 'Order ini tidak memiliki layanan TKBM!');
         }
 
-        $validated = $request->validate([
-            'nama_pt' => 'required|string|max:255',
-            'customer_id' => 'required|exists:users,id',
-        ]);
-
         // 1. Create new Order (source = Koperasi)
         $koperasiOrder = $allInOrder->replicate();
         $koperasiOrder->source = 'Koperasi';
         $koperasiOrder->parent_order_id = $allInOrder->id;
         $koperasiOrder->order_number = Order::generateNextOrderNumber();
         $koperasiOrder->tanggal_order = now()->toDateString();
-        $koperasiOrder->nama_pt = $validated['nama_pt'];
-        $koperasiOrder->customer_id = $validated['customer_id'];
+        // nama_pt and customer_id are already cloned via replicate()
         $koperasiOrder->status = 'Submitted';
         $koperasiOrder->push(); // Save
 
