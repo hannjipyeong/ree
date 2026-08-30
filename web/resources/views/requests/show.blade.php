@@ -957,7 +957,7 @@
                                 </div>
                                 <div>
                                     <div id="container_sp3kk_label" class="text-xs font-bold text-slate-800">Upload SP3KK (PDF / JPG / PNG)</div>
-                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Railing</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Opsional</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">

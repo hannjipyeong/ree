@@ -336,7 +336,7 @@
 
                             @if($st->service_type === 'Railing')
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">SP3KK (Khusus Railing)</label>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">SPK</label>
                                     <input type="file" name="sp3kk_file" accept=".pdf,.jpg,.jpeg,.png" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-50 file:text-emerald-700">
                                     @if($container->sp3kk_file_path)
                                         <a href="{{ $container->sp3kk_file_url }}" target="_blank" class="text-[9px] text-emerald-600 font-bold mt-1 inline-block hover:underline"><i class="fa-solid fa-eye"></i> Lihat SP3KK Terupload</a>
@@ -440,7 +440,7 @@
                                 </div>
                                 <div>
                                     <div id="container_sp3kk_label" class="text-xs font-bold text-slate-800">Upload SP3KK (PDF / JPG / PNG)</div>
-                                    <div class="text-[10px] text-slate-400 font-medium">Opsional khusus Railing</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Opsional</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
