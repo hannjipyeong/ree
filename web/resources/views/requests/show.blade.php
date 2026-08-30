@@ -451,10 +451,11 @@
                     <p class="text-xs text-slate-500 mt-0.5">Setiap kontainer dapat memiliki opsi TKBM & layanan tersendiri. Pilih kontainer di bawah untuk mengedit atau melihat detailnya.</p>
                 </div>
                 
-                @if(strtolower($order->source) == 'all in' && $order->subTasks->where('service_type', 'TKBM')->isNotEmpty() && auth()->user()->role === 'admin' && in_array(auth()->user()->admin_source, ['ALL IN', null]))
-                    @php
-                        $childOrder = \App\Models\Order::where('parent_order_id', $order->id)->first();
-                    @endphp
+                @php
+                    $childOrder = \App\Models\Order::where('parent_order_id', $order->id)->first();
+                    $hasTkbmOrChild = $order->subTasks->where('service_type', 'TKBM')->isNotEmpty() || $childOrder;
+                @endphp
+                @if(strtolower($order->source) == 'all in' && $hasTkbmOrChild && auth()->user()->role === 'admin' && in_array(auth()->user()->admin_source, ['ALL IN', null]))
                     <div>
                         @if($childOrder)
                             <a href="{{ route('requests.show', $childOrder->id) }}" class="px-4 py-2 bg-teal-50 text-teal-700 font-bold rounded-xl text-xs flex items-center gap-2 border border-teal-200 hover:bg-teal-100 transition shadow-sm" title="Order Koperasi sudah dibuat untuk tiket TKBM ini">
