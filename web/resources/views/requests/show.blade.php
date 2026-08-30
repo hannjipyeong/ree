@@ -1518,18 +1518,17 @@
             @csrf
             
             @php
-                $isBintangKepriJaya = (stripos($order->nama_pt, 'bintang kepri jaya') !== false || stripos($order->customer->name ?? '', 'bintang kepri jaya') !== false || stripos($order->customer->default_nama_pt ?? '', 'bintang kepri jaya') !== false);
                 $tglOrder = $order->tanggal_order ? $order->tanggal_order->format('Y-m-d') : date('Y-m-d');
-                $namaPt = $isBintangKepriJaya ? $order->nama_pt : '';
-                $namaPbm = $isBintangKepriJaya ? ($order->nama_pbm ?: 'PT Bintang Kepri Jaya') : '';
-                $noTelp = $isBintangKepriJaya ? $order->no_telp : '';
-                $wilayah = $isBintangKepriJaya ? $order->wilayah : 'Selatan';
-                $lokasiFasilitas = $isBintangKepriJaya ? $order->lokasi_fasilitas : 'gudang';
-                $jenisKegiatan = $isBintangKepriJaya ? $order->jenis_kegiatan : 'storage';
-                $payloadType = $isBintangKepriJaya ? ($order->payload_type ?: 'Container') : 'Container';
-                $tkbmOption = $isBintangKepriJaya ? ($order->tkbm_option ?: 'Man Power') : 'Man Power';
-                $hasAsuransi = $isBintangKepriJaya ? $order->has_asuransi : false;
-                $asuransiValue = $isBintangKepriJaya ? $order->asuransi_value : '';
+                $namaPt = $order->nama_pt ?: ($order->customer->default_nama_pt ?? ($order->customer->name ?? ''));
+                $namaPbm = $order->nama_pbm ?: 'PT Bintang Kepri Jaya';
+                $noTelp = $order->no_telp ?: ($order->customer->no_telp ?? '');
+                $wilayah = $order->wilayah ?: 'Selatan';
+                $lokasiFasilitas = $order->lokasi_fasilitas ?: 'gudang';
+                $jenisKegiatan = $order->jenis_kegiatan ?: 'storage';
+                $payloadType = $order->payload_type ?: 'Container';
+                $tkbmOption = $order->tkbm_option ?: 'Man Power';
+                $hasAsuransi = (bool)$order->has_asuransi;
+                $asuransiValue = $order->asuransi_value;
             @endphp
 
             <!-- ── STEP 1: INFORMASI DASAR ────────────────────────────────────── -->
@@ -1538,16 +1537,9 @@
                     <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
                     <div>
                         <strong>Informasi Dasar Order Koperasi</strong>
-                        <p class="mt-0.5 text-blue-700">Pastikan data perusahaan dan lokasi operasional sudah sesuai sebelum melanjutkan.</p>
+                        <p class="mt-0.5 text-blue-700">Data telah diisi otomatis dari order ALL IN. Silakan periksa atau sesuaikan jika diperlukan.</p>
                     </div>
                 </div>
-
-                @if(!$isBintangKepriJaya)
-                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl font-medium flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
-                        <span>Customer bukan PT Bintang Kepri Jaya, silakan sesuaikan field berikut secara manual.</span>
-                    </div>
-                @endif
 
                 <!-- Card: Data Pemesan -->
                 <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
