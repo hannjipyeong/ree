@@ -103,34 +103,33 @@ class CustomerOrderDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Progress Layanan & Sub-Tasks
-            const Text('Status Layanan & Tracking', style: AppTextStyles.heading3),
-            const SizedBox(height: 10),
-
-            if (subTasks.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.divider),
-                ),
-                child: const Center(
-                  child: Text(
-                    'Order sedang diverifikasi oleh admin operasional.',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
-            else
-              ...subTasks.map((st) => _buildSubTaskCard(context, st)),
-
-            if (order.containers.isNotEmpty) ...[
+            if (order.payloadType == 'Container' && order.containers.isNotEmpty) ...[
               const SizedBox(height: 20),
-              Text('Daftar Kontainer (${order.containers.length})', style: AppTextStyles.heading3),
+              Text('Status Layanan & Tracking (${order.containers.length} Kontainer)', style: AppTextStyles.heading3),
               const SizedBox(height: 10),
-              ...order.containers.map((c) => _buildContainerCard(c)),
+              ...order.containers.map((c) => _buildContainerCard(context, c)),
+            ] else if (order.payloadType == 'Cargo' || order.containers.isEmpty) ...[
+              const SizedBox(height: 20),
+              const Text('Status Layanan & Tracking', style: AppTextStyles.heading3),
+              const SizedBox(height: 10),
+              if (subTasks.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.divider),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Order sedang diverifikasi oleh admin operasional.',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+              else
+                ...subTasks.map((st) => _buildSubTaskCard(context, st)),
             ],
             const SizedBox(height: 24),
           ],
@@ -331,50 +330,150 @@ class CustomerOrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContainerCard(AppContainer c) {
+  Widget _buildContainerCard(BuildContext context, AppContainer c) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.divider),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.inventory_2_outlined, size: 20, color: AppColors.primary),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text(
-                    c.number.isNotEmpty ? c.number : 'Tanpa No Kontainer',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '${c.size} - ${c.type}',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  const Icon(Icons.inventory_2_outlined, size: 20, color: AppColors.primary),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        c.number.isNotEmpty ? c.number : 'Tanpa No Kontainer',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${c.size} - ${c.type}',
+                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      ),
+                    ],
                   ),
                 ],
               ),
+              if (c.tkbmOption != null && c.tkbmOption!.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFF59E0B)),
+                  ),
+                  child: Text(
+                    c.tkbmOption!,
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                  ),
+                ),
             ],
           ),
-          if (c.tkbmOption != null && c.tkbmOption!.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF3C7),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: const Color(0xFFF59E0B)),
-              ),
-              child: Text(
-                c.tkbmOption!,
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
-              ),
+          if (c.progresses.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Divider(height: 1),
             ),
+            ...c.progresses.map((p) => _buildContainerProgressItem(p)),
+          ] else ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Divider(height: 1),
+            ),
+            const Text(
+              'Belum ada progress layanan.',
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
+            ),
+          ]
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContainerProgressItem(AppContainerProgress p) {
+    final serviceType = p.serviceType ?? 'Layanan';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.getServiceBgColor(serviceType),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: AppColors.getServiceColor(serviceType).withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Text(
+                  serviceType,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.getServiceColor(serviceType),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _getStatusBgColor(p.status),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  p.status.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: _getStatusColor(p.status),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildMilestoneRow(
+            icon: Icons.login_outlined,
+            title: 'IN (Masuk Lapangan)',
+            time: p.inTime,
+            note: p.inNote,
+            photoUrl: p.inPhotoPath,
+          ),
+          const SizedBox(height: 8),
+          _buildMilestoneRow(
+            icon: Icons.logout_outlined,
+            title: 'OUT (Keluar Lapangan)',
+            time: p.outTime,
+            note: p.outNote,
+            photoUrl: p.outPhotoPath,
+          ),
         ],
       ),
     );

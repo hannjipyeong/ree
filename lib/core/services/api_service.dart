@@ -314,6 +314,40 @@ class ApiService {
                 }
 
                 final rawSubTasks = (order['sub_tasks'] as List?)?.map((st) => Map<String, dynamic>.from(st)).toList() ?? [];
+                
+                final hierarchy = ['Railing', 'LOLO', 'Storage', 'TKBM'];
+                rawSubTasks.sort((a, b) {
+                  final idxA = hierarchy.indexOf(a['service_type'] ?? '');
+                  final idxB = hierarchy.indexOf(b['service_type'] ?? '');
+                  return (idxA == -1 ? 99 : idxA).compareTo(idxB == -1 ? 99 : idxB);
+                });
+
+                for (var c in parsedCustContainers) {
+                  List<AppContainerProgress> cProgresses = [];
+                  for (var st in rawSubTasks) {
+                    final progresses = st['container_progress'] ?? st['containerProgress'] ?? [];
+                    final pMap = progresses.firstWhere(
+                      (prog) => prog['order_container_id'] == c.id, 
+                      orElse: () => null
+                    );
+                    if (pMap != null) {
+                      cProgresses.add(AppContainerProgress(
+                        id: pMap['id'] ?? 0,
+                        subTaskId: pMap['sub_task_id'] ?? 0,
+                        containerId: pMap['order_container_id'] ?? 0,
+                        status: pMap['status'] ?? 'Pending',
+                        inNote: pMap['in_note'],
+                        inPhotoPath: pMap['in_photo_path'],
+                        inTime: DateTime.tryParse(pMap['in_time'] ?? ''),
+                        outNote: pMap['out_note'],
+                        outPhotoPath: pMap['out_photo_path'],
+                        outTime: DateTime.tryParse(pMap['out_time'] ?? ''),
+                        serviceType: st['service_type'],
+                      ));
+                    }
+                  }
+                  c.progresses = cProgresses;
+                }
 
                 appOrders.add(AppOrder(
                   id: order['order_number']?.toString() ?? order['id'].toString(),

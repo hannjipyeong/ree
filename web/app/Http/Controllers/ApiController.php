@@ -132,12 +132,12 @@ class ApiController extends Controller
 
         if ($role === 'customer') {
             $user = $request->user();
-            $orders = Order::with(['containers', 'subTasks.supir'])
+            $orders = Order::with(['containers', 'subTasks.supir', 'subTasks.containerProgress'])
                 ->where('customer_id', $user->id)
                 ->latest()
                 ->get();
         } else {
-            $orders = Order::with(['containers', 'subTasks.supir'])
+            $orders = Order::with(['containers', 'subTasks.supir', 'subTasks.containerProgress'])
                 ->latest()
                 ->get();
         }

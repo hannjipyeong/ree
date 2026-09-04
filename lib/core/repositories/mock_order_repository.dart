@@ -15,6 +15,7 @@ class AppContainerProgress {
 
   String? lockedReasonIn;
   String? lockedReasonOut;
+  String? serviceType;
 
   AppContainerProgress({
     required this.id,
@@ -29,6 +30,7 @@ class AppContainerProgress {
     this.outTime,
     this.lockedReasonIn,
     this.lockedReasonOut,
+    this.serviceType,
   });
 }
 
@@ -41,6 +43,7 @@ class AppContainer {
   final String? tkbmOption;
   final String? tkbmOutPhotoPath;
   AppContainerProgress? progress;
+  List<AppContainerProgress> progresses;
 
   AppContainer({
     required this.id,
@@ -51,6 +54,7 @@ class AppContainer {
     this.tkbmOption,
     this.tkbmOutPhotoPath,
     this.progress,
+    this.progresses = const [],
   });
 }
 
