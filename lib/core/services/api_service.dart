@@ -376,6 +376,7 @@ class ApiService {
     String? railingFilePath,
     Uint8List? railingFileBytes,
     String? railingFileName,
+    String? tkbmOption,
   }) async {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/orders'));
@@ -391,6 +392,10 @@ class ApiService {
       request.fields['lokasi_fasilitas'] = lokasiFasilitas;
       request.fields['jenis_kegiatan'] = jenisKegiatan;
       request.fields['payload_type'] = payloadType;
+      
+      if (tkbmOption != null && tkbmOption.isNotEmpty) {
+        request.fields['tkbm_option'] = tkbmOption;
+      }
       
       if (cargos != null && cargos.isNotEmpty) {
         // Text fields

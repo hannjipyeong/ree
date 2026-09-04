@@ -274,6 +274,7 @@ class AllInViewModel extends ChangeNotifier {
         railingFilePath: _railingFilePath,
         railingFileBytes: _railingFileBytes,
         railingFileName: _railingFileName,
+        tkbmOption: _tkbmOption,
       );
 
       if (success) {
