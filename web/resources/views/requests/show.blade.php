@@ -1522,11 +1522,10 @@
                 $noTelp = $isBkj ? ($order->no_telp ?: ($order->customer->no_telp ?? '')) : '';
                 $wilayah = $isBkj ? ($order->wilayah ?: 'Selatan') : 'Selatan';
                 $lokasiFasilitas = $isBkj ? ($order->lokasi_fasilitas ?: 'gudang') : 'gudang';
-                $jenisKegiatan = $isBkj ? ($order->jenis_kegiatan ?: 'storage') : 'storage';
+                $jenisKegiatan = $isBkj ? $order->jenis_kegiatan : '';
                 $payloadType = $isBkj ? ($order->payload_type ?: 'Container') : 'Container';
-                $tkbmOption = $isBkj ? ($order->tkbm_option ?: 'Man Power') : 'Man Power';
-                $hasAsuransi = $isBkj ? (bool)$order->has_asuransi : false;
-                $asuransiValue = $isBkj ? $order->asuransi_value : '';
+                $tkbmOption = $order->tkbm_option ?: 'Man Power';
+                $hasAsuransi = $order->has_asuransi;
             @endphp
 
             <!-- ── STEP 1: INFORMASI DASAR ────────────────────────────────────── -->
@@ -1594,9 +1593,9 @@
                             <input type="text" name="jenis_kegiatan" id="koperasiJenisKegiatanInput" value="{{ $jenisKegiatan }}" required placeholder="Contoh: storage, Inspeksi, Rigger" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Upload SPK (Opsional)</label>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Upload SPK *</label>
                             <div class="flex items-center gap-2">
-                                <input type="file" name="railing_file" accept=".pdf,.jpg,.jpeg,.png" class="flex-1 py-1.5 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700">
+                                <input type="file" name="railing_file" accept=".pdf,.jpg,.jpeg,.png" required class="flex-1 py-1.5 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700">
                                 <a href="/draft_template_spk" target="_blank" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold whitespace-nowrap transition flex items-center gap-1.5">
                                     <i class="fa-solid fa-download"></i> Template SPK
                                 </a>
@@ -1789,16 +1788,12 @@
                 <!-- Asuransi Card -->
                 <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                     <label class="flex items-center gap-2.5 cursor-pointer">
-                        <input type="checkbox" name="has_asuransi" value="1" {{ $hasAsuransi ? 'checked' : '' }} onchange="document.getElementById('koperasiAsuransiBox').classList.toggle('hidden', !this.checked)" class="w-4 h-4 text-blue-600 rounded">
+                        <input type="checkbox" name="has_asuransi" value="1" {{ $hasAsuransi ? 'checked' : '' }} class="w-4 h-4 text-blue-600 rounded">
                         <div>
                             <span class="block text-xs font-bold text-slate-800">Gunakan Layanan Asuransi</span>
                             <span class="text-[10px] text-slate-500">Perlindungan tambahan untuk kargo / muatan</span>
                         </div>
                     </label>
-                    <div id="koperasiAsuransiBox" class="{{ $hasAsuransi ? '' : 'hidden' }} pt-2 border-t border-slate-200">
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nilai Pertanggungan Asuransi (Rp)</label>
-                        <input type="number" name="asuransi_value" value="{{ $asuransiValue }}" placeholder="Contoh: 50000000" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
-                    </div>
                 </div>
             </div>
 
@@ -1841,6 +1836,22 @@ function closeKoperasiModal() {
 
 function switchKoperasiStep(step) {
     if (step < 1 || step > 3) return;
+
+    // Validasi form HTML5 jika lanjut ke langkah berikutnya
+    if (step > currentKoperasiStep) {
+        const currentStepEl = document.getElementById('koperasi-step-' + currentKoperasiStep);
+        const requiredInputs = currentStepEl.querySelectorAll('input[required]:not(:disabled), select[required]:not(:disabled), textarea[required]:not(:disabled)');
+        let isValid = true;
+        for (let input of requiredInputs) {
+            if (!input.checkValidity()) {
+                input.reportValidity();
+                isValid = false;
+                break;
+            }
+        }
+        if (!isValid) return;
+    }
+
     currentKoperasiStep = step;
     
     document.querySelectorAll('.koperasi-step-content').forEach(el => el.classList.add('hidden'));
