@@ -20,12 +20,7 @@ class ApiService {
   }
 
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://127.0.0.1:8000/api';
-    }
-    return defaultTargetPlatform == TargetPlatform.android
-        ? 'http://10.0.2.2:8000/api'
-        : 'http://127.0.0.1:8000/api';
+    return 'http://187.53.128.216/api';
   }
 
   static Future<Map<String, String>> getHeaders() async {
