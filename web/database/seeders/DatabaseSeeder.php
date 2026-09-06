@@ -87,22 +87,22 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 3. Supir Accounts (Driver Operasional)
-        $supirHaulage1 = User::create([
-            'name' => 'Supir Haulage Utama',
-            'email' => 'supir_haulage@bkj.com',
+        $supirRailing1 = User::create([
+            'name' => 'Supir Railing Utama',
+            'email' => 'supir_railing@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001101',
             'role' => 'supir',
-            'supir_type' => 'Haulage',
+            'supir_type' => 'Railing',
         ]);
 
-        $supirHaulage2 = User::create([
-            'name' => 'Budi Santoso (Haulage 2)',
-            'email' => 'budi_haulage@bkj.com',
+        $supirRailing2 = User::create([
+            'name' => 'Budi Santoso (Railing 2)',
+            'email' => 'budi_railing@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001105',
             'role' => 'supir',
-            'supir_type' => 'Haulage',
+            'supir_type' => 'Railing',
         ]);
 
         $supirLolo1 = User::create([
@@ -123,13 +123,13 @@ class DatabaseSeeder extends Seeder
             'supir_type' => 'LOLO',
         ]);
 
-        $supirPenumpukan1 = User::create([
-            'name' => 'Admin Penumpukan Utama',
-            'email' => 'admin_penumpukan@bkj.com',
+        $supirStorage1 = User::create([
+            'name' => 'Admin Storage Utama',
+            'email' => 'admin_storage@bkj.com',
             'password' => Hash::make('password'),
             'phone' => '081299001103',
             'role' => 'supir',
-            'supir_type' => 'Penumpukan',
+            'supir_type' => 'Storage',
         ]);
 
         $supirTbkmSelatan = User::create([
@@ -200,8 +200,8 @@ class DatabaseSeeder extends Seeder
         SubTask::create([
             'task_number' => 'REQ-1001-HAU',
             'order_id' => $order1->id,
-            'service_type' => 'Haulage',
-            'supir_id' => $supirHaulage1->id,
+            'service_type' => 'Railing',
+            'supir_id' => $supirRailing1->id,
             'status' => 'In',
             'in_note' => 'Truk armada HAU-01 tiba di gerbang TPFT Selatan pukul 08:30',
             'in_photo_path' => 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=80',
@@ -216,8 +216,8 @@ class DatabaseSeeder extends Seeder
         SubTask::create([
             'task_number' => 'REQ-1001-PEN',
             'order_id' => $order1->id,
-            'service_type' => 'Penumpukan',
-            'supir_id' => $supirPenumpukan1->id,
+            'service_type' => 'Storage',
+            'supir_id' => $supirStorage1->id,
             'status' => 'Masuk',
         ]);
 
@@ -265,7 +265,7 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '085711223344',
             'wilayah' => 'Utara',
             'lokasi_fasilitas' => 'TPS',
-            'jenis_kegiatan' => 'penumpukan',
+            'jenis_kegiatan' => 'storage',
             'payload_type' => 'Container',
             'status' => 'Completed',
             'created_at' => now()->subDay(),
@@ -281,8 +281,8 @@ class DatabaseSeeder extends Seeder
         SubTask::create([
             'task_number' => 'REQ-1003-HAU',
             'order_id' => $order3->id,
-            'service_type' => 'Haulage',
-            'supir_id' => $supirHaulage2->id,
+            'service_type' => 'Railing',
+            'supir_id' => $supirRailing2->id,
             'status' => 'Done',
             'in_note' => 'Masuk TPS jam 10:00',
             'in_photo_path' => 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=80',
@@ -326,11 +326,11 @@ class DatabaseSeeder extends Seeder
         SubTask::create([
             'task_number' => 'REQ-1004-PEN',
             'order_id' => $order4->id,
-            'service_type' => 'Penumpukan',
-            'supir_id' => $supirPenumpukan1->id,
+            'service_type' => 'Storage',
+            'supir_id' => $supirStorage1->id,
             'status' => 'Out',
-            'in_note' => 'Penumpukan dimulai pukul 13:00',
-            'out_note' => 'Penumpukan selesai, kontainer siap diangkut',
+            'in_note' => 'Storage dimulai pukul 13:00',
+            'out_note' => 'Storage selesai, kontainer siap diangkut',
         ]);
 
         // --- ORDER 5: Koperasi (3 Days ago - Completed) ---
@@ -344,7 +344,7 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '081234567890',
             'wilayah' => 'Eximen',
             'lokasi_fasilitas' => 'loss cargo',
-            'jenis_kegiatan' => 'penumpukan',
+            'jenis_kegiatan' => 'storage',
             'payload_type' => 'Container',
             'status' => 'Completed',
             'created_at' => now()->subDays(3),
@@ -377,7 +377,7 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '081198765432',
             'wilayah' => 'Selatan',
             'lokasi_fasilitas' => 'gudang',
-            'jenis_kegiatan' => 'penumpukan',
+            'jenis_kegiatan' => 'storage',
             'payload_type' => 'Cargo',
             'jenis_barang' => 'Sparepart Mesin Industri & Heavy Tools',
             'jumlah_tonase' => 8.5,
@@ -393,8 +393,8 @@ class DatabaseSeeder extends Seeder
         SubTask::create([
             'task_number' => 'REQ-1006-PEN',
             'order_id' => $order6->id,
-            'service_type' => 'Penumpukan',
-            'supir_id' => $supirPenumpukan1->id,
+            'service_type' => 'Storage',
+            'supir_id' => $supirStorage1->id,
             'status' => 'In',
             'in_note' => 'Barang cargo telah masuk dan ditumpuk di Gudang Terminal Batu Ampar',
             'in_photo_path' => 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&auto=format&fit=crop&q=80',
