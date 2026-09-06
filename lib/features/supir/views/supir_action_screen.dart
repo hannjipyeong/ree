@@ -7,6 +7,7 @@ import 'package:bkj_app/core/theme/app_theme.dart';
 import 'package:bkj_app/features/supir/viewmodels/supir_viewmodel.dart';
 import 'package:bkj_app/core/repositories/mock_order_repository.dart';
 import 'package:bkj_app/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:bkj_app/core/services/api_service.dart';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -377,7 +378,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                         InkWell(
                           onTap: () async {
                             final urlStr = c.tkbmOutPhotoPath!;
-                            final url = urlStr.startsWith('http') ? Uri.parse(urlStr) : Uri.parse('http://127.0.0.1:8000/storage/$urlStr');
+                            final url = urlStr.startsWith('http') ? Uri.parse(urlStr) : Uri.parse('${ApiService.storageUrl}/$urlStr');
                             if (await canLaunchUrl(url)) {
                               await launchUrl(url);
                             } else {
@@ -442,7 +443,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
           InkWell(
             onTap: () async {
               final urlStr = order.tkbmOutPhotoPath!;
-              final url = urlStr.startsWith('http') ? Uri.parse(urlStr) : Uri.parse('http://127.0.0.1:8000/storage/$urlStr');
+              final url = urlStr.startsWith('http') ? Uri.parse(urlStr) : Uri.parse('${ApiService.storageUrl}/$urlStr');
               if (await canLaunchUrl(url)) {
                 await launchUrl(url);
               } else {

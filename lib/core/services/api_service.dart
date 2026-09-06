@@ -19,9 +19,9 @@ class ApiService {
     );
   }
 
-  static String get baseUrl {
-    return 'http://187.53.128.216/api';
-  }
+  static String get serverUrl => 'https://bkjmonitoring.tech';
+  static String get baseUrl => '$serverUrl/api';
+  static String get storageUrl => '$serverUrl/storage';
 
   static Future<Map<String, String>> getHeaders() async {
     final prefs = await SharedPreferences.getInstance();
