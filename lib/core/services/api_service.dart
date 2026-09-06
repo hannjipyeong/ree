@@ -113,6 +113,8 @@ class ApiService {
       final headers = await getHeaders();
       await http.post(url, headers: headers);
     } catch (e) {
+      debugPrint('Logout request failed: $e');
+    } finally {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('auth_token');
     }
