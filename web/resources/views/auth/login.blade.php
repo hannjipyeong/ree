@@ -19,9 +19,7 @@
     <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
         <!-- Card Header -->
         <div class="p-8 bg-slate-900 text-white text-center relative">
-            <div class="w-16 h-16 rounded-2xl bg-blue-600 mx-auto flex items-center justify-center text-2xl font-bold mb-4 shadow-lg shadow-blue-500/40">
-                <i class="fa-solid fa-ship"></i>
-            </div>
+            <img src="{{ asset('images/logo-bkj.jpg') }}" alt="Logo BKJ" class="w-20 h-20 rounded-xl mx-auto mb-4 shadow-lg object-contain bg-white p-1">
             <h1 class="text-2xl font-bold">BKJ Monitoring</h1>
             <p class="text-xs text-blue-300 mt-1">Masuk ke Portal Monitoring & Administrasi</p>
         </div>
