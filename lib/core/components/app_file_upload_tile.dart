@@ -70,7 +70,11 @@ class _AppFileUploadTileState extends State<AppFileUploadTile> {
     setState(() => _isLoading = true);
     
     try {
-      final XFile? image = await _imagePicker.pickImage(source: source);
+      final XFile? image = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 50,
+        maxWidth: 1920,
+      );
       if (image != null) {
         final bytes = await image.readAsBytes();
         final path = kIsWeb ? null : image.path;
