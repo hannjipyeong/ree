@@ -912,10 +912,11 @@ class RequestController extends Controller
         // Tanggal export (tanggal dibuat saat diexport/enter)
         $tanggalExport = $this->formatIndonesianDate($now);
 
-        // Tanggal penumpukan adalah tanggal dikirim / tanggal order
+        // Tanggal penumpukan / storage adalah tanggal dikirim / tanggal order
         $tanggalPenumpukan = $order->tanggal_order 
             ? $this->formatIndonesianDate($order->tanggal_order) 
             : $this->formatIndonesianDate($now);
+        $tanggalStorage = $tanggalPenumpukan;
 
         // Jenis container (bukan jenis cargo tapi jenis container)
         $jenisContainer = $order->containers->pluck('container_type')->unique()->filter()->implode(', ');
@@ -935,11 +936,20 @@ class RequestController extends Controller
         if ($isCargo) {
             $possiblePaths = [];
             if (!empty($order->cargo_file_path)) {
-                $possiblePaths[] = storage_path('app/public/' . ltrim($order->cargo_file_path, '/'));
-                $possiblePaths[] = storage_path('app/public/' . str_replace('storage/', '', ltrim($order->cargo_file_path, '/')));
-                $possiblePaths[] = public_path(ltrim($order->cargo_file_path, '/'));
-                $possiblePaths[] = public_path('storage/' . ltrim($order->cargo_file_path, '/'));
-                $possiblePaths[] = base_path('../' . ltrim($order->cargo_file_path, '/'));
+                $cargoFileList = is_array($order->cargo_file_path) 
+                    ? $order->cargo_file_path 
+                    : (is_string($order->cargo_file_path) ? (json_decode($order->cargo_file_path, true) ?: [$order->cargo_file_path]) : []);
+
+                foreach ($cargoFileList as $filePathItem) {
+                    if (is_string($filePathItem) && !empty($filePathItem)) {
+                        $cleanPath = ltrim($filePathItem, '/');
+                        $possiblePaths[] = storage_path('app/public/' . $cleanPath);
+                        $possiblePaths[] = storage_path('app/public/' . str_replace('storage/', '', $cleanPath));
+                        $possiblePaths[] = public_path($cleanPath);
+                        $possiblePaths[] = public_path('storage/' . $cleanPath);
+                        $possiblePaths[] = base_path('../' . $cleanPath);
+                    }
+                }
             }
             // Fallback ke contoh manifest di direktori publik / assets
             $possiblePaths[] = public_path('uploads/cargo/sample_manifest.jpg');
@@ -962,6 +972,7 @@ class RequestController extends Controller
             'perihal',
             'tanggalExport',
             'tanggalPenumpukan',
+            'tanggalStorage',
             'jenisContainer',
             'kopBase64',
             'ttdBase64',
