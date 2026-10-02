@@ -336,7 +336,7 @@ class _SupirActionScreenState extends State<SupirActionScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Ukuran: ${c.size} • Tipe: ${c.type}${(c.tkbmOption != null || currentOrder.tkbmOption != null) ? " • TKBM: ${c.tkbmOption ?? currentOrder.tkbmOption}" : ""}',
+                              'Ukuran: ${c.size}${c.type.isNotEmpty ? " • Tipe: ${c.type}" : ""}${(c.tkbmOption != null || currentOrder.tkbmOption != null) ? " • TKBM: ${c.tkbmOption ?? currentOrder.tkbmOption}" : ""}',
                               style: AppTextStyles.body2,
                             ),
                           ),
