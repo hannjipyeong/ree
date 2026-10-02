@@ -149,7 +149,7 @@ class RequestController extends Controller
                 if (!empty($c['container_number'])) {
                     OrderContainer::create([
                         'order_id' => $order->id,
-                        'container_type' => $c['container_type'] ?? "20' GP",
+                        'container_type' => $c['container_type'] ?? 'GP',
                         'container_size' => $c['container_size'] ?? "20 ft",
                         'container_number' => $c['container_number'],
                     ]);
@@ -305,7 +305,7 @@ class RequestController extends Controller
                     $origC = $allInContainers->get($idx);
                     $newContainer = $origC ? $origC->replicate() : new OrderContainer();
                     $newContainer->order_id = $koperasiOrder->id;
-                    $newContainer->container_type = $cData['container_type'] ?? ($origC->container_type ?? "20' GP");
+                    $newContainer->container_type = $cData['container_type'] ?? ($origC->container_type ?? 'GP');
                     $newContainer->container_size = $cData['container_size'] ?? ($origC->container_size ?? "20 ft");
                     $newContainer->container_number = $cData['container_number'];
                     $newContainer->push();
@@ -919,9 +919,17 @@ class RequestController extends Controller
         $tanggalStorage = $tanggalPenumpukan;
 
         // Jenis container (bukan jenis cargo tapi jenis container)
-        $jenisContainer = $order->containers->pluck('container_type')->unique()->filter()->implode(', ');
+        $jenisContainer = $order->containers->map(function ($c) {
+            $size = trim($c->container_size ?? '');
+            $type = trim($c->container_type ?? '');
+            if ($size && $type) return $size . ' - ' . $type;
+            if ($size) return $size;
+            if ($type) return $type;
+            return '';
+        })->unique()->filter()->implode(', ');
+
         if (empty($jenisContainer)) {
-            $jenisContainer = "20' GP";
+            $jenisContainer = "Container";
         }
 
         // Gambar Kop Surat & Tanda Tangan Statik
