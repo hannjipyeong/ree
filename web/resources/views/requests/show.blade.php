@@ -496,7 +496,7 @@
                                     </span>
                                 @else
                                     <span class="px-2.5 py-1 bg-blue-100 text-blue-800 font-extrabold rounded-lg text-xs uppercase tracking-wide">
-                                        {{ $c->container_size }} - {{ $c->container_type }}
+                                        {{ $c->container_size }}
                                     </span>
                                 @endif
                                 

@@ -919,13 +919,8 @@ class RequestController extends Controller
         $tanggalStorage = $tanggalPenumpukan;
 
         // Jenis container (bukan jenis cargo tapi jenis container)
-        $jenisContainer = $order->containers->map(function ($c) {
-            $size = trim($c->container_size ?? '');
-            $type = trim($c->container_type ?? '');
-            if ($size && $type) return $size . ' - ' . $type;
-            if ($size) return $size;
-            if ($type) return $type;
-            return '';
+        $jenisContainer = $order->containers->pluck('container_size')->map(function($size) {
+            return trim($size ?? '');
         })->unique()->filter()->implode(', ');
 
         if (empty($jenisContainer)) {

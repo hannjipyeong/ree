@@ -111,8 +111,7 @@
                     <!-- Container Section -->
                     <div id="container_section" class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                         <label class="block text-xs font-bold text-slate-700">Detail Kontainer 1</label>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="text" name="containers[0][container_type]" placeholder="Tipe (Contoh: GP, HC, dll)" class="py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <input type="text" name="containers[0][container_size]" placeholder="Ukuran (Contoh: 20 ft, 40 ft)" class="py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs">
                             <input type="text" name="containers[0][container_number]" placeholder="No. Kontainer (ABCD 123456 7)" class="py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs">
                         </div>

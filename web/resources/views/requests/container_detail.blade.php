@@ -33,7 +33,7 @@
             <div class="space-y-1">
                 <div class="flex flex-wrap items-center gap-3">
                     <span class="px-3 py-1 bg-blue-500/20 text-blue-300 font-extrabold rounded-lg text-xs border border-blue-400/30 uppercase tracking-wider">
-                        {{ $container->container_type }} ({{ $container->container_size }})
+                        {{ $container->container_size }}
                     </span>
                     <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 font-bold rounded-lg text-xs border border-emerald-400/30 flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-check text-[10px]"></i> Verified Container

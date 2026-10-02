@@ -266,7 +266,7 @@
                             <td rowspan="{{ $containerCount }}" style="vertical-align: middle;">{{ $ord->nama_pt }}</td>
                         @endif
                         <td><strong>{{ $c->container_number ?: 'Tanpa No' }}</strong></td>
-                        <td>{{ $c->container_size }} ({{ $c->container_type }})</td>
+                        <td>{{ $c->container_size }}</td>
                         
                         <!-- Railing IN/OUT -->
                         @if($showRailing)

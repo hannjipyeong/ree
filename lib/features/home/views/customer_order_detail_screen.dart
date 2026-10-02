@@ -364,7 +364,7 @@ class CustomerOrderDetailScreen extends StatelessWidget {
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        c.type.isNotEmpty ? '${c.size} - ${c.type}' : c.size,
+                        c.size,
                         style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                       ),
                     ],

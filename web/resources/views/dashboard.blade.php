@@ -518,7 +518,7 @@
                                                 <i class="fa-solid fa-box text-[10px]"></i> Kontainer ({{ $ord->containers->count() }})
                                             </span>
                                             <div class="text-[11px] text-slate-500 font-medium truncate max-w-[140px] mt-0.5" title="{{ $ord->containers->pluck('container_number')->filter()->implode(', ') }}">
-                                                {{ $ord->containers->first()->container_size }} {{ $ord->containers->first()->container_type }}
+                                                {{ $ord->containers->first()->container_size }}
                                                 @if($ord->containers->count() > 1) <span class="text-slate-400">+{{ $ord->containers->count() - 1 }}</span> @endif
                                             </div>
                                         </div>
